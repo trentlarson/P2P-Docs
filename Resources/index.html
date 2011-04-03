@@ -1,0 +1,76 @@
+<html>
+<head>
+
+<style>
+
+.blurb {
+  cursor: pointer;
+  height: 30px; /* related to the hover contraction */
+  line-height: 30px;
+}
+</style>
+
+<script src="js/jquery-1.4.2.min.js" type="text/javascript"></script>
+<script src="ruby/search.rb" type="text/ruby"></script>
+
+<script type="text/ruby">
+  window.searcher = Search.new
+</script>
+
+<script>
+var Ti = {fs: Titanium.Filesystem, api:Titanium.API};
+
+$(document).ready(function() {
+  try {
+    //alert('resource dir ' + Ti.fs.getApplicationDataDirectory());
+    //alert('resource dir ' + Ti.fs.getApplicationDataDirectory());
+    //alert("sep " + Ti.fs.getSeparator());
+    //var f = Titanium.Filesystem.getFile('/Users/tlarson/.p2pevents.info');
+    //alert('exists? ' + f.exists());
+
+    var dir = Titanium.Filesystem.getFile('/Users/tlarson/backed/doc/family-histories');
+    var files = dir.getDirectoryListing();
+    var moreInfo;
+    files.forEach(function(filename) {
+//      $("#files").append("<li>" + filename + "</li>");
+    });
+    moreInfo = window.searcher.main("/Users/tlarson/backed/doc/family-histories/JeanGould.html", "dog");
+    moreInfo.forEach(function(resultInfo) {
+      $("#files").append("<div class='blurb'><a href='locate.html?..." + resultInfo.file + "'>" + resultInfo.line + "</a></div>");
+    });
+  } catch (e) {
+    alert('error: ' + e);
+  }
+});
+
+$(document).ready(function() {
+  $(".blurb").each(function() {
+    $(this).hover(
+      function() {
+        $(this).animate({'height':'100px','line-height':'100px'});
+      },
+      function() {
+        $(this).animate({'height':'30px','line-height':'30px'}); // related to the initial CSS setting
+      }
+    );
+//    $(this).mouseenter(function() {
+//      $(this).slideToggle(100);
+//    });
+  });
+});
+
+</script>
+
+</head>
+<!--body style="background-color:#1c1c1c;margin:0"-->
+<body>
+  <div style="border-top:1px solid #404040; color:#fff; padding:10px">Welcome to Titanium!</div>
+  <div>
+    <form action="search.html">
+      <input type="text" name="term" />
+      <input type="submit" />
+    </form>
+  </div>
+  <div id="files"></div>
+</body>
+</html>

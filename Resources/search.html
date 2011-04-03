@@ -1,0 +1,30 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<html> <head>
+<title></title>
+
+$(document).ready(function() {
+  try {
+    //alert('resource dir ' + Ti.fs.getApplicationDataDirectory());
+    //alert('resource dir ' + Ti.fs.getApplicationDataDirectory());
+    //alert("sep " + Ti.fs.getSeparator());
+    //var f = Titanium.Filesystem.getFile('/Users/tlarson/.p2pevents.info');
+    //alert('exists? ' + f.exists());
+
+    var dir = Titanium.Filesystem.getFile('/Users/tlarson/backed/doc/family-histories');
+    var files = dir.getDirectoryListing();
+    files.forEach(function(filename) {
+      $("#files").append("<li>" + filename + "</li>");
+    });
+  } catch (e) {
+    alert('error: ' + e);
+  }
+});
+
+</head>
+
+<body>
+<h1>Search</h1>
+
+
+
+</body> </html>
