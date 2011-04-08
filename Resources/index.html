@@ -22,7 +22,8 @@
   window.searcher = Search.new
 </script>
 
-<script>
+<script type="text/javascript">
+
 var Ti = {fs: Titanium.Filesystem, api:Titanium.API};
 
 function endsWith(str, suffix) {
@@ -40,7 +41,7 @@ $(document).ready(function() {
 
     // create an element for each search result
     var dir = Titanium.Filesystem.getFile('/Users/tlarson/backed/doc/family-histories');
-   var moreInfo = window.searcher.main("/Users/tlarson/backed/doc/family-histories/JeanGould.html", "dog");
+    var moreInfo = window.searcher.main("/Users/tlarson/backed/doc/family-histories/JeanGould.html", "dog");
     moreInfo.forEach(function(resultInfo) {
       $("#files").append("<div class='blurb'><span class='openApp' file='" + resultInfo.file + "'>" + resultInfo.line + "</span></div>");
     });
@@ -64,16 +65,12 @@ $(document).ready(function() {
 
 });
 
-$(document).ready(function() {
-
-});
-
 </script>
 
 
 </head>
 <body style="background-color:#ffffff">
-  <div style="padding:10px">Welcome to Titanium!</div>
+  <div style="padding:10px">All In The P2P</div>
   <div>
     <form action="search.html">
       <input type="text" name="term" />
