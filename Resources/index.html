@@ -14,11 +14,6 @@
 
 <script type="text/javascript" src="js/jquery.hoverIntent.r6.js"></script>
 
-<script type="text/javascript" src="js/wz_jsgraphics.js"></script>
-<script type="text/javascript" src="js/jquery.rotate.1-1.js"></script>
-<script type="text/javascript" src="js/pieMenu.js"></script>
-<link rel="stylesheet" type="text/css" href="css/pieMenu.css">
-
 <script type="text/ruby">
   window.searcher = Search.new
 </script>
@@ -42,7 +37,7 @@ $(document).ready(function() {
     });
     moreInfo = window.searcher.main("/Users/tlarson/backed/doc/family-histories/JeanGould.html", "dog");
     moreInfo.forEach(function(resultInfo) {
-      $("#files").append("<div class='blurb'><a href='locate.html?..." + resultInfo.file + "'>" + resultInfo.line + "</a> <span class='action'>(action)</span></div>");
+      $("#files").append("<div class='blurb'><a href='locate.html?..." + resultInfo.file + "'>" + resultInfo.line + "</a></div>");
     });
   } catch (e) {
     alert('error: ' + e);
@@ -56,31 +51,6 @@ $(document).ready(function() {
       function() { $(this).animate({'height':'60px'}); },
       function() { $(this).animate({'height':'30px'}); } // same as the initial CSS setting
     );
-  });
-
-  var config = {
-    outerRadius: 120,
-    innerRadius: 20,
-    lineColor: '#969696',
-    selectedColor: '#A7A7A7',
-    textColor: '#000000',
-    items: [
-      { title: "Item 1", trigger: function() { alert('This is Item 1.'); }},
-      { title: "Item 2",
-        items: [
-          { title: "Item 2a", trigger: function() { alert('This is Item 2a.'); }},
-          { title: "Item 2b", trigger: function() { alert('This is Item 2b.'); }}
-        ]
-      },
-    ]
-  };
-
-  $(".action").each(function() {
-    $(this).click(function(e) {
-      menu = new pieMenu(config);
-      menu.show(e.pageX, e.pageY);
-      return false;
-    });
   });
 
 });
