@@ -4,9 +4,15 @@
 <style>
 
 .blurb {
-  cursor: pointer;
   height: 30px; /* same as the hover contraction */
 }
+
+.openApp {
+  cursor: pointer;
+  color: #0000ff;
+  text-decoration: underline;
+}
+
 </style>
 
 <script type="text/javascript" src="js/jquery-1.4.2.min.js"></script>
@@ -21,23 +27,43 @@
 <script>
 var Ti = {fs: Titanium.Filesystem, api:Titanium.API};
 
+function endsWith(str, suffix) {
+  return str.indexOf(suffix, str.length - suffix.length) !== -1;
+}
+
 $(document).ready(function() {
-  try {
+
+ try {
     //alert('resource dir ' + Ti.fs.getApplicationDataDirectory());
     //alert('resource dir ' + Ti.fs.getApplicationDataDirectory());
     //alert("sep " + Ti.fs.getSeparator());
     //var f = Titanium.Filesystem.getFile('/Users/tlarson/.p2pevents.info');
     //alert('exists? ' + f.exists());
 
+    // create an element for each search result
     var dir = Titanium.Filesystem.getFile('/Users/tlarson/backed/doc/family-histories');
-    var files = dir.getDirectoryListing();
-    var moreInfo = window.searcher.main("/Users/tlarson/backed/doc/family-histories/JeanGould.html", "dog");
+   var moreInfo = window.searcher.main("/Users/tlarson/backed/doc/family-histories/JeanGould.html", "dog");
     moreInfo.forEach(function(resultInfo) {
-      $("#files").append("<div class='blurb'><a href='locate.html?..." + resultInfo.file + "'>" + resultInfo.line + "</a></div>");
+      $("#files").append("<div class='blurb'><span class='openApp' file='" + resultInfo.file + "'>" + resultInfo.line + "</span></div>");
     });
+
+    // attach a function to open each file on a click
+    $(".blurb .openApp").each(function() {
+      $(this).click(function(e) {
+        filename = $(this).attr("file");
+        if (endsWith(filename, ".htm")
+            || endsWith(filename, ".html")) {
+          Titanium.Desktop.openURL("file://" + filename);
+        } else {
+          Titanium.Desktop.openApplication(filename);
+        }
+      });
+    });
+
   } catch (e) {
     alert('error: ' + e);
   }
+
 });
 
 $(document).ready(function() {
