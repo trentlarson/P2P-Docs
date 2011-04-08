@@ -4,7 +4,7 @@
 <style>
 
 .blurb {
-  height: 30px; /* same as the hover contraction */
+  height: 30px;
 }
 
 .openApp {
@@ -17,8 +17,6 @@
 
 <script type="text/javascript" src="js/jquery-1.4.2.min.js"></script>
 <script type="text/ruby"       src="ruby/search.rb"></script>
-
-<script type="text/javascript" src="js/jquery.hoverIntent.r6.js"></script>
 
 <script type="text/ruby">
   window.searcher = Search.new
@@ -67,13 +65,6 @@ $(document).ready(function() {
 });
 
 $(document).ready(function() {
-
-  $(".blurb").each(function() {
-    $(this).hoverIntent(
-      function() { $(this).animate({'height':'60px'}); },
-      function() { $(this).animate({'height':'30px'}); } // same as the initial CSS setting
-    );
-  });
 
 });
 
