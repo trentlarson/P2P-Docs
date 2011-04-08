@@ -43,16 +43,23 @@ $(document).ready(function() {
     var dir = Titanium.Filesystem.getFile('/Users/tlarson/backed/doc/family-histories');
     var moreInfo = window.searcher.main("/Users/tlarson/backed/doc/family-histories/JeanGould.html", "dog");
     moreInfo.forEach(function(resultInfo) {
-      $("#files").append("<div class='blurb'><span class='openApp' file='" + resultInfo.file + "'>" + resultInfo.line + "</span></div>");
+      $("#files").append("<div class='blurb'><span class='openApp' file='" + resultInfo.file + "' pos='" + resultInfo.pos + "'>" + resultInfo.line + "</span></div>");
     });
 
     // attach a function to open each file on a click
     $(".blurb .openApp").each(function() {
       $(this).click(function(e) {
         filename = $(this).attr("file");
+        filepos = parseInt($(this).attr("pos"));
         if (endsWith(filename, ".htm")
             || endsWith(filename, ".html")) {
-          Titanium.Desktop.openURL("file://" + filename);
+          anchorName = window.searcher.previous_anchor_name(filename, filepos);
+          if (anchorName) {
+            filename = filename + "#" + anchorName;
+          } else {
+            alert("There is no anchor point near that text.  The file will open at the top, and you'll have to search for that text.");
+          }
+         Titanium.Desktop.openURL("file://" + filename);
         } else {
           Titanium.Desktop.openApplication(filename);
         }
