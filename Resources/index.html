@@ -31,11 +31,7 @@ $(document).ready(function() {
 
     var dir = Titanium.Filesystem.getFile('/Users/tlarson/backed/doc/family-histories');
     var files = dir.getDirectoryListing();
-    var moreInfo;
-    files.forEach(function(filename) {
-//      $("#files").append("<li>" + filename + "</li>");
-    });
-    moreInfo = window.searcher.main("/Users/tlarson/backed/doc/family-histories/JeanGould.html", "dog");
+    var moreInfo = window.searcher.main("/Users/tlarson/backed/doc/family-histories/JeanGould.html", "dog");
     moreInfo.forEach(function(resultInfo) {
       $("#files").append("<div class='blurb'><a href='locate.html?..." + resultInfo.file + "'>" + resultInfo.line + "</a></div>");
     });
