@@ -5,13 +5,14 @@
 
 .blurb {
   cursor: pointer;
-  height: 30px; /* related to the hover contraction */
-  line-height: 30px;
+  height: 30px; /* same as the hover contraction */
 }
 </style>
 
-<script src="js/jquery-1.4.2.min.js" type="text/javascript"></script>
-<script src="ruby/search.rb" type="text/ruby"></script>
+<script type="text/javascript" src="js/jquery-1.4.2.min.js"></script>
+<script type="text/ruby"       src="ruby/search.rb"></script>
+
+<script type="text/javascript" src="js/jquery.hoverIntent.r6.js"></script>
 
 <script type="text/ruby">
   window.searcher = Search.new
@@ -44,27 +45,22 @@ $(document).ready(function() {
 });
 
 $(document).ready(function() {
+
   $(".blurb").each(function() {
-    $(this).hover(
-      function() {
-        $(this).animate({'height':'100px','line-height':'100px'});
-      },
-      function() {
-        $(this).animate({'height':'30px','line-height':'30px'}); // related to the initial CSS setting
-      }
+    $(this).hoverIntent(
+      function() { $(this).animate({'height':'60px'}); },
+      function() { $(this).animate({'height':'30px'}); } // same as the initial CSS setting
     );
-//    $(this).mouseenter(function() {
-//      $(this).slideToggle(100);
-//    });
   });
+
 });
 
 </script>
 
+
 </head>
-<!--body style="background-color:#1c1c1c;margin:0"-->
-<body>
-  <div style="border-top:1px solid #404040; color:#fff; padding:10px">Welcome to Titanium!</div>
+<body style="background-color:#ffffff">
+  <div style="padding:10px">Welcome to Titanium!</div>
   <div>
     <form action="search.html">
       <input type="text" name="term" />
