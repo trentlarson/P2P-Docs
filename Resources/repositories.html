@@ -1,0 +1,97 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<html>
+<head>
+<title>Repositories</title>
+
+
+<style>
+.repoRemove {
+  display: none;
+  cursor: pointer;
+}
+.repoInfo {
+  cursor: pointer;
+  vertical-align: 100%;
+  display: none;
+}
+.repoAdd {
+  cursor: pointer;
+}
+.repoAccept {
+  visibility: hidden;
+  cursor: pointer;
+}
+.repoRevert {
+  visibility: hidden;
+  cursor: pointer;
+}
+</style>
+
+<script type="text/javascript" src="js/jquery-1.4.2.min.js"></script>
+
+<script type="text/javascript"> 
+var Ti = {fs: Titanium.Filesystem, api:Titanium.API};
+
+$(document).ready(function() {
+
+try {
+  //alert('resource dir ' + window.settings.dir());
+  //alert('app data dir ' + Ti.fs.getApplicationDataDirectory());
+  //alert('data path ' + Ti.api.Application.getDataPath());
+  //alert("sep " + Ti.fs.getSeparator());
+  //var f = Titanium.Filesystem.getFile('/Users/tlarson/.p2pevents.info');
+  //alert('exists? ' + f.exists());
+
+  var repos = [
+    {'name':'test0', 'path':'/Users/tlarson/Library/Application Support/Titanium/appdata/info.familyhistories.searchlocal/accepted-repos'},
+    {'name':'test1', 'path':'/Users/tlarson/Library/Application Support/Titanium/appdata/info.familyhistories.searchlocal/accepted-repos'},
+    {'name':'test2', 'path':'/Users/tlarson/Library/Application Support/Titanium/appdata/info.familyhistories.searchlocal/accepted-repos'}
+  ];
+
+  //repos = window.settings.getProperties();
+  //var props = Titanium.App.createProperties({'repos':4});
+  //props.saveTo(Titanium.Filesystem.getApplicationDataDirectory() + Ti.fs.getSeparator() + "settings.properties");
+  //alert("got " + repos.length + " repos: " + repos);
+  //alert("saved " + props + " to " + Titanium.Filesystem.getApplicationDataDirectory() + Ti.fs.getSeparator() + "settings.properties");
+
+  for (var i = 0; i < repos.length; i++) {
+    var repo = repos[i];
+    var item = $('#repoList #repoItem_');
+    var addedItem = item.clone();
+    addedItem.attr("id", "repoItem_" + repo.name);
+    addedItem.insertBefore(item);
+    addedItem.find("#repoRemove_").attr("id", "repoRemove_" + repo.name).show();
+    addedItem.find("#repoName_")  .attr("id", "repoName_" + repo.name)  .show().val(repo.name).width(repo.name.length * 7);
+    addedItem.find("#repoPath_")  .attr("id", "repoPath_" + repo.name)  .show().val(repo.path).width(repo.path.length * 5); // 7 is about right, but we'll go short to fit in the page
+    addedItem.find("#repoAdd_")   .attr("id", "repoAdd_" + repo.name)   .hide();
+    addedItem.find("#repoAccept_").attr("id", "repoAccept_" + repo.name).hide();
+    addedItem.find("#repoRevert_").attr("id", "repoRevert_" + repo.name).hide();
+  }
+
+} catch (e) {
+  alert('error: ' + e);
+}
+
+});
+</script>
+</head>
+
+<body>
+<h1>Repositories</h1>
+
+<a href="index.html">Index</a>
+
+<p>
+<div id="repoList">
+  <div id="repoItem_" class="repoItem">
+    <img src="images/button-red-x.png" title="Remove" alt="Remove" id="repoRemove_" class="repoRemove">
+    <input type="text" name="name_" id="repoName_" class="repoInfo">
+    <input type="text" name="path_" id="repoPath_" class="repoInfo">
+    <img src="images/button-green-plus.png" title="Add" alt="Add" id="repoAdd_" class="repoAdd">
+    <img src="images/button-green-check.png" title="Accept" alt="Accept" id="repoAccept_" class="repoAccept">
+    <img src="images/button-red-back.png" title="Revert" alt="Revert" id="repoRevert_" class="repoRevert">
+  </div>
+</div>
+
+</body>
+</html>

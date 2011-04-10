@@ -32,12 +32,7 @@ function endsWith(str, suffix) {
 
 $(document).ready(function() {
 
- try {
-    //alert('resource dir ' + Ti.fs.getApplicationDataDirectory());
-    //alert('resource dir ' + Ti.fs.getApplicationDataDirectory());
-    //alert("sep " + Ti.fs.getSeparator());
-    //var f = Titanium.Filesystem.getFile('/Users/tlarson/.p2pevents.info');
-    //alert('exists? ' + f.exists());
+  try {
 
     // create an element for each search result
     var dir = Titanium.Filesystem.getFile('/Users/tlarson/backed/doc/family-histories');
@@ -76,8 +71,9 @@ $(document).ready(function() {
 
 
 </head>
-<body style="background-color:#ffffff">
-  <div style="padding:10px">All In The P2P</div>
+<body>
+  <h1>All In The P2P</h1>
+  <a href="repositories.html">Settings</a>
   <div>
     <form action="search.html">
       <input type="text" name="term" />
