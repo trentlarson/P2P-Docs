@@ -1,9 +1,9 @@
 
-require 'CGI'
-
 # Usage:
+# 1) Uncomment the last line of this file, then:
 # ruby search.rb /Users/tlarson/backed/doc/family-histories/JeanGould.html dog
-# ruby -e 'load "search.rb"; Search.new.main("/Users/tlarson/backed/doc/family-histories/JeanGould.html","dog")' search.rb
+# 2) ... or do this:
+# ruby -e 'load "search.rb"; Search.new.main("/Users/tlarson/backed/doc/family-histories/JeanGould.html","dog")'
 
 class Search
 
