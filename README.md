@@ -15,4 +15,4 @@ To do before next release:
  * allow creating/updating/deleting repositories
  * hook up real search for content
  * program auto-update
-
+ * documentation and/or help

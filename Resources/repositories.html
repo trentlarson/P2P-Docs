@@ -32,7 +32,7 @@
 
 
 <script type="text/ruby">
-  window.settings = Settings.new(Titanium.Filesystem.getApplicationDataDirectory())
+  window.p2pdoc_settings = Settings.new(Titanium.Filesystem.getApplicationDataDirectory())
 </script>
 
 <script type="text/javascript">
@@ -42,7 +42,7 @@ $(document).ready(function() {
 
 try {
 
-  var repos = window.settings.getProperties().repositories;
+  var repos = window.p2pdoc_settings.getProperties().repositories;
 
   if (repos)
   for (var i = 0; i < repos.length; i++) {

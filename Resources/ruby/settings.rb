@@ -1,14 +1,16 @@
 require 'yaml'
 
 # Usage:
-# 1) Uncomment the last line of this file, then:
+# 1) Uncomment the last line(s) of this file, then:
 # ruby settings.rb
 # 2) ... or do this:
-# ruby -e 'load "settings.rb"; Settings.new("~/tmp/settings.prop").main'
+# ruby -e 'load "settings.rb"; SEE_END_OF_FILE'
 
 class Settings
 
   VERSION = "0"
+
+  @@settings = nil
 
   def initialize(dirname)
 
@@ -21,16 +23,19 @@ class Settings
     else
       @settings_dir = dirname
     end
-    @settings_file = "settings.yaml"
 
-    filename = File.join(@settings_dir, @settings_file)
+    if (@@settings == nil)
 
-    if (File.exists? filename) 
-      @settings = YAML.load_file(filename)
-    else
-      @settings = {}
+      filename = File.join(@settings_dir, "settings.yaml")
+
+      if (File.exists? filename) 
+        @@settings = YAML.load_file(filename)
+      else
+        @@settings = {}
+      end
+      #YAML.dump(@settings)
+
     end
-    #YAML.dump(@settings)
   end
 
   def dir()
@@ -38,7 +43,7 @@ class Settings
   end
 
   def getProperties()
-    @settings
+    @@settings
   end
 
   def testProperties()
@@ -50,5 +55,4 @@ class Settings
 
 end
 
-#puts "" + Settings.new("/Users/tlarson/Library/Application Support/Titanium/appdata/info.familyhistories.searchlocal").getProperties().to_s
-
+#puts Settings.new("/Users/tlarson/Library/Application Support/Titanium/appdata/info.familyhistories.searchlocal").getProperties().to_s
