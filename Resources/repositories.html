@@ -28,32 +28,23 @@
 </style>
 
 <script type="text/javascript" src="js/jquery-1.4.2.min.js"></script>
+<script type="text/ruby"       src="ruby/settings.rb"></script>
 
-<script type="text/javascript"> 
+
+<script type="text/ruby">
+  window.settings = Settings.new(Titanium.Filesystem.getApplicationDataDirectory())
+</script>
+
+<script type="text/javascript">
 var Ti = {fs: Titanium.Filesystem, api:Titanium.API};
 
 $(document).ready(function() {
 
 try {
-  //alert('resource dir ' + window.settings.dir());
-  //alert('app data dir ' + Ti.fs.getApplicationDataDirectory());
-  //alert('data path ' + Ti.api.Application.getDataPath());
-  //alert("sep " + Ti.fs.getSeparator());
-  //var f = Titanium.Filesystem.getFile('/Users/tlarson/.p2pevents.info');
-  //alert('exists? ' + f.exists());
 
-  var repos = [
-    {'name':'test0', 'path':'/Users/tlarson/Library/Application Support/Titanium/appdata/info.familyhistories.searchlocal/accepted-repos'},
-    {'name':'test1', 'path':'/Users/tlarson/Library/Application Support/Titanium/appdata/info.familyhistories.searchlocal/accepted-repos'},
-    {'name':'test2', 'path':'/Users/tlarson/Library/Application Support/Titanium/appdata/info.familyhistories.searchlocal/accepted-repos'}
-  ];
+  var repos = window.settings.getProperties().repositories;
 
-  //repos = window.settings.getProperties();
-  //var props = Titanium.App.createProperties({'repos':4});
-  //props.saveTo(Titanium.Filesystem.getApplicationDataDirectory() + Ti.fs.getSeparator() + "settings.properties");
-  //alert("got " + repos.length + " repos: " + repos);
-  //alert("saved " + props + " to " + Titanium.Filesystem.getApplicationDataDirectory() + Ti.fs.getSeparator() + "settings.properties");
-
+  if (repos)
   for (var i = 0; i < repos.length; i++) {
     var repo = repos[i];
     var item = $('#repoList #repoItem_');
@@ -61,9 +52,9 @@ try {
     addedItem.attr("id", "repoItem_" + repo.name);
     addedItem.insertBefore(item);
     addedItem.find("#repoRemove_").attr("id", "repoRemove_" + repo.name).show();
-    addedItem.find("#repoName_")  .attr("id", "repoName_" + repo.name)  .show().val(repo.name).width(repo.name.length * 7);
-    addedItem.find("#repoPath_")  .attr("id", "repoPath_" + repo.name)  .show().val(repo.path).width(repo.path.length * 5); // 7 is about right, but we'll go short to fit in the page
-    addedItem.find("#repoAdd_")   .attr("id", "repoAdd_" + repo.name)   .hide();
+    addedItem.find("#repoName_")  .attr("id", "repoName_"   + repo.name).show().val(repo.name).width(repo.name.length * 7);
+    addedItem.find("#repoPath_")  .attr("id", "repoPath_"   + repo.name).show().val(repo.path).width(repo.path.length * 7);
+    addedItem.find("#repoAdd_")   .attr("id", "repoAdd_"    + repo.name).hide();
     addedItem.find("#repoAccept_").attr("id", "repoAccept_" + repo.name).hide();
     addedItem.find("#repoRevert_").attr("id", "repoRevert_" + repo.name).hide();
   }

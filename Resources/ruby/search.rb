@@ -44,4 +44,4 @@ class Search
 
 end
 
-#Search.new.main(ARGV[0], ARGV[1])
+#puts Search.new.main(ARGV[0], ARGV[1])
