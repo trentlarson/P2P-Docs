@@ -28,7 +28,7 @@ class Settings
 
       filename = File.join(@settings_dir, "settings.yaml")
 
-      if (File.exists? filename) 
+      if (File.exists? filename)
         @@settings = YAML.load_file(filename)
       else
         @@settings = {}
