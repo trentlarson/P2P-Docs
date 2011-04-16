@@ -1,1 +1,7 @@
-Place your license text here.  This file will be incorporated with your app at package time.
+My License
+
+Do what you will.
+
+I would love to hear how you're using it: trentlarson.com
+
+Cheers!
