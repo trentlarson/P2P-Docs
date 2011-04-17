@@ -15,4 +15,5 @@ To do before next release:
  * allow creating/updating/deleting repositories
  * hook up real search for content
  * program auto-update
+ * make this a background service... with notification hooks?
  * documentation and/or help
