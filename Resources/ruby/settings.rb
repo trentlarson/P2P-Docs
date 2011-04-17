@@ -26,10 +26,8 @@ class Settings
 
     if (@@settings == nil)
 
-      filename = File.join(@settings_dir, "settings.yaml")
-
-      if (File.exists? filename)
-        @@settings = YAML.load_file(filename)
+      if (File.exists? settings_file)
+        @@settings = YAML.load_file(settings_file)
       else
         @@settings = {}
       end
@@ -40,6 +38,10 @@ class Settings
 
   def data_dir
     @settings_dir
+  end
+
+  def settings_file
+    File.join(@settings_dir, "settings.yaml")
   end
 
   def properties
@@ -53,13 +55,6 @@ class Settings
       sub_path.slice!([1..sub_path.length])
     end
     File.join(@settings_dir, "accepted_files", repo_dir, sub_path)
-  end
-
-  def test_properties()
-    {'repositories'=>
-       [{'name'=>'test 0', 'path'=>'/Users/tlarson/hacked'},
-        {'name'=>'test 1', 'path'=>'/Users/tlarson/hacked-again'}]
-    }
   end
 
 end
