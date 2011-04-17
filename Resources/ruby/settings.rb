@@ -28,8 +28,6 @@ class Settings
 
       if (File.exists? settings_file)
         @@settings = YAML.load_file(settings_file)
-      else
-        @@settings = {}
       end
       #YAML.dump(@settings)
 
@@ -48,13 +46,8 @@ class Settings
     @@settings
   end
 
-  def accepted_dir(repo_name, source_path)
-    repo_dir = repo_name.tr(" ", "_")
-    sub_path = source_path.tr(":", "_")
-    if (sub_path.start_with? File.SEPARATOR)
-      sub_path.slice!([1..sub_path.length])
-    end
-    File.join(@settings_dir, "accepted_files", repo_dir, sub_path)
+  def accepted_dir(repo)
+    File.join(@settings_dir, "accepted_files", repo['name'].tr(" ", "_"))
   end
 
 end
