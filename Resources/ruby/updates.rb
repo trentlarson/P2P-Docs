@@ -1,6 +1,12 @@
 
 class Updates
 
+  def self.all_repo_diffs(settings)
+    settings.properties['repositories'].collect do |repo|
+      { repo['name'] => diff_dirs(repo['path'], settings.accepted_dir(repo)) }
+    end
+  end
+
   # subpath is expected to exist in either source_dir or accepted_dir
   # return an array of all different paths underneath either dir, like 'diff --brief'
   # array of:
@@ -9,7 +15,7 @@ class Updates
   #   'accepted' => T|F in accepted tree,
   #   'ftype' => see File.ftype
   # }
-  def self.all_diffs(source_dir, accepted_dir, subpath = "")
+  def self.diff_dirs(source_dir, accepted_dir, subpath = "")
     source_file = File.join(source_dir, subpath)
     accepted_file = File.join(accepted_dir, subpath)
     if (! File.exist? source_file)
@@ -25,7 +31,7 @@ class Updates
     elsif (File.directory?(source_file) && File.directory?(accepted_file))
       diff_subs = Dir.entries(source_file) | Dir.entries(accepted_file)
       diff_subs.reject! { |sub| sub == '.' || sub == '..' }
-      diff_subs.map! { |entry| all_diffs(source_dir, accepted_dir, File.join(subpath, entry)) }
+      diff_subs.map! { |entry| diff_dirs(source_dir, accepted_dir, File.join(subpath, entry)) }
       diff_subs.flatten.compact
     else
       # Weird case.  Ignore for now.

@@ -53,12 +53,10 @@ class SettingsTest
     Dir.mkdir(File.join(@settings.data_dir, 'accepted_files'))
     Dir.mkdir(File.join(@settings.data_dir, 'accepted_files', 'test_0'))
     File.new(File.join(@settings.data_dir, 'accepted_files', 'test_0', 'sample.txt'), 'w')
+    #File.new(File.join(@settings.data_dir, 'accepted_files', 'test_0', 'sample1.txt'), 'w')
+    #File.new(File.join(@settings.data_dir, 'accepted_files', 'test_0', 'sample2.txt'), 'w')
 
-    all_repo_diffs =
-      @settings.properties['repositories'].collect do |repo|
-        Updates.all_diffs(repo['path'], @settings.accepted_dir(repo))
-          .collect { |subpath| repo['name'] + ":" + subpath.to_s }
-      end.flatten
+    all_repo_diffs = Updates.all_repo_diffs(@settings)
     puts "test_dirs result: " + all_repo_diffs.to_s
   end
 
