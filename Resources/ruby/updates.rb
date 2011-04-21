@@ -3,17 +3,19 @@ class Updates
 
   def self.all_repo_diffs(settings)
     settings.properties['repositories'].collect do |repo|
-      { repo['name'] => diff_dirs(repo['path'], settings.accepted_dir(repo)) }
+      { repo['name'] => diff_dirs(repo['path'], settings.accepted_dir(repo['name'])) }
     end
   end
 
-  # subpath is expected to exist in either source_dir or accepted_dir
+  # either source_dir or accepted_dir is assumed to exist
+  # subpath is assumed to be in one of them
+  #
   # return an array of all different paths underneath either dir, like 'diff --brief'
-  # array of:
+  # return an array of:
   # { 'path' => path,
   #   'source' => T|F in source tree,
   #   'accepted' => T|F in accepted tree,
-  #   'ftype' => see File.ftype
+  #   'ftype' => see File.ftype, including 'unknown' (such as when types don't match)
   # }
   def self.diff_dirs(source_dir, accepted_dir, subpath = "")
     source_file = File.join(source_dir, subpath)
@@ -34,8 +36,7 @@ class Updates
       diff_subs.map! { |entry| diff_dirs(source_dir, accepted_dir, File.join(subpath, entry)) }
       diff_subs.flatten.compact
     else
-      # Weird case.  Ignore for now.
-      puts "Something's strange about " + File.expand_path(source_file) + " (ftype #{File.ftype(source_file)}) and/or " + File.expand_path(accepted_file) + " (ftype #{File.ftype(accepted_file)}).  Ignoring."
+      [{'path' => subpath, 'source' => true, 'accepted' => true, 'ftype' => 'unknown' }]
     end
   end
 

@@ -3,61 +3,85 @@ require File.join(File.expand_path(File.dirname(__FILE__)), "../../ruby/updates.
 
 class SettingsTest
 
-  @data_dir
-  @sources_dir
+  @test_data_dir
   @settings
 
-  def initialize(base_test_dir = "build", test_data_dir = "test-data")
+  def initialize(base_build_dir = "build", test_data_dirname = "test-data", verbose = false)
 
-    @data_dir = File.join(base_test_dir, test_data_dir)
-    puts "Removing " + @data_dir + " and everything underneath."
-    SettingsTest.rm_rf(@data_dir)
-
-    if (! File.exist? base_test_dir)
-      Dir.mkdir(base_test_dir)
+    if (! File.exist? base_build_dir)
+      Dir.mkdir(base_build_dir)
     end
-    Dir.mkdir(@data_dir)
+
+    @test_data_dir = File.join(base_build_dir, test_data_dirname)
+    puts "Removing " + @test_data_dir + " and everything underneath." if verbose
+    SettingsTest.rm_rf(@test_data_dir)
+    Dir.mkdir(@test_data_dir)
 
     # load blank settings, used to create a file of sample settings
-    @settings = Settings.new(@data_dir)
+    @settings = Settings.new(@test_data_dir)
 
-    # now set up a sample directory structure and settings file
-    @sources_dir = File.join(@data_dir, "sources")
-    Dir.mkdir(@sources_dir)
-    File.open(@settings.settings_file, 'w') do |out|
-      settings = sample_settings(@sources_dir)
-      settings['repositories'].each do |repo|
-        Dir.mkdir(repo['path'])
-      end
-      YAML.dump(settings, out)
+  end
+
+  def setup_settings(settings_data)
+    # create settings file
+    File.open(Settings.settings_file(), 'w') do |out|
+      YAML.dump(settings_data, out)
     end
 
-    @settings = Settings.new(@data_dir)
+    Settings.replace(settings_data)
 
+    # set up the directory structure
+    sources_dir = File.join(@settings.data_dir, "sources")
+    SettingsTest.rm_rf(sources_dir)
+    Dir.mkdir(sources_dir)
+    SettingsTest.rm_rf(@settings.accepted_dir)
+    Dir.mkdir(@settings.accepted_dir)
+    settings_data['repositories'].each do |repo|
+      Dir.mkdir(repo['path'])
+      Dir.mkdir(@settings.accepted_dir(repo['name']))
+    end
   end
 
   def run()
     methods.sort.each{ |meth| send(meth) if meth.to_s.start_with? "test_" }
   end
 
-  def sample_settings(base_dir)
+
+
+
+
+
+  def test_no_repos()
+    setup_settings({'repositories'=>[]})
+    all_repo_diffs = Updates.all_repo_diffs(@settings)
+    puts "fail: diffs on blank entry: #{all_repo_diffs}" if all_repo_diffs != []
+  end
+
+
+
+
+
+  def two_repos()
+    base_dir = File.join(@test_data_dir, "sources")
     {'repositories'=>
-       [{'name'=>'test 0', 'path'=>File.join(base_dir, 'hacked')},
-        {'name'=>'test 1', 'path'=>File.join(base_dir, 'hacked-again')}]
+      [{'name'=>'test 0', 'path'=>File.join(base_dir, 'hacked')},
+       {'name'=>'test 1', 'path'=>File.join(base_dir, 'hacked-again')}]
     }
   end
 
-  def test_dirs()
-    File.new(File.join(@sources_dir, 'hacked', 'sample.txt'), 'w')
+  def test_two_dirs()
 
-    Dir.mkdir(File.join(@settings.data_dir, 'accepted_files'))
-    Dir.mkdir(File.join(@settings.data_dir, 'accepted_files', 'test_0'))
-    File.new(File.join(@settings.data_dir, 'accepted_files', 'test_0', 'sample.txt'), 'w')
-    #File.new(File.join(@settings.data_dir, 'accepted_files', 'test_0', 'sample1.txt'), 'w')
-    #File.new(File.join(@settings.data_dir, 'accepted_files', 'test_0', 'sample2.txt'), 'w')
+    setup_settings(two_repos())
 
     all_repo_diffs = Updates.all_repo_diffs(@settings)
-    puts "test_dirs result: " + all_repo_diffs.to_s
+
+    File.new(File.join(@settings.data_dir, "sources", 'hacked', 'sample.txt'), 'w')
+
+    File.new(File.join(@settings.data_dir, 'accepted_files', 'test_0', 'sample.txt'), 'w')
+
+    all_repo_diffs = Updates.all_repo_diffs(@settings)
+    puts "fail: bad results of #{all_repo_diffs}" if all_repo_diffs != [{"test 0"=>[]}, {"test 1"=>[]}]
+
   end
 
   def self.rm_rf(file)

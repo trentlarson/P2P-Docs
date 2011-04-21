@@ -10,6 +10,7 @@ class Settings
 
   VERSION = "0"
 
+  @@settings_file = ""
   @@settings = nil
 
   def initialize(dirname)
@@ -23,19 +24,29 @@ class Settings
     else
       @settings_dir = dirname
     end
+    @@settings_file = File.join(@settings_dir, "settings.yaml")
 
     if (@@settings == nil)
-
       if (File.exists? settings_file)
         @@settings = YAML.load_file(settings_file)
       end
       #YAML.dump(@settings)
+    end
+  end
 
+  def self.replace(new_settings_data)
+    @@settings = new_settings_data
+    File.open(settings_file(), 'w') do |out|
+      YAML.dump(new_settings_data, out)
     end
   end
 
   def data_dir
     @settings_dir
+  end
+
+  def self.settings_file()
+    @@settings_file
   end
 
   def settings_file
@@ -46,8 +57,16 @@ class Settings
     @@settings
   end
 
-  def accepted_dir(repo)
-    File.join(@settings_dir, "accepted_files", repo['name'].tr(" ", "_"))
+  def accepted_dir
+    File.join(@settings_dir, "accepted_files")
+  end
+
+  def accepted_dir(repo_name = nil)
+    if (repo_name == nil)
+      File.join(@settings_dir, "accepted_files")
+    else
+      File.join(@settings_dir, "accepted_files", repo_name.tr(" ", "_"))
+    end
   end
 
 end
