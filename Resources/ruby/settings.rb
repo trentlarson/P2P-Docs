@@ -14,6 +14,10 @@ class Settings
   @@settings = nil
 
 
+=begin
+May be empty.
+May contain a settings.yaml file; see SettingsTest.two_repos for an example structure.
+=end
   def initialize(dirname)
 
     #puts "class: " + dirname.class.to_s
@@ -27,21 +31,21 @@ class Settings
     end
 
     if (@@settings == nil)
-      if (File.exists? Settings.settings_file)
-        @@settings = YAML.load_file(Settings.settings_file)
+      if (File.exists? settings_file)
+        @@settings = YAML.load_file(settings_file)
       end
       #YAML.dump(@settings)
     end
   end
 
-  def self.replace(new_settings_data)
+  def replace(new_settings_data)
     @@settings = new_settings_data
     File.open(settings_file(), 'w') do |out|
       YAML.dump(new_settings_data, out)
     end
   end
 
-  def self.settings_file
+  def settings_file
     File.join(@@settings_dir, "settings.yaml")
   end
 
@@ -53,15 +57,18 @@ class Settings
     @@settings
   end
 
-  def accepted_dir
+  def accepted_base_dir
     File.join(@@settings_dir, "accepted_files")
   end
 
   def accepted_dir(repo_name = nil)
     if (repo_name == nil)
-      File.join(@@settings_dir, "accepted_files")
+      accepted_base_dir
+    elsif (repo_name.class.name == "String")
+      File.join(accepted_base_dir, repo_name.tr(" ", "_"))
     else
-      File.join(@@settings_dir, "accepted_files", repo_name.tr(" ", "_"))
+      # allow a repo hash structure
+      File.join(accepted_base_dir, repo_name['name'].tr(" ", "_"))
     end
   end
 

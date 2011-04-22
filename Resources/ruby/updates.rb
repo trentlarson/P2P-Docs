@@ -3,7 +3,7 @@ class Updates
 
   def self.all_repo_diffs(settings)
     settings.properties['repositories'].collect do |repo|
-      { repo['name'] => diff_dirs(repo['path'], settings.accepted_dir(repo['name'])) }
+      { repo['name'] => diff_dirs(repo['source_dir'], settings.accepted_dir(repo['name'])) }
     end
   end
 
@@ -39,6 +39,11 @@ class Updates
     else
       [{'path' => subpath, 'source' => true, 'accepted' => true, 'ftype' => 'unknown' }]
     end
+  end
+
+  def self.mark_accepted(settings, repo, subpath)
+    FileUtils.cp(File.join(repo['source_dir'], subpath),
+                 File.join(settings.accepted_dir(repo['name']), subpath))
   end
 
 end

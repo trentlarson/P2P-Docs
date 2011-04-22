@@ -24,20 +24,20 @@ class SettingsTest
 
   def setup_settings(settings_data)
     # create settings file
-    File.open(Settings.settings_file(), 'w') do |out|
+    File.open(@settings.settings_file(), 'w') do |out|
       YAML.dump(settings_data, out)
     end
 
-    Settings.replace(settings_data)
+    @settings.replace(settings_data)
 
     # set up the directory structure
     sources_dir = File.join(@settings.data_dir, "sources")
     SettingsTest.rm_rf(sources_dir)
     Dir.mkdir(sources_dir)
-    SettingsTest.rm_rf(@settings.accepted_dir)
-    Dir.mkdir(@settings.accepted_dir)
+    SettingsTest.rm_rf(@settings.accepted_base_dir)
+    Dir.mkdir(@settings.accepted_base_dir)
     settings_data['repositories'].each do |repo|
-      Dir.mkdir(repo['path'])
+      Dir.mkdir(repo['source_dir'])
       Dir.mkdir(@settings.accepted_dir(repo['name']))
     end
   end
@@ -64,8 +64,8 @@ class SettingsTest
   def two_repos()
     base_dir = File.join(@test_data_dir, "sources")
     {'repositories'=>
-      [{'name'=>'test 0', 'path'=>File.join(base_dir, 'hacked')},
-       {'name'=>'test 1', 'path'=>File.join(base_dir, 'hacked-again')}]
+      [{'name'=>'test 0', 'source_dir'=>File.join(base_dir, 'hacked')},
+       {'name'=>'test 1', 'source_dir'=>File.join(base_dir, 'hacked-again')}]
     }
   end
 
@@ -75,17 +75,18 @@ class SettingsTest
 
     all_repo_diffs = Updates.all_repo_diffs(@settings)
 
-    File.new(File.join(@settings.data_dir, "sources", 'hacked', 'sample.txt'), 'w')
+    repo_test0 = @settings.properties['repositories'].select{ |repo| repo['name'] == 'test 0' }[0]
+    File.new(File.join(repo_test0['source_dir'], 'sample.txt'), 'w')
 
-    File.new(File.join(@settings.data_dir, 'accepted_files', 'test_0', 'sample.txt'), 'w')
+    File.new(File.join(@settings.accepted_dir(repo_test0), 'sample.txt'), 'w')
 
     all_repo_diffs = Updates.all_repo_diffs(@settings)
     puts "fail: bad results of #{all_repo_diffs}" if all_repo_diffs != [{"test 0"=>[]}, {"test 1"=>[]}]
 
 
 
-    File.new(File.join(@settings.data_dir, 'accepted_files', 'test_0', 'sample1.txt'), 'w')
-    File.new(File.join(@settings.data_dir, 'accepted_files', 'test_0', 'sample2.txt'), 'w')
+    File.new(File.join(@settings.accepted_dir(repo_test0), 'sample1.txt'), 'w')
+    File.new(File.join(@settings.accepted_dir(repo_test0), 'sample2.txt'), 'w')
 
     all_repo_diffs = Updates.all_repo_diffs(@settings)    
     puts "fail: bad results of #{all_repo_diffs}" if all_repo_diffs !=
@@ -96,18 +97,20 @@ class SettingsTest
 
 
 
-    sample = File.join(@settings.data_dir, 'sources', 'hacked', 'sample.txt')
+    sample = File.join(repo_test0['source_dir'], 'sample.txt')
     File.open(sample, 'w') do |out|
       out.write "gabba gabba hey\n"
     end
 
-    all_repo_diffs = Updates.all_repo_diffs(@settings)    
+    all_repo_diffs = Updates.all_repo_diffs(@settings)
     puts "fail: bad results of #{all_repo_diffs}" if all_repo_diffs !=
       [{"test 0"=>
          [{"path"=>"sample.txt", "source"=>true, "accepted"=>true, "ftype"=>"file"},
           {"path"=>"sample1.txt", "source"=>false, "accepted"=>true, "ftype"=>"file"},
           {"path"=>"sample2.txt", "source"=>false, "accepted"=>true, "ftype"=>"file"}]},
        {"test 1"=>[]}]
+
+    
 
   end
 
