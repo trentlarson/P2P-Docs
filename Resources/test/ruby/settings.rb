@@ -82,14 +82,32 @@ class SettingsTest
     all_repo_diffs = Updates.all_repo_diffs(@settings)
     puts "fail: bad results of #{all_repo_diffs}" if all_repo_diffs != [{"test 0"=>[]}, {"test 1"=>[]}]
 
+
+
     File.new(File.join(@settings.data_dir, 'accepted_files', 'test_0', 'sample1.txt'), 'w')
     File.new(File.join(@settings.data_dir, 'accepted_files', 'test_0', 'sample2.txt'), 'w')
 
     all_repo_diffs = Updates.all_repo_diffs(@settings)    
-    puts "fail: bad results of #{all_repo_diffs}" if all_repo_diffs != [{"test 0"=>[{"path"=>"sample1.txt", "source"=>false, "accepted"=>true, "ftype"=>"file"}, {"path"=>"sample2.txt", "source"=>false, "accepted"=>true, "ftype"=>"file"}]}, {"test 1"=>[]}]
+    puts "fail: bad results of #{all_repo_diffs}" if all_repo_diffs !=
+      [{"test 0"=>
+         [{"path"=>"sample1.txt", "source"=>false, "accepted"=>true, "ftype"=>"file"},
+          {"path"=>"sample2.txt", "source"=>false, "accepted"=>true, "ftype"=>"file"}]},
+       {"test 1"=>[]}]
 
-    File.new(File.join(@settings.data_dir, 'accepted_files', 'test_0', 'sample1.txt'), 'w')
-    File.new(File.join(@settings.data_dir, 'accepted_files', 'test_0', 'sample2.txt'), 'w')
+
+
+    sample = File.join(@settings.data_dir, 'sources', 'hacked', 'sample.txt')
+    File.open(sample, 'w') do |out|
+      out.write "gabba gabba hey\n"
+    end
+
+    all_repo_diffs = Updates.all_repo_diffs(@settings)    
+    puts "fail: bad results of #{all_repo_diffs}" if all_repo_diffs !=
+      [{"test 0"=>
+         [{"path"=>"sample.txt", "source"=>true, "accepted"=>true, "ftype"=>"file"},
+          {"path"=>"sample1.txt", "source"=>false, "accepted"=>true, "ftype"=>"file"},
+          {"path"=>"sample2.txt", "source"=>false, "accepted"=>true, "ftype"=>"file"}]},
+       {"test 1"=>[]}]
 
   end
 
