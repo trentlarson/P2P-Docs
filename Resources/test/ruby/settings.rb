@@ -122,7 +122,20 @@ class SettingsTest
          [{"path"=>"sample.txt", "source"=>true, "accepted"=>true, "ftype"=>"file"},
           {"path"=>"sample1.txt", "source"=>false, "accepted"=>true, "ftype"=>"file"},
           {"path"=>"sample2.txt", "source"=>false, "accepted"=>true, "ftype"=>"file"}]},
-       {"test 1"=>[{"path"=>"sample-again.txt", "source"=>true, "accepted"=>false, "ftype"=>"file"}]}]
+       {"test 1"=>
+         [{"path"=>"sample-again.txt", "source"=>true, "accepted"=>false, "ftype"=>"file"}]}]
+    
+
+
+    Updates.mark_accepted(@settings, repo_test1, "sample-again.txt")
+
+    all_repo_diffs = Updates.all_repo_diffs(@settings)
+    puts "fail: bad results of #{all_repo_diffs}" if all_repo_diffs !=
+      [{"test 0"=>
+         [{"path"=>"sample.txt", "source"=>true, "accepted"=>true, "ftype"=>"file"},
+          {"path"=>"sample1.txt", "source"=>false, "accepted"=>true, "ftype"=>"file"},
+          {"path"=>"sample2.txt", "source"=>false, "accepted"=>true, "ftype"=>"file"}]},
+       {"test 1"=>[]}]
     
   end
 
@@ -145,5 +158,5 @@ class SettingsTest
 end
 
 SettingsTest.new.run
-puts "Next have to create an exhaustive list of combinations of differences!"
+puts "Remaining: subdirectories, file/dir mismatches, "
 #SettingsTest.rm_rf(File.join("build", "test-data"))

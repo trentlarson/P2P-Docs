@@ -1,3 +1,4 @@
+require 'fileutils'
 
 class Updates
 
@@ -42,8 +43,8 @@ class Updates
   end
 
   def self.mark_accepted(settings, repo, subpath)
-    FileUtils.cp(File.join(repo['source_dir'], subpath),
-                 File.join(settings.accepted_dir(repo['name']), subpath))
+    FileUtils::cp(File.join(repo['source_dir'], subpath),
+                  File.join(settings.accepted_dir(repo['name']), subpath))
   end
 
 end

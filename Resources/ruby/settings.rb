@@ -61,14 +61,14 @@ May contain a settings.yaml file; see SettingsTest.two_repos for an example stru
     File.join(@@settings_dir, "accepted_files")
   end
 
-  def accepted_dir(repo_name = nil)
-    if (repo_name == nil)
+  def accepted_dir(repo = nil)
+    if (repo == nil)
       accepted_base_dir
-    elsif (repo_name.class.name == "String")
-      File.join(accepted_base_dir, repo_name.tr(" ", "_"))
+    elsif (repo.class.name == "String")
+      # allow the raw name
+      File.join(accepted_base_dir, repo.tr(" ", "_"))
     else
-      # allow a repo hash structure
-      File.join(accepted_base_dir, repo_name['name'].tr(" ", "_"))
+      File.join(accepted_base_dir, repo['name'].tr(" ", "_"))
     end
   end
 
