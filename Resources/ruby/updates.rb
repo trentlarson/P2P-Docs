@@ -18,6 +18,9 @@ class Updates
   #   'ftype' => see File.ftype, including 'unknown' (such as when types don't match)
   # }
   def self.diff_dirs(source_dir, accepted_dir, subpath = "")
+    if (subpath.start_with? "/")
+      subpath = subpath[1, subpath.length - 1]
+    end
     source_file = File.join(source_dir, subpath)
     accepted_file = File.join(accepted_dir, subpath)
     if (! File.exist? source_file)
@@ -25,9 +28,7 @@ class Updates
     elsif (! File.exist? accepted_file)
       [{'path' => subpath, 'source' => true, 'accepted' => false, 'ftype' => File.ftype(source_file) }]
     elsif (File.file?(source_file) && File.file?(accepted_file))
-      if (File.mtime(source_file) != File.mtime(accepted_file))
-        [{'path' => subpath, 'source' => true, 'accepted' => true, 'ftype' => 'file' }]
-      elsif (File.size(source_file) != File.size(accepted_file))
+      if (File.size(source_file) != File.size(accepted_file))
         [{'path' => subpath, 'source' => true, 'accepted' => true, 'ftype' => 'file' }]
       end
     elsif (File.directory?(source_file) && File.directory?(accepted_file))

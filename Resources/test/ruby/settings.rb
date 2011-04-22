@@ -84,10 +84,16 @@ class SettingsTest
 
     File.new(File.join(@settings.data_dir, 'accepted_files', 'test_0', 'sample1.txt'), 'w')
     File.new(File.join(@settings.data_dir, 'accepted_files', 'test_0', 'sample2.txt'), 'w')
+
     all_repo_diffs = Updates.all_repo_diffs(@settings)    
-    puts "fail: bad results of #{all_repo_diffs}" if all_repo_diffs != [{"test 0"=>[{"path"=>"/sample1.txt", "source"=>false, "accepted"=>true, "ftype"=>"file"}, {"path"=>"/sample2.txt", "source"=>false, "accepted"=>true, "ftype"=>"file"}]}, {"test 1"=>[]}]
+    puts "fail: bad results of #{all_repo_diffs}" if all_repo_diffs != [{"test 0"=>[{"path"=>"sample1.txt", "source"=>false, "accepted"=>true, "ftype"=>"file"}, {"path"=>"sample2.txt", "source"=>false, "accepted"=>true, "ftype"=>"file"}]}, {"test 1"=>[]}]
+
+    File.new(File.join(@settings.data_dir, 'accepted_files', 'test_0', 'sample1.txt'), 'w')
+    File.new(File.join(@settings.data_dir, 'accepted_files', 'test_0', 'sample2.txt'), 'w')
+
   end
 
+  # deprecated: use FileUtils.remove_entry_secure
   def self.rm_rf(file)
     if (File.exist? file)
       if (File.file? file)
