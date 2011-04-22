@@ -10,8 +10,9 @@ class Settings
 
   VERSION = "0"
 
-  @@settings_file = ""
+  @@settings_dir = ""
   @@settings = nil
+
 
   def initialize(dirname)
 
@@ -20,15 +21,14 @@ class Settings
     #dirname.methods.sort.each{|name| puts name }
 
     if (dirname.class.name == "RubyKObject") # for method results from Titanium
-      @settings_dir = dirname.toString()
+      @@settings_dir = dirname.toString()
     else
-      @settings_dir = dirname
+      @@settings_dir = dirname
     end
-    @@settings_file = File.join(@settings_dir, "settings.yaml")
 
     if (@@settings == nil)
-      if (File.exists? settings_file)
-        @@settings = YAML.load_file(settings_file)
+      if (File.exists? Settings.settings_file)
+        @@settings = YAML.load_file(Settings.settings_file)
       end
       #YAML.dump(@settings)
     end
@@ -41,16 +41,12 @@ class Settings
     end
   end
 
+  def self.settings_file
+    File.join(@@settings_dir, "settings.yaml")
+  end
+
   def data_dir
-    @settings_dir
-  end
-
-  def self.settings_file()
-    @@settings_file
-  end
-
-  def settings_file
-    File.join(@settings_dir, "settings.yaml")
+    @@settings_dir
   end
 
   def properties
@@ -58,14 +54,14 @@ class Settings
   end
 
   def accepted_dir
-    File.join(@settings_dir, "accepted_files")
+    File.join(@@settings_dir, "accepted_files")
   end
 
   def accepted_dir(repo_name = nil)
     if (repo_name == nil)
-      File.join(@settings_dir, "accepted_files")
+      File.join(@@settings_dir, "accepted_files")
     else
-      File.join(@settings_dir, "accepted_files", repo_name.tr(" ", "_"))
+      File.join(@@settings_dir, "accepted_files", repo_name.tr(" ", "_"))
     end
   end
 
