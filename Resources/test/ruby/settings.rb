@@ -81,7 +81,8 @@ class SettingsTest
     File.new(File.join(@settings.accepted_dir(repo_test0), 'sample.txt'), 'w')
 
     all_repo_diffs = Updates.all_repo_diffs(@settings)
-    puts "fail: bad results of #{all_repo_diffs}" if all_repo_diffs != [{"test 0"=>[]}, {"test 1"=>[]}]
+    puts "fail: bad results of #{all_repo_diffs}" if all_repo_diffs !=
+      [{"test 0"=>[]}, {"test 1"=>[]}]
 
 
 
@@ -110,8 +111,19 @@ class SettingsTest
           {"path"=>"sample2.txt", "source"=>false, "accepted"=>true, "ftype"=>"file"}]},
        {"test 1"=>[]}]
 
-    
 
+
+    repo_test1 = @settings.properties['repositories'].select{ |repo| repo['name'] == 'test 1' }[0]
+    File.new(File.join(repo_test1['source_dir'], 'sample-again.txt'), 'w')
+
+    all_repo_diffs = Updates.all_repo_diffs(@settings)
+    puts "fail: bad results of #{all_repo_diffs}" if all_repo_diffs !=
+      [{"test 0"=>
+         [{"path"=>"sample.txt", "source"=>true, "accepted"=>true, "ftype"=>"file"},
+          {"path"=>"sample1.txt", "source"=>false, "accepted"=>true, "ftype"=>"file"},
+          {"path"=>"sample2.txt", "source"=>false, "accepted"=>true, "ftype"=>"file"}]},
+       {"test 1"=>[{"path"=>"sample-again.txt", "source"=>true, "accepted"=>false, "ftype"=>"file"}]}]
+    
   end
 
   # deprecated: use FileUtils.remove_entry_secure
