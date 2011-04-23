@@ -3,12 +3,15 @@ require 'fileutils'
 class Updates
 
   def self.all_repo_diffs(settings)
-    if (settings.properties['repositories'] == nil) 
+    result = settings.properties['repositories']
+    if (result == nil) 
       []
     else
-      settings.properties['repositories'].collect do |repo|
+      result = 
+        settings.properties['repositories'].collect do |repo|
         { repo['name'] => diff_dirs(repo['source_dir'], settings.reviewed_dir(repo['name'])) }
       end
+      result.select { |hash| hash.values.flatten != [] }
     end
   end
 
