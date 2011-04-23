@@ -11,7 +11,7 @@ class Settings
   VERSION = "0"
 
   @@settings_dir = ""
-  @@settings = nil
+  @@settings = {}
 
 
 =begin
@@ -30,7 +30,7 @@ May contain a settings.yaml file; see SettingsTest.two_repos for an example stru
       @@settings_dir = dirname
     end
 
-    if (@@settings == nil)
+    if (@@settings == {})
       if (File.exists? settings_file)
         @@settings = YAML.load_file(settings_file)
       end
@@ -57,18 +57,18 @@ May contain a settings.yaml file; see SettingsTest.two_repos for an example stru
     @@settings
   end
 
-  def accepted_base_dir
-    File.join(@@settings_dir, "accepted_files")
+  def reviewed_base_dir
+    File.join(@@settings_dir, "reviewed_files")
   end
 
-  def accepted_dir(repo = nil)
+  def reviewed_dir(repo = nil)
     if (repo == nil)
-      accepted_base_dir
+      reviewed_base_dir
     elsif (repo.class.name == "String")
       # allow the raw name
-      File.join(accepted_base_dir, repo.tr(" ", "_"))
+      File.join(reviewed_base_dir, repo.tr(" ", "_"))
     else
-      File.join(accepted_base_dir, repo['name'].tr(" ", "_"))
+      File.join(reviewed_base_dir, repo['name'].tr(" ", "_"))
     end
   end
 

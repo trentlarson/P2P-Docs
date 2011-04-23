@@ -22,11 +22,15 @@ class SettingsTest
 
   end
 
+  def run()
+    methods.sort.each{ |meth| send(meth) if meth.to_s.start_with? "test_" }
+  end
+
+
+
+  # Take a hash of settings properties and create the settings file,
+  # and delete the old test directories and create new ones based on the given data.
   def setup_settings(settings_data)
-    # create settings file
-    File.open(@settings.settings_file(), 'w') do |out|
-      YAML.dump(settings_data, out)
-    end
 
     @settings.replace(settings_data)
 
@@ -34,51 +38,50 @@ class SettingsTest
     sources_dir = File.join(@settings.data_dir, "sources")
     SettingsTest.rm_rf(sources_dir)
     Dir.mkdir(sources_dir)
-    SettingsTest.rm_rf(@settings.accepted_base_dir)
-    Dir.mkdir(@settings.accepted_base_dir)
-    settings_data['repositories'].each do |repo|
-      Dir.mkdir(repo['source_dir'])
-      Dir.mkdir(@settings.accepted_dir(repo['name']))
+    SettingsTest.rm_rf(@settings.reviewed_base_dir)
+    Dir.mkdir(@settings.reviewed_base_dir)
+    if (settings_data['repositories'] != nil)
+      settings_data['repositories'].each do |repo|
+        Dir.mkdir(repo['source_dir'])
+        Dir.mkdir(@settings.reviewed_dir(repo['name']))
+      end
     end
   end
 
-  def run()
-    methods.sort.each{ |meth| send(meth) if meth.to_s.start_with? "test_" }
-  end
+  def test_a()
 
-
-
-
-
-
-  def test_no_repos()
-    setup_settings({'repositories'=>[]})
-    all_repo_diffs = Updates.all_repo_diffs(@settings)
-    puts "fail: diffs on blank entry: #{all_repo_diffs}" if all_repo_diffs != []
-  end
-
-
-
-
-
-  def two_repos()
-    base_dir = File.join(@test_data_dir, "sources")
-    {'repositories'=>
-      [{'name'=>'test 0', 'source_dir'=>File.join(base_dir, 'hacked')},
-       {'name'=>'test 1', 'source_dir'=>File.join(base_dir, 'hacked-again')}]
-    }
-  end
-
-  def test_two_dirs()
-
-    setup_settings(two_repos())
+    setup_settings(@settings.properties)
 
     all_repo_diffs = Updates.all_repo_diffs(@settings)
+    puts "fail: diffs on no repos: #{all_repo_diffs}" if all_repo_diffs != []
 
-    repo_test0 = @settings.properties['repositories'].select{ |repo| repo['name'] == 'test 0' }[0]
+
+
+    repo_test0 = {'name'=>'test 0', 'source_dir'=>File.join(@test_data_dir, 'sources', 'hacked')}
+    @settings.replace({'repositories'=>[repo_test0]})
+    Dir.mkdir(repo_test0['source_dir'])
+    Dir.mkdir(@settings.reviewed_dir(repo_test0))
+
+    all_repo_diffs = Updates.all_repo_diffs(@settings)
+    puts "fail: diffs on one blank repo: #{all_repo_diffs}" if all_repo_diffs !=
+      [{'test 0'=>[]}]
+
+
+
+    repo_test1 = {'name'=>'test 1', 'source_dir'=>File.join(@test_data_dir, 'sources', 'hacked-again')}
+    @settings.replace({'repositories'=>[repo_test0, repo_test1]})
+    Dir.mkdir(repo_test1['source_dir'])
+    Dir.mkdir(@settings.reviewed_dir(repo_test1))
+
+    all_repo_diffs = Updates.all_repo_diffs(@settings)
+    puts "fail: diffs on two blank repos: #{all_repo_diffs}" if all_repo_diffs !=
+      [{"test 0"=>[]}, {"test 1"=>[]}]
+
+
+
+
     File.new(File.join(repo_test0['source_dir'], 'sample.txt'), 'w')
-
-    File.new(File.join(@settings.accepted_dir(repo_test0), 'sample.txt'), 'w')
+    File.new(File.join(@settings.reviewed_dir(repo_test0), 'sample.txt'), 'w')
 
     all_repo_diffs = Updates.all_repo_diffs(@settings)
     puts "fail: bad results of #{all_repo_diffs}" if all_repo_diffs !=
@@ -86,14 +89,14 @@ class SettingsTest
 
 
 
-    File.new(File.join(@settings.accepted_dir(repo_test0), 'sample1.txt'), 'w')
-    File.new(File.join(@settings.accepted_dir(repo_test0), 'sample2.txt'), 'w')
+    File.new(File.join(@settings.reviewed_dir(repo_test0), 'sample1.txt'), 'w')
+    File.new(File.join(@settings.reviewed_dir(repo_test0), 'sample2.txt'), 'w')
 
     all_repo_diffs = Updates.all_repo_diffs(@settings)    
     puts "fail: bad results of #{all_repo_diffs}" if all_repo_diffs !=
       [{"test 0"=>
-         [{"path"=>"sample1.txt", "source"=>false, "accepted"=>true, "ftype"=>"file"},
-          {"path"=>"sample2.txt", "source"=>false, "accepted"=>true, "ftype"=>"file"}]},
+         [{"path"=>"sample1.txt", "source"=>false, "reviewed"=>true, "ftype"=>"file"},
+          {"path"=>"sample2.txt", "source"=>false, "reviewed"=>true, "ftype"=>"file"}]},
        {"test 1"=>[]}]
 
 
@@ -106,9 +109,9 @@ class SettingsTest
     all_repo_diffs = Updates.all_repo_diffs(@settings)
     puts "fail: bad results of #{all_repo_diffs}" if all_repo_diffs !=
       [{"test 0"=>
-         [{"path"=>"sample.txt", "source"=>true, "accepted"=>true, "ftype"=>"file"},
-          {"path"=>"sample1.txt", "source"=>false, "accepted"=>true, "ftype"=>"file"},
-          {"path"=>"sample2.txt", "source"=>false, "accepted"=>true, "ftype"=>"file"}]},
+         [{"path"=>"sample.txt", "source"=>true, "reviewed"=>true, "ftype"=>"file"},
+          {"path"=>"sample1.txt", "source"=>false, "reviewed"=>true, "ftype"=>"file"},
+          {"path"=>"sample2.txt", "source"=>false, "reviewed"=>true, "ftype"=>"file"}]},
        {"test 1"=>[]}]
 
 
@@ -119,22 +122,22 @@ class SettingsTest
     all_repo_diffs = Updates.all_repo_diffs(@settings)
     puts "fail: bad results of #{all_repo_diffs}" if all_repo_diffs !=
       [{"test 0"=>
-         [{"path"=>"sample.txt", "source"=>true, "accepted"=>true, "ftype"=>"file"},
-          {"path"=>"sample1.txt", "source"=>false, "accepted"=>true, "ftype"=>"file"},
-          {"path"=>"sample2.txt", "source"=>false, "accepted"=>true, "ftype"=>"file"}]},
+         [{"path"=>"sample.txt", "source"=>true, "reviewed"=>true, "ftype"=>"file"},
+          {"path"=>"sample1.txt", "source"=>false, "reviewed"=>true, "ftype"=>"file"},
+          {"path"=>"sample2.txt", "source"=>false, "reviewed"=>true, "ftype"=>"file"}]},
        {"test 1"=>
-         [{"path"=>"sample-again.txt", "source"=>true, "accepted"=>false, "ftype"=>"file"}]}]
+         [{"path"=>"sample-again.txt", "source"=>true, "reviewed"=>false, "ftype"=>"file"}]}]
     
 
 
-    Updates.mark_accepted(@settings, repo_test1, "sample-again.txt")
+    Updates.mark_reviewed(@settings, repo_test1, "sample-again.txt")
 
     all_repo_diffs = Updates.all_repo_diffs(@settings)
     puts "fail: bad results of #{all_repo_diffs}" if all_repo_diffs !=
       [{"test 0"=>
-         [{"path"=>"sample.txt", "source"=>true, "accepted"=>true, "ftype"=>"file"},
-          {"path"=>"sample1.txt", "source"=>false, "accepted"=>true, "ftype"=>"file"},
-          {"path"=>"sample2.txt", "source"=>false, "accepted"=>true, "ftype"=>"file"}]},
+         [{"path"=>"sample.txt", "source"=>true, "reviewed"=>true, "ftype"=>"file"},
+          {"path"=>"sample1.txt", "source"=>false, "reviewed"=>true, "ftype"=>"file"},
+          {"path"=>"sample2.txt", "source"=>false, "reviewed"=>true, "ftype"=>"file"}]},
        {"test 1"=>[]}]
     
   end
