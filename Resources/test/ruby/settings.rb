@@ -51,7 +51,6 @@ class SettingsTest
   def test_a()
 
     setup_settings(@settings.properties)
-
     all_repo_diffs = Updates.all_repo_diffs(@settings)
     puts "fail: diffs on no repos: #{all_repo_diffs.inspect}" if all_repo_diffs != []
 
@@ -61,7 +60,6 @@ class SettingsTest
     @settings.replace({'repositories'=>[repo_test0]})
     Dir.mkdir(repo_test0['source_dir'])
     Dir.mkdir(@settings.reviewed_dir(repo_test0))
-
     all_repo_diffs = Updates.all_repo_diffs(@settings)
     puts "fail: diffs on one blank repo: #{all_repo_diffs.inspect}" if all_repo_diffs != []
 
@@ -71,7 +69,6 @@ class SettingsTest
     @settings.replace({'repositories'=>[repo_test0, repo_test1]})
     Dir.mkdir(repo_test1['source_dir'])
     Dir.mkdir(@settings.reviewed_dir(repo_test1))
-
     all_repo_diffs = Updates.all_repo_diffs(@settings)
     puts "fail: diffs on two blank repos: #{all_repo_diffs.inspect}" if all_repo_diffs != []
 
@@ -79,7 +76,6 @@ class SettingsTest
 
 
     File.new(File.join(repo_test0['source_dir'], 'sample.txt'), 'w')
-
     all_repo_diffs = Updates.all_repo_diffs(@settings)
     puts "fail: one empty file: #{all_repo_diffs.inspect}" if all_repo_diffs !=
       [{"test 0"=>[{"path"=>"sample.txt", "source"=>true, "reviewed"=>false, "ftype"=>"file"}]}]
@@ -87,7 +83,6 @@ class SettingsTest
 
 
     Updates.mark_reviewed(@settings, repo_test0, 'sample.txt')
-
     all_repo_diffs = Updates.all_repo_diffs(@settings)
     puts "fail: after review: #{all_repo_diffs.inspect}" if all_repo_diffs != []
 
@@ -96,7 +91,6 @@ class SettingsTest
     File.open(File.join(repo_test0['source_dir'], 'sample.txt'), 'w') do |out|
       out.write "gabba gabba hey\n"
     end
-
     all_repo_diffs = Updates.all_repo_diffs(@settings)
     puts "fail: one file with changed contents: #{all_repo_diffs.inspect}" if all_repo_diffs !=
       [{"test 0"=>[{"path"=>"sample.txt", "source"=>true, "reviewed"=>true, "ftype"=>"file"}]}]
@@ -104,15 +98,73 @@ class SettingsTest
 
 
     Updates.mark_reviewed(@settings, repo_test0, 'sample.txt')
-
     all_repo_diffs = Updates.all_repo_diffs(@settings)
     puts "fail: no changed files: #{all_repo_diffs.inspect}" if all_repo_diffs != []
 
 
 
+    Dir.mkdir(File.join(repo_test0['source_dir'], "a_sub_dir"))
+    all_repo_diffs = Updates.all_repo_diffs(@settings)
+    puts "fail: new empty source directory: #{all_repo_diffs.inspect}" if all_repo_diffs != []
+
+
+
+    File.open(File.join(repo_test0['source_dir'], 'a_sub_dir', 'a_sample.txt'), 'w') do |out|
+      out.write "more gabba gabba hey\n"
+    end
+    all_repo_diffs = Updates.all_repo_diffs(@settings)
+    a_filename = File.join('a_sub_dir', 'a_sample.txt')
+    puts "fail: new file in source directory: #{all_repo_diffs.inspect}" if all_repo_diffs !=
+      [{"test 0"=>
+         [{"path"=>"a_sub_dir", "source"=>true, "reviewed"=>false, "ftype"=>"directory",
+           "contents"=>['a_sample.txt']}]}]
+
+
+
+    Updates.mark_reviewed(@settings, repo_test0, a_filename)
+    all_repo_diffs = Updates.all_repo_diffs(@settings)
+    puts "fail: all synched up: #{all_repo_diffs.inspect}" if all_repo_diffs != []
+
+
+
+    deeper1 = File.join('1_sub_dir', '11_sub_dir', '111_sub_dir')
+    deeper2 = File.join('1_sub_dir', '11_sub_dir', '112_sub_dir')
+    FileUtils::mkdir_p(File.join(repo_test1['source_dir'], deeper1))
+    FileUtils::mkdir_p(File.join(repo_test1['source_dir'], deeper2))
+    File.open(File.join(repo_test1['source_dir'], deeper1, '1_sample.txt'), 'w') do |out|
+      out.write "less\n"
+    end
+    File.open(File.join(repo_test1['source_dir'], deeper1, '1_sample2.txt'), 'w') do |out|
+      out.write "less\n"
+    end
+    File.open(File.join(repo_test1['source_dir'], deeper2, '1_sample3.txt'), 'w') do |out|
+      out.write "less\n"
+    end
+    all_repo_diffs = Updates.all_repo_diffs(@settings)
+    puts "fail: new files in deep sources: #{all_repo_diffs.inspect}" if all_repo_diffs !=
+      [{"test 1"=>
+         [{"path"=>File.join("1_sub_dir"),
+            "source"=>true, "reviewed"=>false, "ftype"=>"directory",
+            "contents"=>[File.join("11_sub_dir", "111_sub_dir", '1_sample.txt'),
+                         File.join("11_sub_dir", "111_sub_dir", '1_sample2.txt'),
+                         File.join("11_sub_dir", "112_sub_dir", '1_sample3.txt')]}]}]
+
+
+
+    Updates.mark_reviewed(@settings, repo_test1, File.join(deeper1, "1_sample.txt"))
+    Updates.mark_reviewed(@settings, repo_test1, File.join(deeper1, "1_sample2.txt"))
+    Updates.mark_reviewed(@settings, repo_test1, File.join(deeper2, "1_sample3.txt"))
+    all_repo_diffs = Updates.all_repo_diffs(@settings)
+    puts "fail: reviewed files in deep sources: #{all_repo_diffs.inspect}" if all_repo_diffs != []
+
+
+
+# ...
+
+
+
     File.new(File.join(@settings.reviewed_dir(repo_test0), 'sample1.txt'), 'w')
     File.new(File.join(@settings.reviewed_dir(repo_test0), 'sample2.txt'), 'w')
-
     all_repo_diffs = Updates.all_repo_diffs(@settings)    
     puts "fail: two empty files in reviewed: #{all_repo_diffs.inspect}" if all_repo_diffs !=
       [{"test 0"=>
@@ -122,7 +174,6 @@ class SettingsTest
 
 
     File.new(File.join(repo_test1['source_dir'], 'sample-again.txt'), 'w')
-
     all_repo_diffs = Updates.all_repo_diffs(@settings)
     puts "fail: 3 files in 2 repos: #{all_repo_diffs.inspect}" if all_repo_diffs !=
       [{"test 0"=>
