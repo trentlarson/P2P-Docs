@@ -79,10 +79,17 @@ class SettingsTest
 
 
     File.new(File.join(repo_test0['source_dir'], 'sample.txt'), 'w')
-    File.new(File.join(@settings.reviewed_dir(repo_test0), 'sample.txt'), 'w')
 
     all_repo_diffs = Updates.all_repo_diffs(@settings)
-    puts "fail: bad results of #{all_repo_diffs.inspect}" if all_repo_diffs != []
+    puts "fail: one empty file: #{all_repo_diffs.inspect}" if all_repo_diffs !=
+      [{"test 0"=>[{"path"=>"sample.txt", "source"=>true, "reviewed"=>false, "ftype"=>"file"}]}]
+
+
+
+    Updates.mark_reviewed(@settings, repo_test0, 'sample.txt')
+
+    all_repo_diffs = Updates.all_repo_diffs(@settings)
+    puts "fail: after review: #{all_repo_diffs.inspect}" if all_repo_diffs != []
 
 
 
@@ -90,20 +97,19 @@ class SettingsTest
     File.new(File.join(@settings.reviewed_dir(repo_test0), 'sample2.txt'), 'w')
 
     all_repo_diffs = Updates.all_repo_diffs(@settings)    
-    puts "fail: bad results of #{all_repo_diffs.inspect}" if all_repo_diffs !=
+    puts "fail: two empty files: #{all_repo_diffs.inspect}" if all_repo_diffs !=
       [{"test 0"=>
          [{"path"=>"sample1.txt", "source"=>false, "reviewed"=>true, "ftype"=>"file"},
           {"path"=>"sample2.txt", "source"=>false, "reviewed"=>true, "ftype"=>"file"}]}]
 
 
 
-    sample = File.join(repo_test0['source_dir'], 'sample.txt')
-    File.open(sample, 'w') do |out|
+    File.open(File.join(repo_test0['source_dir'], 'sample.txt'), 'w') do |out|
       out.write "gabba gabba hey\n"
     end
 
     all_repo_diffs = Updates.all_repo_diffs(@settings)
-    puts "fail: bad results of #{all_repo_diffs.inspect}" if all_repo_diffs !=
+    puts "fail: three changed files #{all_repo_diffs.inspect}" if all_repo_diffs !=
       [{"test 0"=>
          [{"path"=>"sample.txt", "source"=>true, "reviewed"=>true, "ftype"=>"file"},
           {"path"=>"sample1.txt", "source"=>false, "reviewed"=>true, "ftype"=>"file"},
@@ -115,7 +121,7 @@ class SettingsTest
     File.new(File.join(repo_test1['source_dir'], 'sample-again.txt'), 'w')
 
     all_repo_diffs = Updates.all_repo_diffs(@settings)
-    puts "fail: bad results of #{all_repo_diffs.inspect}" if all_repo_diffs !=
+    puts "fail: 4 files in 2 repos: #{all_repo_diffs.inspect}" if all_repo_diffs !=
       [{"test 0"=>
          [{"path"=>"sample.txt", "source"=>true, "reviewed"=>true, "ftype"=>"file"},
           {"path"=>"sample1.txt", "source"=>false, "reviewed"=>true, "ftype"=>"file"},
@@ -124,16 +130,6 @@ class SettingsTest
          [{"path"=>"sample-again.txt", "source"=>true, "reviewed"=>false, "ftype"=>"file"}]}]
     
 
-
-    Updates.mark_reviewed(@settings, repo_test1, "sample-again.txt")
-
-    all_repo_diffs = Updates.all_repo_diffs(@settings)
-    puts "fail: bad results of #{all_repo_diffs.inspect}" if all_repo_diffs !=
-      [{"test 0"=>
-         [{"path"=>"sample.txt", "source"=>true, "reviewed"=>true, "ftype"=>"file"},
-          {"path"=>"sample1.txt", "source"=>false, "reviewed"=>true, "ftype"=>"file"},
-          {"path"=>"sample2.txt", "source"=>false, "reviewed"=>true, "ftype"=>"file"}]}]
-    
   end
 
   # deprecated: use FileUtils.remove_entry_secure
