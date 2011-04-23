@@ -50,8 +50,17 @@ class Updates
   end
 
   def self.mark_reviewed(settings, repo, subpath)
-    FileUtils::cp(File.join(repo['source_dir'], subpath),
-                  File.join(settings.reviewed_dir(repo['name']), subpath))
+    source = File.join(repo['source_dir'], subpath)
+    if (FileTest.exist? source)
+      if (FileTest.file? source)
+          FileUtils::cp(File.join(repo['source_dir'], subpath),
+                        File.join(settings.reviewed_dir(repo['name']), subpath))
+      else
+        # handle where it's a directory
+      end
+    else
+      # gotta handle where it's deleted from source
+    end
   end
 
 end
