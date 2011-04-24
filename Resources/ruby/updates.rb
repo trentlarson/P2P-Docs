@@ -8,7 +8,7 @@ class Updates
       []
     else
       result = 
-        settings.properties['repositories'].collect do |repo|
+        result.collect do |repo|
         { repo['name'] => diff_dirs(repo['source_dir'], settings.reviewed_dir(repo['name'])) }
       end
       result.select { |hash| hash.values.flatten != [] }

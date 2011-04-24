@@ -1,4 +1,5 @@
 require 'yaml'
+require 'fileutils'
 
 # Usage:
 # 1) Uncomment the last line(s) of this file, then:
@@ -36,6 +37,8 @@ May contain a settings.yaml file; see SettingsTest.two_repos for an example stru
       end
       #YAML.dump(@settings)
     end
+
+    FileUtils.mkdir_p(reviewed_base_dir())
   end
 
   def replace(new_settings_data)
