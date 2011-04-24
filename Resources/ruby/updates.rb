@@ -15,16 +15,14 @@ class Updates
     end
   end
 
-  # either source_dir or reviewed_dir is assumed to exist
   # subpath is assumed to be in one of them
   #
   # return an array of all different paths below dirs, like 'diff --brief'
   # return an array of:
   # { 'path' => path,
-  #   'source' => T/F whether in source tree,
-  #   'reviewed' => T/F whether in reviewed tree,
-  #   'ftype' => see File.ftype, including 'unknown' (such as when types don't match)
-  #   'contents' => for directories that only exist in one, the recursive list of files
+  #   'source' => 'file', 'directory', or ftype if exists in source dir tree,
+  #   'reviewed' => 'file', 'directory', or ftype if exists in reviewed dir tree,
+  #   'contents' => for directories that only exist in one, the recursive list of non-directories
   # }
   def self.diff_dirs(source_dir, reviewed_dir, subpath = "")
     if (subpath.start_with? "/")
@@ -33,40 +31,34 @@ class Updates
     end
     source_file = File.join(source_dir, subpath)
     reviewed_file = File.join(reviewed_dir, subpath)
-#puts "trying source " + source_file
-#puts "trying reviewed " + reviewed_file
-    if (! File.exist? source_file)
-      if (FileTest.file? reviewed_file)
-        [{'path' => subpath, 'source' => false, 'reviewed' => true, 'ftype' => "file" }]
-      elsif (FileTest.directory? reviewed_file)
+    if (!File.exist?(source_file) && !File.exist?(reviewed_file))
+      # we shouldn't even be here in this case, but we'll play nice
+      []
+    elsif (! File.exist? reviewed_file)
+      if (FileTest.directory? source_file)
+        contents = all_files_below(source_file, "")
+        if (!contents.empty?)
+          [{'path' => subpath, 'source' => 'directory', 'reviewed' => nil, 'contents' => contents}]
+        else
+          []
+        end
+      else
+        [{'path' => subpath, 'source' => File.ftype(source_file), 'reviewed' => nil }]
+      end
+    elsif (! File.exist? source_file)
+      if (FileTest.directory? reviewed_file)
         contents = all_files_below(reviewed_file, "")
         if (!contents.empty?)
-          [{'path' => subpath, 'source' => false, 'reviewed' => true, 'ftype' => "directory",
-             'contents' => contents}]
+          [{'path' => subpath, 'source' => nil, 'reviewed' => 'directory', 'contents' => contents}]
         else
           []
         end
       else
-        []
-      end
-    elsif (! File.exist? reviewed_file)
-      if (FileTest.file? source_file)
-        [{'path' => subpath, 'source' => true, 'reviewed' => false, 'ftype' => "file" }]
-      elsif (FileTest.directory? source_file)
-        contents = all_files_below(source_file, "")
-#puts "contents below " + source_file + ": " + contents.inspect
-        if (!contents.empty?)
-          [{'path' => subpath, 'source' => true, 'reviewed' => false, 'ftype' => "directory",
-             'contents' => contents}]
-        else
-          []
-        end
-      else
-        []
+        [{'path' => subpath, 'source' => nil, 'reviewed' => File.ftype(reviewed_file)}]
       end
     elsif (File.file?(source_file) && File.file?(reviewed_file))
       if (File.size(source_file) != File.size(reviewed_file))
-        [{'path' => subpath, 'source' => true, 'reviewed' => true, 'ftype' => 'file' }]
+        [{'path' => subpath, 'source' => 'file', 'reviewed' => 'file' }]
       else
         []
       end
@@ -75,8 +67,16 @@ class Updates
       diff_subs.reject! { |sub| sub == '.' || sub == '..' }
       diff_subs.map! { |entry| diff_dirs(source_dir, reviewed_dir, File.join(subpath, entry)) }
       diff_subs.flatten.compact
+    elsif (File.ftype(source_file) != File.ftype(reviewed_file))
+      if (File.directory?(source_file))
+        contents = 
+          [{'path' => subpath, 'source' => 'directory', 'reviewed' => File.ftype(reviewed_file),
+             'contents' => all_files_below(source_file, "")}]
+      else
+        [{'path' => subpath, 'source' => File.ftype(source_file), 'reviewed' => File.ftype(reviewed_file) }]
+      end
     else
-      [{'path' => subpath, 'source' => true, 'reviewed' => true, 'ftype' => 'unknown' }]
+      []
     end
   end
 
@@ -94,7 +94,7 @@ class Updates
       [subpath]
     elsif (FileTest.directory? full_dir)
       entries = Dir.entries(full_dir).reject{ |entry| entry == '.' || entry == '..' }
-#puts "  recursing on #{entries}: #{entries.map{ |entry| all_files_below(entry) }.flatten}"
+#puts "  recursing on #{entries}: #{entries.map{ |entry| all_files_below(source_dir, File.join(subpath, entry)) }.flatten}"
       entries.map{ |entry| all_files_below(source_dir, File.join(subpath, entry)) }.flatten
     else
       # it's an unknown ftype; we'll ignore it
@@ -107,29 +107,19 @@ class Updates
     # Implementation note: I'm not invoking this method recursively (though I
     # realize I'm using recursive copy, which is different).  I suggest we keep
     # it that way because the user is specifically acting on the given path.
-    # It makes a difference in the case where some element is no longer in the
-    # source but is still in the reviewed path; we currently leave it for the
-    # user to explicitly review and remove, but if we recursed we would get to
-    # that element and always decide it must be removed.
+    # It makes a difference in the case where some entry below the requested
+    # subpath is no longer in the source but is still in the reviewed path; we
+    # currently leave it for the user to explicitly review and remove, but if we
+    # recursed we would get to that entry and always decide it must be removed.
 
     source = File.join(repo['source_dir'], subpath)
     target = File.join(settings.reviewed_dir(repo), subpath)
     if (FileTest.exist? source)
-      if (FileTest.file? source)
-        FileUtils::mkpath(File.dirname(target))
-        FileUtils::cp(source, target, :preserve => true)
-      elsif (FileTest.directory? source)
-        if (File.exist? target)
-          FileUtils::cp_r(source + '/.', target, :preserve => true)
-        else
-          FileUtils::mkpath(File.dirname(target))
-          FileUtils::cp_r(source, target, :preserve => true)
-        end
-      else
-        # it's an unknown ftype; we'll ignore it
-      end
+      FileUtils::mkpath(File.dirname(target))
+      FileUtils::remove_entry_secure(target, true)
+      FileUtils::cp_r(source, target, :preserve => true)
     else
-      FileUtils.rm_rf(target, :secure => true)
+      FileUtils.remove_entry_secure(target, true)
     end
   end
 

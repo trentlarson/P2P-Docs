@@ -14,7 +14,7 @@ class SettingsTest
 
     @test_data_dir = File.join(base_build_dir, test_data_dirname)
     puts "Removing " + @test_data_dir + " and everything underneath." if verbose
-    SettingsTest.rm_rf(@test_data_dir)
+    FileUtils::remove_entry_secure(@test_data_dir, true)
     Dir.mkdir(@test_data_dir)
 
     # load blank settings, used to create a file of sample settings
@@ -36,9 +36,9 @@ class SettingsTest
 
     # set up the directory structure
     sources_dir = File.join(@settings.data_dir, "sources")
-    SettingsTest.rm_rf(sources_dir)
+    FileUtils::remove_entry_secure(sources_dir, true)
     Dir.mkdir(sources_dir)
-    SettingsTest.rm_rf(@settings.reviewed_base_dir)
+    FileUtils::remove_entry_secure(@settings.reviewed_base_dir, true)
     Dir.mkdir(@settings.reviewed_base_dir)
     if (settings_data['repositories'] != nil)
       settings_data['repositories'].each do |repo|
@@ -78,7 +78,7 @@ class SettingsTest
     File.new(File.join(repo_test0['source_dir'], 'sample.txt'), 'w')
     all_repo_diffs = Updates.all_repo_diffs(@settings)
     puts "fail: one empty file: #{all_repo_diffs.inspect}" if all_repo_diffs !=
-      [{"test 0"=>[{"path"=>"sample.txt", "source"=>true, "reviewed"=>false, "ftype"=>"file"}]}]
+      [{"test 0"=>[{"path"=>"sample.txt", "source"=>"file", "reviewed"=>nil}]}]
 
 
 
@@ -97,7 +97,7 @@ class SettingsTest
     end
     all_repo_diffs = Updates.all_repo_diffs(@settings)
     puts "fail: one file with changed contents: #{all_repo_diffs.inspect}" if all_repo_diffs !=
-      [{"test 0"=>[{"path"=>"sample.txt", "source"=>true, "reviewed"=>true, "ftype"=>"file"}]}]
+      [{"test 0"=>[{"path"=>"sample.txt", "source"=>"file", "reviewed"=>"file"}]}]
 
 
 
@@ -120,8 +120,8 @@ class SettingsTest
     a_filename = File.join('a_sub_dir', 'a_sample.txt')
     puts "fail: new file in source directory: #{all_repo_diffs.inspect}" if all_repo_diffs !=
       [{"test 0"=>
-         [{"path"=>"a_sub_dir", "source"=>true, "reviewed"=>false, "ftype"=>"directory",
-           "contents"=>['a_sample.txt']}]}]
+         [{"path"=>"a_sub_dir", "source"=>"directory", "reviewed"=>nil,
+            "contents"=>['a_sample.txt']}]}]
 
 
 
@@ -147,8 +147,7 @@ class SettingsTest
     all_repo_diffs = Updates.all_repo_diffs(@settings)
     puts "fail: new files in deep sources: #{all_repo_diffs.inspect}" if all_repo_diffs !=
       [{"test 1"=>
-         [{"path"=>File.join("1_sub_dir"),
-            "source"=>true, "reviewed"=>false, "ftype"=>"directory",
+         [{"path"=>File.join("1_sub_dir"), "source"=>"directory", "reviewed"=>nil,
             "contents"=>[File.join("11_sub_dir", "111_sub_dir", '1_sample.txt'),
                          File.join("11_sub_dir", "111_sub_dir", '1_sample2.txt'),
                          File.join("11_sub_dir", "112_sub_dir", '1121_sub_dir', '1_sample3.txt')]}]}]
@@ -158,25 +157,27 @@ class SettingsTest
     Updates.mark_reviewed(@settings, repo_test1, File.join(deeper1, "1_sample.txt"))
     Updates.mark_reviewed(@settings, repo_test1, File.join(deeper1, "1_sample2.txt"))
     all_repo_diffs = Updates.all_repo_diffs(@settings)
-    puts "fail: reviewed files in deep sources: #{all_repo_diffs.inspect}" if all_repo_diffs !=
+    puts "fail: source files in deep sources: #{all_repo_diffs.inspect}" if all_repo_diffs !=
       [{"test 1"=>
          [{"path"=>File.join("1_sub_dir", "11_sub_dir", "112_sub_dir"),
-            "source"=>true, "reviewed"=>false, "ftype"=>"directory",
+            "source"=>"directory", "reviewed"=>nil,
             "contents"=>[File.join('1121_sub_dir', '1_sample3.txt')]}]}]
 
 
 
     File.new(File.join(@settings.reviewed_dir(repo_test1), '1_sub_dir', '11_sub_dir', 'sample.txt'), 'w')
+    all_repo_diffs = Updates.all_repo_diffs(@settings)
+    puts "fail: source & reviewed files in deep sources: #{all_repo_diffs.inspect}" if all_repo_diffs !=
+      [{"test 1"=>
+         [{"path"=>File.join("1_sub_dir", "11_sub_dir", "112_sub_dir"),
+            "source"=>"directory", "reviewed"=>nil,
+            "contents"=>[File.join('1121_sub_dir', '1_sample3.txt')]},
+          {"path"=>File.join("1_sub_dir", "11_sub_dir", "sample.txt"), "source"=>nil, "reviewed"=>"file"}]}]
+
+
     Updates.mark_reviewed(@settings, repo_test1, File.join('1_sub_dir', '11_sub_dir'))
     all_repo_diffs = Updates.all_repo_diffs(@settings)
-    puts "fail: reviewed directory in deep sources: #{all_repo_diffs.inspect}" if all_repo_diffs !=
-      [{"test 1"=>
-         [{"path"=>File.join("1_sub_dir", "11_sub_dir", "sample.txt"),
-            "source"=>false, "reviewed"=>true, "ftype"=>"file"}]}]
-    # As you can see, it leaves the file that was only in the reviewed files.
-    # We may want to change this so it deletes (and warn the user profusely),
-    # but for now it'll be 2 steps for the user: mark whole dir reviewed,
-    # then eliminate old files individually.
+    puts "fail: reviewed directory in deep sources: #{all_repo_diffs.inspect}" if all_repo_diffs != []
 
 
 
@@ -187,31 +188,54 @@ class SettingsTest
 
 
     FileUtils.rm_rf(File.join(repo_test1['source_dir'], '1_sub_dir', '11_sub_dir'))
+    all_repo_diffs = Updates.all_repo_diffs(@settings)
+    puts "fail: removed entire source subdirectory: #{all_repo_diffs.inspect}" if all_repo_diffs !=
+      [{"test 1"=>
+         [{"path"=>File.join("1_sub_dir","11_sub_dir"), "source"=>nil, "reviewed"=>"directory",
+            "contents"=>["111_sub_dir/1_sample.txt",
+                         "111_sub_dir/1_sample2.txt",
+                         "112_sub_dir/1121_sub_dir/1_sample3.txt"]}]}]
+
+
+
     Updates.mark_reviewed(@settings, repo_test1, File.join('1_sub_dir', '11_sub_dir'))
     all_repo_diffs = Updates.all_repo_diffs(@settings)
-    puts "fail: removed entire subdirectory: #{all_repo_diffs.inspect}" if all_repo_diffs != []
+    puts "fail: reviewed entire subdirectory: #{all_repo_diffs.inspect}" if all_repo_diffs != []
 
 
-  end
 
-  # deprecated: use FileUtils.remove_entry_secure
-  def self.rm_rf(file)
-    if (File.exist? file)
-      if (File.file? file)
-        File.delete file
-      else
-        Dir.foreach(file) do |subfile|
-          if (subfile != '.' && subfile != '..')
-            rm_rf File.join(file, subfile)
-          end
-        end
-        Dir.delete(file)
-      end
-    end
+    # mismatch file and dir
+    Dir.rmdir(File.join(repo_test1['source_dir'], '1_sub_dir'))
+    File.new(File.join(repo_test1['source_dir'], '1_sub_dir'), 'w')    
+    all_repo_diffs = Updates.all_repo_diffs(@settings)
+    puts "fail: file vs dir: #{all_repo_diffs.inspect}" if all_repo_diffs != 
+      [{"test 1"=>[{"path"=>"1_sub_dir", "source"=>"file", "reviewed"=>"directory"}]}]
+
+
+
+    Updates.mark_reviewed(@settings, repo_test1, '1_sub_dir')
+    all_repo_diffs = Updates.all_repo_diffs(@settings)
+    puts "fail: reviewed file replaced dir: #{all_repo_diffs.inspect}" if all_repo_diffs != []
+
+
+
+    # mismatch dir and file
+    FileUtils::rm_f(File.join(repo_test1['source_dir'], '1_sub_dir'))
+    Dir.mkdir(File.join(repo_test1['source_dir'], '1_sub_dir'))
+    File.new(File.join(repo_test1['source_dir'], '1_sub_dir', '1_sample.txt'), 'w')    
+    all_repo_diffs = Updates.all_repo_diffs(@settings)
+    puts "fail: dir vs file: #{all_repo_diffs.inspect}" if all_repo_diffs != 
+      [{"test 1"=>[{"path"=>"1_sub_dir", "source"=>"directory", "reviewed"=>"file",
+                     "contents"=>["1_sample.txt"]}]}]
+
+
+
+    Updates.mark_reviewed(@settings, repo_test1, '1_sub_dir')
+    all_repo_diffs = Updates.all_repo_diffs(@settings)
+    puts "fail: reviewed dir replaced file: #{all_repo_diffs.inspect}" if all_repo_diffs != []
+
   end
 
 end
 
 SettingsTest.new.run
-puts "Remaining: file/dir mismatches"
-#SettingsTest.rm_rf(File.join("build", "test-data"))
