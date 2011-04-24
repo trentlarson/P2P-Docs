@@ -213,5 +213,5 @@ class SettingsTest
 end
 
 SettingsTest.new.run
-puts "Remaining: subdirectories, file/dir mismatches, "
+puts "Remaining: file/dir mismatches"
 #SettingsTest.rm_rf(File.join("build", "test-data"))
