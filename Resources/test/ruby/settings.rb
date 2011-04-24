@@ -275,4 +275,3 @@ class SettingsTest
 end
 
 SettingsTest.new.run
-puts "check existing file structure"
