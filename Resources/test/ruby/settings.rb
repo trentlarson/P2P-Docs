@@ -206,10 +206,10 @@ class SettingsTest
 
     # mismatch file and dir
     Dir.rmdir(File.join(repo_test1['source_dir'], '1_sub_dir'))
-    File.new(File.join(repo_test1['source_dir'], '1_sub_dir'), 'w')    
+    File.new(File.join(repo_test1['source_dir'], '1_sub_dir'), 'w')
     all_repo_diffs = Updates.all_repo_diffs(@settings)
     puts "fail: file vs dir: #{all_repo_diffs.inspect}" if all_repo_diffs != 
-      [{"test 1"=>[{"path"=>"1_sub_dir", "source"=>"file", "reviewed"=>"directory"}]}]
+      [{"test 1"=>[{"path"=>"1_sub_dir", "source"=>"file", "reviewed"=>"directory", "contents"=>[]}]}]
 
 
 
@@ -222,11 +222,47 @@ class SettingsTest
     # mismatch dir and file
     FileUtils::rm_f(File.join(repo_test1['source_dir'], '1_sub_dir'))
     Dir.mkdir(File.join(repo_test1['source_dir'], '1_sub_dir'))
-    File.new(File.join(repo_test1['source_dir'], '1_sub_dir', '1_sample.txt'), 'w')    
+    File.new(File.join(repo_test1['source_dir'], '1_sub_dir', '1_sample.txt'), 'w')
     all_repo_diffs = Updates.all_repo_diffs(@settings)
     puts "fail: dir vs file: #{all_repo_diffs.inspect}" if all_repo_diffs != 
       [{"test 1"=>[{"path"=>"1_sub_dir", "source"=>"directory", "reviewed"=>"file",
                      "contents"=>["1_sample.txt"]}]}]
+
+
+
+    Updates.mark_reviewed(@settings, repo_test1, '1_sub_dir')
+    all_repo_diffs = Updates.all_repo_diffs(@settings)
+    puts "fail: reviewed dir replaced file: #{all_repo_diffs.inspect}" if all_repo_diffs != []
+
+
+
+    # symlink, existent
+    FileUtils.rm(File.join(@settings.reviewed_dir(repo_test1), '1_sub_dir', '1_sample.txt'))
+    File.symlink(File.join("..", "..", "..", 'settings.yaml'),
+                 File.join(@settings.reviewed_dir(repo_test1), '1_sub_dir', '1_sample.txt'))
+    all_repo_diffs = Updates.all_repo_diffs(@settings)
+    puts "fail: mismatch file types w/ good link: #{all_repo_diffs.inspect}" if all_repo_diffs !=
+      [{"test 1"=>[{"reviewed"=>"file", "path"=>"1_sub_dir/1_sample.txt", "source"=>"file"}]}]
+
+
+
+    # symlink nonexistent
+    FileUtils.rm(File.join(@settings.reviewed_dir(repo_test1), '1_sub_dir', '1_sample.txt'))
+    File.symlink(File.join("..", "..", 'settings.yaml'),
+                 File.join(@settings.reviewed_dir(repo_test1), '1_sub_dir', '1_sample.txt'))
+    all_repo_diffs = Updates.all_repo_diffs(@settings)
+    puts "fail: mismatch file types w/ bad link: #{all_repo_diffs.inspect}" if all_repo_diffs !=
+      [{"test 1"=>[{"reviewed"=>nil, "path"=>"1_sub_dir/1_sample.txt", "source"=>"file"}]}]
+
+
+
+    # characterSpecial
+    FileUtils.rm(File.join(@settings.reviewed_dir(repo_test1), '1_sub_dir', '1_sample.txt'))
+    File.symlink("/dev/tty",
+                 File.join(@settings.reviewed_dir(repo_test1), '1_sub_dir', '1_sample.txt'))
+    all_repo_diffs = Updates.all_repo_diffs(@settings)
+    puts "fail: mismatch file types: #{all_repo_diffs.inspect}" if all_repo_diffs !=
+      [{"test 1"=>[{"reviewed"=>"link", "path"=>"1_sub_dir/1_sample.txt", "source"=>"file"}]}]
 
 
 
@@ -239,3 +275,4 @@ class SettingsTest
 end
 
 SettingsTest.new.run
+puts "check existing file structure"

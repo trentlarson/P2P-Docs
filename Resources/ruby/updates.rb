@@ -69,9 +69,11 @@ class Updates
       diff_subs.flatten.compact
     elsif (File.ftype(source_file) != File.ftype(reviewed_file))
       if (File.directory?(source_file))
-        contents = 
           [{'path' => subpath, 'source' => 'directory', 'reviewed' => File.ftype(reviewed_file),
              'contents' => all_files_below(source_file, "")}]
+      elsif (File.directory?(reviewed_file))
+          [{'path' => subpath, 'source' => File.ftype(source_file), 'reviewed' => 'directory',
+             'contents' => all_files_below(reviewed_file, "")}]
       else
         [{'path' => subpath, 'source' => File.ftype(source_file), 'reviewed' => File.ftype(reviewed_file) }]
       end
@@ -104,14 +106,6 @@ class Updates
 
   # marks the subpath in repo as reviewed
   def self.mark_reviewed(settings, repo, subpath)
-    # Implementation note: I'm not invoking this method recursively (though I
-    # realize I'm using recursive copy, which is different).  I suggest we keep
-    # it that way because the user is specifically acting on the given path.
-    # It makes a difference in the case where some entry below the requested
-    # subpath is no longer in the source but is still in the reviewed path; we
-    # currently leave it for the user to explicitly review and remove, but if we
-    # recursed we would get to that entry and always decide it must be removed.
-
     source = File.join(repo['source_dir'], subpath)
     target = File.join(settings.reviewed_dir(repo), subpath)
     if (FileTest.exist? source)
