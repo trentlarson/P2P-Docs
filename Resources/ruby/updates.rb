@@ -97,23 +97,39 @@ class Updates
 #puts "  recursing on #{entries}: #{entries.map{ |entry| all_files_below(entry) }.flatten}"
       entries.map{ |entry| all_files_below(source_dir, File.join(subpath, entry)) }.flatten
     else
+      # it's an unknown ftype; we'll ignore it
       []
     end
   end
 
   # marks the subpath in repo as reviewed
   def self.mark_reviewed(settings, repo, subpath)
+    # Implementation note: I'm not invoking this method recursively (though I
+    # realize I'm using recursive copy, which is different).  I suggest we keep
+    # it that way because the user is specifically acting on the given path.
+    # It makes a difference in the case where some element is no longer in the
+    # source but is still in the reviewed path; we currently leave it for the
+    # user to explicitly review and remove, but if we recursed we would get to
+    # that element and always decide it must be removed.
+
     source = File.join(repo['source_dir'], subpath)
     target = File.join(settings.reviewed_dir(repo), subpath)
     if (FileTest.exist? source)
       if (FileTest.file? source)
-        FileUtils::mkdir_p(File.dirname(target))
-        FileUtils::cp(source, File.join(settings.reviewed_dir(repo), subpath))
+        FileUtils::mkpath(File.dirname(target))
+        FileUtils::cp(source, target, :preserve => true)
+      elsif (FileTest.directory? source)
+        if (File.exist? target)
+          FileUtils::cp_r(source + '/.', target, :preserve => true)
+        else
+          FileUtils::mkpath(File.dirname(target))
+          FileUtils::cp_r(source, target, :preserve => true)
+        end
       else
-        # handle where it's a directory
+        # it's an unknown ftype; we'll ignore it
       end
     else
-      # gotta handle where it's deleted from source
+      FileUtils.rm_rf(target, :secure => true)
     end
   end
 

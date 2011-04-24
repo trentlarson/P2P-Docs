@@ -82,9 +82,13 @@ class SettingsTest
 
 
 
+    sleep(1) # for testing modified time
     Updates.mark_reviewed(@settings, repo_test0, 'sample.txt')
     all_repo_diffs = Updates.all_repo_diffs(@settings)
     puts "fail: after review: #{all_repo_diffs.inspect}" if all_repo_diffs != []
+    source_mtime = File.mtime(File.join(repo_test0['source_dir'], "sample.txt"))
+    target_mtime = File.mtime(File.join(@settings.reviewed_dir(repo_test0), 'sample.txt'))
+    puts "fail: different times: #{source_mtime} #{target_mtime}" if source_mtime != target_mtime
 
 
 
@@ -128,9 +132,9 @@ class SettingsTest
 
 
     deeper1 = File.join('1_sub_dir', '11_sub_dir', '111_sub_dir')
-    deeper2 = File.join('1_sub_dir', '11_sub_dir', '112_sub_dir')
-    FileUtils::mkdir_p(File.join(repo_test1['source_dir'], deeper1))
-    FileUtils::mkdir_p(File.join(repo_test1['source_dir'], deeper2))
+    deeper2 = File.join('1_sub_dir', '11_sub_dir', '112_sub_dir', '1121_sub_dir')
+    FileUtils::mkpath(File.join(repo_test1['source_dir'], deeper1))
+    FileUtils::mkpath(File.join(repo_test1['source_dir'], deeper2))
     File.open(File.join(repo_test1['source_dir'], deeper1, '1_sample.txt'), 'w') do |out|
       out.write "less\n"
     end
@@ -147,19 +151,38 @@ class SettingsTest
             "source"=>true, "reviewed"=>false, "ftype"=>"directory",
             "contents"=>[File.join("11_sub_dir", "111_sub_dir", '1_sample.txt'),
                          File.join("11_sub_dir", "111_sub_dir", '1_sample2.txt'),
-                         File.join("11_sub_dir", "112_sub_dir", '1_sample3.txt')]}]}]
+                         File.join("11_sub_dir", "112_sub_dir", '1121_sub_dir', '1_sample3.txt')]}]}]
 
 
 
     Updates.mark_reviewed(@settings, repo_test1, File.join(deeper1, "1_sample.txt"))
     Updates.mark_reviewed(@settings, repo_test1, File.join(deeper1, "1_sample2.txt"))
-    Updates.mark_reviewed(@settings, repo_test1, File.join(deeper2, "1_sample3.txt"))
     all_repo_diffs = Updates.all_repo_diffs(@settings)
-    puts "fail: reviewed files in deep sources: #{all_repo_diffs.inspect}" if all_repo_diffs != []
+    puts "fail: reviewed files in deep sources: #{all_repo_diffs.inspect}" if all_repo_diffs !=
+      [{"test 1"=>
+         [{"path"=>File.join("1_sub_dir", "11_sub_dir", "112_sub_dir"),
+            "source"=>true, "reviewed"=>false, "ftype"=>"directory",
+            "contents"=>[File.join('1121_sub_dir', '1_sample3.txt')]}]}]
 
 
 
-# ...
+    File.new(File.join(@settings.reviewed_dir(repo_test1), '1_sub_dir', '11_sub_dir', 'sample.txt'), 'w')
+    Updates.mark_reviewed(@settings, repo_test1, File.join('1_sub_dir', '11_sub_dir'))
+    all_repo_diffs = Updates.all_repo_diffs(@settings)
+    puts "fail: reviewed directory in deep sources: #{all_repo_diffs.inspect}" if all_repo_diffs !=
+      [{"test 1"=>
+         [{"path"=>File.join("1_sub_dir", "11_sub_dir", "sample.txt"),
+            "source"=>false, "reviewed"=>true, "ftype"=>"file"}]}]
+    # As you can see, it leaves the file that was only in the reviewed files.
+    # We may want to change this so it deletes (and warn the user profusely),
+    # but for now it'll be 2 steps for the user: mark whole dir reviewed,
+    # then eliminate old files individually.
+
+
+
+    Updates.mark_reviewed(@settings, repo_test1, File.join('1_sub_dir', '11_sub_dir', 'sample.txt'))
+    all_repo_diffs = Updates.all_repo_diffs(@settings)
+    puts "fail: reviewed removed file: #{all_repo_diffs.inspect}" if all_repo_diffs != []
 
 
 
