@@ -186,25 +186,11 @@ class SettingsTest
 
 
 
-    File.new(File.join(@settings.reviewed_dir(repo_test0), 'sample1.txt'), 'w')
-    File.new(File.join(@settings.reviewed_dir(repo_test0), 'sample2.txt'), 'w')
-    all_repo_diffs = Updates.all_repo_diffs(@settings)    
-    puts "fail: two empty files in reviewed: #{all_repo_diffs.inspect}" if all_repo_diffs !=
-      [{"test 0"=>
-         [{"path"=>"sample1.txt", "source"=>false, "reviewed"=>true, "ftype"=>"file"},
-          {"path"=>"sample2.txt", "source"=>false, "reviewed"=>true, "ftype"=>"file"}]}]
-
-
-
-    File.new(File.join(repo_test1['source_dir'], 'sample-again.txt'), 'w')
+    FileUtils.rm_rf(File.join(repo_test1['source_dir'], '1_sub_dir', '11_sub_dir'))
+    Updates.mark_reviewed(@settings, repo_test1, File.join('1_sub_dir', '11_sub_dir'))
     all_repo_diffs = Updates.all_repo_diffs(@settings)
-    puts "fail: 3 files in 2 repos: #{all_repo_diffs.inspect}" if all_repo_diffs !=
-      [{"test 0"=>
-         [{"path"=>"sample1.txt", "source"=>false, "reviewed"=>true, "ftype"=>"file"},
-          {"path"=>"sample2.txt", "source"=>false, "reviewed"=>true, "ftype"=>"file"}]},
-       {"test 1"=>
-         [{"path"=>"sample-again.txt", "source"=>true, "reviewed"=>false, "ftype"=>"file"}]}]
-    
+    puts "fail: removed entire subdirectory: #{all_repo_diffs.inspect}" if all_repo_diffs != []
+
 
   end
 
