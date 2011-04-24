@@ -31,8 +31,8 @@ May contain a settings.yaml file; see SettingsTest.two_repos for an example stru
     end
 
     if (@@settings == {})
-      if (File.exists? settings_file)
-        @@settings = YAML.load_file(settings_file)
+      if (File.exist? settings_file())
+        @@settings = YAML.load_file(settings_file())
       end
       #YAML.dump(@settings)
     end
@@ -45,19 +45,19 @@ May contain a settings.yaml file; see SettingsTest.two_repos for an example stru
     end
   end
 
-  def settings_file
+  def settings_file()
     File.join(@@settings_dir, "settings.yaml")
   end
 
-  def data_dir
+  def data_dir()
     @@settings_dir
   end
 
-  def properties
+  def properties()
     @@settings
   end
 
-  def reviewed_base_dir
+  def reviewed_base_dir()
     File.join(@@settings_dir, "reviewed_files")
   end
 
