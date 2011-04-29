@@ -1,5 +1,11 @@
 require 'fileutils'
 
+# command-line usage:
+# 1) Uncomment the last line(s) of this file, then:
+# ruby updates.rb
+# 2) ... or do this:
+# ruby -e 'load "updates.rb"; SEE_END_OF_FILE'
+
 class Updates
 
   # return an array of { 'name' => REPO_NAME, 'diffs' => RESULT_OF_DIFF_DIRS }
@@ -121,3 +127,5 @@ class Updates
   end
 
 end
+
+#puts Updates.all_repo_diffs(Settings.new("build/test-data")).to_s

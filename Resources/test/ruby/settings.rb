@@ -107,6 +107,28 @@ class SettingsTest
 
 
 
+    File.open(File.join(repo_test0['source_dir'], 'sample.txt'), 'w') do |out|
+      out.write "mitch\n"
+    end
+    File.new(File.join(repo_test1['source_dir'], '1_sample.txt'), 'w')
+    Updates.mark_reviewed(@settings, repo_test1, '1_sample.txt')
+    File.open(File.join(repo_test1['source_dir'], '1_sample.txt'), 'w') do |out|
+      out.write "yabba dabba doo\n"
+    end
+    all_repo_diffs = Updates.all_repo_diffs(@settings)
+    puts "fail: two different files: #{all_repo_diffs.inspect}" if all_repo_diffs !=
+      [{"name"=>"test 0", "diffs"=>[{"path"=>"sample.txt", "source"=>"file", "reviewed"=>"file"}]},
+       {"name"=>"test 1", "diffs"=>[{"path"=>"1_sample.txt", "source"=>"file", "reviewed"=>"file"}]}]
+
+
+
+    Updates.mark_reviewed(@settings, repo_test0, 'sample.txt')
+    Updates.mark_reviewed(@settings, repo_test1, '1_sample.txt')
+    all_repo_diffs = Updates.all_repo_diffs(@settings)
+    puts "fail: no changed files: #{all_repo_diffs.inspect}" if all_repo_diffs != []
+
+
+
     Dir.mkdir(File.join(repo_test0['source_dir'], "a_sub_dir"))
     all_repo_diffs = Updates.all_repo_diffs(@settings)
     puts "fail: new empty source directory: #{all_repo_diffs.inspect}" if all_repo_diffs != []
@@ -285,4 +307,3 @@ class SettingsTest
 end
 
 SettingsTest.new.run
-puts "make a test with 2 elements!"

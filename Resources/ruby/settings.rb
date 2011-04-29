@@ -1,7 +1,7 @@
 require 'yaml'
 require 'fileutils'
 
-# Usage:
+# command-line usage:
 # 1) Uncomment the last line(s) of this file, then:
 # ruby settings.rb
 # 2) ... or do this:
