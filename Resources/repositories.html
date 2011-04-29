@@ -45,9 +45,9 @@ try {
   var repos = window.p2pdoc_settings.properties().repositories;
 
   if (repos)
+  var item = $('#repoList #repoItem_');
   for (var i = 0; i < repos.length; i++) {
     var repo = repos[i];
-    var item = $('#repoList #repoItem_');
     var addedItem = item.clone();
     addedItem.attr("id", "repoItem_" + repo.name);
     addedItem.insertBefore(item);

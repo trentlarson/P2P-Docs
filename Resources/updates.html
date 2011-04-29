@@ -13,16 +13,48 @@
 </script>
 
 <script type="text/javascript">
+
+function all_props(the_obj) {
+  var str = "";
+  for (prop in the_obj) {
+    str += prop + " value: "+ the_obj[prop]+"\n";
+  }
+  return str;
+}
+
 var Ti = {fs: Titanium.Filesystem, api:Titanium.API};
 
 $(document).ready(function() {
 
 try {
+  var all_diffs = window.p2pdoc_all_diffs;
+  if (all_diffs.length > 0) {
+    var repoName;
+    var repoFileList, repoFile;
+    var item = $('#fileList #file_');
+    var diffSet;
 
-  if (window.p2pdoc_all_diffs.length > 0) {
-    $('#same').hide();
+    for (var i = 0, repoCount = all_diffs.length; i < repoCount; i++) {
+      oneRepoDiffs = all_diffs[i];
+      repoName = oneRepoDiffs.name;
+      repoDiffList = oneRepoDiffs.diffs;
+      for (var j = 0, diffCount = repoDiffList.length; j < diffCount; j++) {
+        var addedItem = item.clone();
+        addedItem.insertBefore(item);
+
+        addedItem.attr("id", "file_" + j);
+        diffSet = repoDiffList[j];
+        addedItem.find("#repoName_").attr("id", "repoName_" + j).html(repoName);
+        addedItem.find("#diffPath_").attr("id", "diffPath_" + j).html(diffSet.path);
+        addedItem.find("#diffCount_").attr("id", "diffCount_" + j).html(diffSet.contents.length);
+      }
+    }
+
     $('#diff').show();
+    $('#same').hide();
   }
+  $('#fileList #file_').hide();
+
 
 } catch (e) {
   alert('error: ' + e);
@@ -36,6 +68,14 @@ try {
 
 <h4 id="same">Nothing to see.</h4>
 <h4 id="diff" style="display: none;">You've got changes!</h4>
+
+<div id="fileList">
+  <div id="file_">
+    <span id="repoName_">repo</span>
+    <span id="diffPath_">path</span>
+    <span id="diffCount_">count</span>
+  </div>
+</div>
 
 </body>
 </html>
