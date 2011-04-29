@@ -2,6 +2,7 @@ require 'fileutils'
 
 class Updates
 
+  # return an array of { 'name' => REPO_NAME, 'diffs' => RESULT_OF_DIFF_DIRS }
   def self.all_repo_diffs(settings)
     result = settings.properties['repositories']
     if (result == nil) 
@@ -9,9 +10,11 @@ class Updates
     else
       result = 
         result.collect do |repo|
-        { repo['name'] => diff_dirs(repo['source_dir'], settings.reviewed_dir(repo['name'])) }
+        { 'name' => repo['name'], 'diffs' => diff_dirs(repo['source_dir'], settings.reviewed_dir(repo['name'])) }
       end
-      result.select { |hash| hash.values.flatten != [] }
+      junk = result.select { |hash| hash['diffs'] != [] }
+#puts "My whole diff: " + junk.inspect
+      junk
     end
   end
 

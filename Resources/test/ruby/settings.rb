@@ -78,7 +78,7 @@ class SettingsTest
     File.new(File.join(repo_test0['source_dir'], 'sample.txt'), 'w')
     all_repo_diffs = Updates.all_repo_diffs(@settings)
     puts "fail: one empty file: #{all_repo_diffs.inspect}" if all_repo_diffs !=
-      [{"test 0"=>[{"path"=>"sample.txt", "source"=>"file", "reviewed"=>nil}]}]
+      [{"name"=>"test 0", "diffs"=>[{"path"=>"sample.txt", "source"=>"file", "reviewed"=>nil}]}]
 
 
 
@@ -97,7 +97,7 @@ class SettingsTest
     end
     all_repo_diffs = Updates.all_repo_diffs(@settings)
     puts "fail: one file with changed contents: #{all_repo_diffs.inspect}" if all_repo_diffs !=
-      [{"test 0"=>[{"path"=>"sample.txt", "source"=>"file", "reviewed"=>"file"}]}]
+      [{"name"=>"test 0", "diffs"=>[{"path"=>"sample.txt", "source"=>"file", "reviewed"=>"file"}]}]
 
 
 
@@ -119,7 +119,8 @@ class SettingsTest
     all_repo_diffs = Updates.all_repo_diffs(@settings)
     a_filename = File.join('a_sub_dir', 'a_sample.txt')
     puts "fail: new file in source directory: #{all_repo_diffs.inspect}" if all_repo_diffs !=
-      [{"test 0"=>
+      [{"name"=>"test 0",
+        "diffs" =>
          [{"path"=>"a_sub_dir", "source"=>"directory", "reviewed"=>nil,
             "contents"=>['a_sample.txt']}]}]
 
@@ -146,7 +147,8 @@ class SettingsTest
     end
     all_repo_diffs = Updates.all_repo_diffs(@settings)
     puts "fail: new files in deep sources: #{all_repo_diffs.inspect}" if all_repo_diffs !=
-      [{"test 1"=>
+      [{"name"=>"test 1",
+         "diffs"=>
          [{"path"=>File.join("1_sub_dir"), "source"=>"directory", "reviewed"=>nil,
             "contents"=>[File.join("11_sub_dir", "111_sub_dir", '1_sample.txt'),
                          File.join("11_sub_dir", "111_sub_dir", '1_sample2.txt'),
@@ -158,7 +160,8 @@ class SettingsTest
     Updates.mark_reviewed(@settings, repo_test1, File.join(deeper1, "1_sample2.txt"))
     all_repo_diffs = Updates.all_repo_diffs(@settings)
     puts "fail: source files in deep sources: #{all_repo_diffs.inspect}" if all_repo_diffs !=
-      [{"test 1"=>
+      [{"name"=>"test 1",
+         "diffs"=>
          [{"path"=>File.join("1_sub_dir", "11_sub_dir", "112_sub_dir"),
             "source"=>"directory", "reviewed"=>nil,
             "contents"=>[File.join('1121_sub_dir', '1_sample3.txt')]}]}]
@@ -168,7 +171,8 @@ class SettingsTest
     File.new(File.join(@settings.reviewed_dir(repo_test1), '1_sub_dir', '11_sub_dir', 'sample.txt'), 'w')
     all_repo_diffs = Updates.all_repo_diffs(@settings)
     puts "fail: source & reviewed files in deep sources: #{all_repo_diffs.inspect}" if all_repo_diffs !=
-      [{"test 1"=>
+      [{"name"=>"test 1",
+         "diffs"=>
          [{"path"=>File.join("1_sub_dir", "11_sub_dir", "112_sub_dir"),
             "source"=>"directory", "reviewed"=>nil,
             "contents"=>[File.join('1121_sub_dir', '1_sample3.txt')]},
@@ -190,7 +194,8 @@ class SettingsTest
     FileUtils.rm_rf(File.join(repo_test1['source_dir'], '1_sub_dir', '11_sub_dir'))
     all_repo_diffs = Updates.all_repo_diffs(@settings)
     puts "fail: removed entire source subdirectory: #{all_repo_diffs.inspect}" if all_repo_diffs !=
-      [{"test 1"=>
+      [{"name"=>"test 1",
+         "diffs"=>
          [{"path"=>File.join("1_sub_dir","11_sub_dir"), "source"=>nil, "reviewed"=>"directory",
             "contents"=>["111_sub_dir/1_sample.txt",
                          "111_sub_dir/1_sample2.txt",
@@ -209,7 +214,8 @@ class SettingsTest
     File.new(File.join(repo_test1['source_dir'], '1_sub_dir'), 'w')
     all_repo_diffs = Updates.all_repo_diffs(@settings)
     puts "fail: file vs dir: #{all_repo_diffs.inspect}" if all_repo_diffs != 
-      [{"test 1"=>[{"path"=>"1_sub_dir", "source"=>"file", "reviewed"=>"directory", "contents"=>[]}]}]
+      [{"name"=>"test 1",
+         "diffs"=>[{"path"=>"1_sub_dir", "source"=>"file", "reviewed"=>"directory", "contents"=>[]}]}]
 
 
 
@@ -225,8 +231,9 @@ class SettingsTest
     File.new(File.join(repo_test1['source_dir'], '1_sub_dir', '1_sample.txt'), 'w')
     all_repo_diffs = Updates.all_repo_diffs(@settings)
     puts "fail: dir vs file: #{all_repo_diffs.inspect}" if all_repo_diffs != 
-      [{"test 1"=>[{"path"=>"1_sub_dir", "source"=>"directory", "reviewed"=>"file",
-                     "contents"=>["1_sample.txt"]}]}]
+      [{"name"=>"test 1",
+         "diffs"=>
+         [{"path"=>"1_sub_dir", "source"=>"directory", "reviewed"=>"file", "contents"=>["1_sample.txt"]}]}]
 
 
 
@@ -242,7 +249,8 @@ class SettingsTest
                  File.join(@settings.reviewed_dir(repo_test1), '1_sub_dir', '1_sample.txt'))
     all_repo_diffs = Updates.all_repo_diffs(@settings)
     puts "fail: mismatch file types w/ good link: #{all_repo_diffs.inspect}" if all_repo_diffs !=
-      [{"test 1"=>[{"reviewed"=>"file", "path"=>"1_sub_dir/1_sample.txt", "source"=>"file"}]}]
+      [{"name"=>"test 1",
+         "diffs"=>[{"reviewed"=>"file", "path"=>"1_sub_dir/1_sample.txt", "source"=>"file"}]}]
 
 
 
@@ -252,7 +260,8 @@ class SettingsTest
                  File.join(@settings.reviewed_dir(repo_test1), '1_sub_dir', '1_sample.txt'))
     all_repo_diffs = Updates.all_repo_diffs(@settings)
     puts "fail: mismatch file types w/ bad link: #{all_repo_diffs.inspect}" if all_repo_diffs !=
-      [{"test 1"=>[{"reviewed"=>nil, "path"=>"1_sub_dir/1_sample.txt", "source"=>"file"}]}]
+      [{"name"=>"test 1",
+         "diffs"=>[{"reviewed"=>nil, "path"=>"1_sub_dir/1_sample.txt", "source"=>"file"}]}]
 
 
 
@@ -262,7 +271,8 @@ class SettingsTest
                  File.join(@settings.reviewed_dir(repo_test1), '1_sub_dir', '1_sample.txt'))
     all_repo_diffs = Updates.all_repo_diffs(@settings)
     puts "fail: mismatch file types: #{all_repo_diffs.inspect}" if all_repo_diffs !=
-      [{"test 1"=>[{"reviewed"=>"link", "path"=>"1_sub_dir/1_sample.txt", "source"=>"file"}]}]
+      [{"name"=>"test 1",
+         "diffs"=>[{"reviewed"=>"link", "path"=>"1_sub_dir/1_sample.txt", "source"=>"file"}]}]
 
 
 
@@ -275,3 +285,4 @@ class SettingsTest
 end
 
 SettingsTest.new.run
+puts "make a test with 2 elements!"
