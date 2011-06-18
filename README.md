@@ -17,3 +17,9 @@ To do before next release:
  * program auto-update
  * make this a background service... with notification hooks?
  * documentation and/or help
+
+Current task:
+ * get a couple of read-only subscription tools to support Tolman family histories
+
+Bugs
+ * click Settings, then Index, then Updates and crash
