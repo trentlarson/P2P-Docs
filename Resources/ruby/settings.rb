@@ -12,6 +12,7 @@ class Settings
   VERSION = "0"
 
   @@settings_dir = ""
+  # format: { repositories => [ { name => "", source_dir => "" } ... ] }
   @@settings = {}
 
 
@@ -72,6 +73,22 @@ May contain a settings.yaml file; see SettingsTest.two_repos for an example stru
       File.join(reviewed_base_dir, repo.tr(" ", "_"))
     else
       File.join(reviewed_base_dir, repo['name'].tr(" ", "_"))
+    end
+  end
+
+  def add(name, source_dir)
+    if (name.class.name == "RubyKObject")
+      name = name.toString()
+    end
+    if (source_dir.class.name == "RubyKObject")
+      source_dir = source_dir.toString()
+    end
+    @@settings['repositories'] << { 'name' => name, 'source_dir' => source_dir }
+  end
+
+  def save()
+    File.open(settings_file(), 'w') do |out|
+      YAML.dump(@@settings, out )
     end
   end
 
