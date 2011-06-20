@@ -76,14 +76,21 @@ May contain a settings.yaml file; see SettingsTest.two_repos for an example stru
     end
   end
 
-  def add(name, source_dir)
-    if (name.class.name == "RubyKObject")
+  def add_repo(name, source_dir)
+    if (name.class.name == "RubyKObject") # for method results from Titanium
       name = name.toString()
     end
-    if (source_dir.class.name == "RubyKObject")
+    if (source_dir.class.name == "RubyKObject") # for method results from Titanium
       source_dir = source_dir.toString()
     end
     @@settings['repositories'] << { 'name' => name, 'source_dir' => source_dir }
+  end
+
+  def remove_repo(name)
+    if (name.class.name == "RubyKObject") # for method results from Titanium
+      name = name.toString()
+    end
+    @@settings['repositories'].delete_if{ |repo| repo['name'] == name }
   end
 
   def save()

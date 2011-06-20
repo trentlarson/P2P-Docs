@@ -38,27 +38,40 @@
 <script type="text/javascript">
 var Ti = {fs: Titanium.Filesystem, api:Titanium.API};
 
+var remove_repo = function(name) {
+  return function() {
+    if (confirm("This will stop tracking the repository " + name + ", but it will leave all the files.  Are you sure you want to stop tracking it?")) {
+      window.p2pdoc_settings.remove_repo(name);
+      window.p2pdoc_settings.save();
+    }
+  }
+};
+
+
 $(document).ready(function() {
 
 try {
 
   var repos = window.p2pdoc_settings.properties().repositories;
 
-  if (repos)
-  var item = $('#repoItem_');
-  for (var i = 0; i < repos.length; i++) {
-    var repo = repos[i];
+  if (repos) {
+    var item = $('#repoItem_');
+    for (var i = 0; i < repos.length; i++) {
+      var repo = repos[i];
 
-    // create the visual for it
-    var addedItem = item.clone();
-    addedItem.attr("id", "repoItem_" + repo.name);
-    addedItem.insertBefore(item);
-    addedItem.find("#repoRemove_").attr("id", "repoRemove_" + repo.name).show();
-    addedItem.find("#repoName_")  .attr("id", "repoName_"   + repo.name).show().val(repo.name).width(repo.name.length * 7);
-    addedItem.find("#repoPath_")  .attr("id", "repoPath_"   + repo.name).show().val(repo.source_dir).width(repo.source_dir.length * 7);
-    addedItem.find("#repoAdd_")   .attr("id", "repoAdd_"    + repo.name).hide();
-    addedItem.find("#repoAccept_").attr("id", "repoAccept_" + repo.name).hide();
-    addedItem.find("#repoRevert_").attr("id", "repoRevert_" + repo.name).hide();
+      // create the visual for it
+      var addedItem = item.clone();
+      addedItem.attr("id", "repoItem_" + repo.name);
+      addedItem.insertBefore(item);
+      addedItem.find("#repoRemove_").attr("id", "repoRemove_" + repo.name).show();
+      addedItem.find("#repoName_")  .attr("id", "repoName_"   + repo.name).show().val(repo.name).width(repo.name.length * 7);
+      addedItem.find("#repoPath_")  .attr("id", "repoPath_"   + repo.name).show().val(repo.source_dir).width(repo.source_dir.length * 7);
+      addedItem.find("#repoAdd_")   .attr("id", "repoAdd_"    + repo.name).hide();
+      addedItem.find("#repoAccept_").attr("id", "repoAccept_" + repo.name).hide();
+      addedItem.find("#repoRevert_").attr("id", "repoRevert_" + repo.name).hide();
+      // attach methods to the visuals
+      addedItem.find("#repoRemove_" + repo.name).click(remove_repo(repo.name));
+    }
   }
 
 } catch (e) {
@@ -68,7 +81,7 @@ try {
 $('#repoItem_ #repoAdd_').click(function() {
   var repos = window.p2pdoc_settings.properties().repositories;
   var lastRepo = repos.last();
-  window.p2pdoc_settings.add(lastRepo.name+'-2', lastRepo.source_dir+'-2');
+  window.p2pdoc_settings.add_repo(lastRepo.name+'-2', lastRepo.source_dir+'-2');
   window.p2pdoc_settings.save();
   var repo = repos.last();
   
@@ -83,6 +96,8 @@ $('#repoItem_ #repoAdd_').click(function() {
   addedItem.find("#repoAdd_")   .attr("id", "repoAdd_"    + repo.name).hide();
   addedItem.find("#repoAccept_").attr("id", "repoAccept_" + repo.name).hide();
   addedItem.find("#repoRevert_").attr("id", "repoRevert_" + repo.name).hide();
+  // attach methods to the visuals
+  addedItem.find("#repoRemove_" + repo.name).click(remove_repo(repo.name));
 });
 
 });
