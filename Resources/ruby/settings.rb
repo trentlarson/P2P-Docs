@@ -86,16 +86,30 @@ May contain a settings.yaml file; see SettingsTest.two_repos for an example stru
     @@settings['repositories'] << { 'name' => name, 'source_dir' => source_dir }
   end
 
+  def test
+  end
+
+  def testin()
+puts 'testin'
+  end
+
+  def testout(name)
+puts 'testout'
+  end
+
   def remove_repo(name)
+puts 'about to compare strings'
     if (name.class.name == "RubyKObject") # for method results from Titanium
       name = name.toString()
     end
+puts 'name ' + name.to_s + ' of class ' + name.class.name.to_s
     @@settings['repositories'].delete_if{ |repo| repo['name'] == name }
   end
 
   def save()
+puts 'about to save file with ' + @@settings
     File.open(settings_file(), 'w') do |out|
-      YAML.dump(@@settings, out )
+      YAML.dump(@@settings, out)
     end
   end
 

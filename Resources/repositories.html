@@ -41,7 +41,15 @@ var Ti = {fs: Titanium.Filesystem, api:Titanium.API};
 var remove_repo = function(name) {
   return function() {
     if (confirm("This will stop tracking the repository " + name + ", but it will leave all the files.  Are you sure you want to stop tracking it?")) {
+alert('about to test');
+      window.p2pdoc_settings.test();
+alert('about to test in');
+      window.p2pdoc_settings.testin();
+alert('about to test out');
+      window.p2pdoc_settings.testout(name);
+alert('about to remove');
       window.p2pdoc_settings.remove_repo(name);
+alert('about to save');
       window.p2pdoc_settings.save();
     }
   }
@@ -57,6 +65,7 @@ try {
   if (repos) {
     var item = $('#repoItem_');
     for (var i = 0; i < repos.length; i++) {
+window.p2pdoc_settings.testin();
       var repo = repos[i];
 
       // create the visual for it
