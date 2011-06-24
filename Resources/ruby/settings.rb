@@ -14,7 +14,8 @@ class Settings
   @@settings_dir = ""
   # format: { repositories => [ { name => "", source_dir => "" } ... ] }
   # see test settings.rb for example structures
-  @@settings = {}
+  BLANK_SETTINGS = {'repositories' => []}
+  @@settings = BLANK_SETTINGS
 
 
 =begin
@@ -33,7 +34,7 @@ May reference a settings.yaml file.
       @@settings_dir = dirname
     end
 
-    if (@@settings == {})
+    if (@@settings == BLANK_SETTINGS)
       if (File.exist? settings_file())
         @@settings = YAML.load_file(settings_file())
       end

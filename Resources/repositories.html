@@ -55,7 +55,7 @@ try {
 
   var repos = window.p2pdoc_settings.properties().repositories;
 
-  if (repos) {
+  if (repos.length > 0) {
     var item = $('#repoItem_');
     var repo_names = [];
     for (var i = 0; i < repos.length; i++) {
@@ -87,25 +87,28 @@ try {
 }
 
 $('#repoItem_ #repoAdd_').click(function() {
-  var repos = window.p2pdoc_settings.properties().repositories;
-  var lastRepo = repos.last();
-  window.p2pdoc_settings.add_repo(lastRepo.name+'-2', lastRepo.source_dir+'-2');
+  var new_name = "sample";
+  var new_dir = Titanium.Filesystem.getApplicationDataDirectory() + "/sample";
+  if (repos.length > 0) {
+  	new_name = repos.last().name + "-2";
+  	new_dir = repos.last().source_dir + "-2";
+  }
+  window.p2pdoc_settings.add_repo(new_name, new_dir);
   window.p2pdoc_settings.save();
-  var repo = repos.last();
   
   // create the visual for it
   var item = $('#repoItem_');
   var addedItem = item.clone();
-  addedItem.attr("id", "repoItem_" + repo.name);
+  addedItem.attr("id", "repoItem_" + new_name);
   addedItem.insertBefore(item);
-  addedItem.find("#repoRemove_").attr("id", "repoRemove_" + repo.name).show();
-  addedItem.find("#repoName_")  .attr("id", "repoName_"   + repo.name).show().val(repo.name).width(repo.name.length * 7);
-  addedItem.find("#repoPath_")  .attr("id", "repoPath_"   + repo.name).show().val(repo.source_dir).width(repo.source_dir.length * 7);
-  addedItem.find("#repoAdd_")   .attr("id", "repoAdd_"    + repo.name).hide();
-  addedItem.find("#repoAccept_").attr("id", "repoAccept_" + repo.name).hide();
-  addedItem.find("#repoRevert_").attr("id", "repoRevert_" + repo.name).hide();
-  // attach methods to the visuals
-  addedItem.find("#repoRemove_" + repo.name).click(remove_repo(repo.name));
+  addedItem.find("#repoRemove_").attr("id", "repoRemove_" + new_name).show();
+  addedItem.find("#repoName_")  .attr("id", "repoName_"   + new_name).show().val(new_name).width(new_name.length * 8);
+  addedItem.find("#repoPath_")  .attr("id", "repoPath_"   + new_name).show().val(new_dir).width(new_dir.length * 8);
+  addedItem.find("#repoAdd_")   .attr("id", "repoAdd_"    + new_name).hide();
+  addedItem.find("#repoAccept_").attr("id", "repoAccept_" + new_name).hide();
+  addedItem.find("#repoRevert_").attr("id", "repoRevert_" + new_name).hide();
+  // attach met to the visuals
+  addedItem.find("#repoRemove_" + new_name).click(remove_repo(new_name));
 });
 
 });
