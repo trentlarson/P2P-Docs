@@ -95,6 +95,13 @@ May reference a settings.yaml file.
     @@settings['repositories'].delete_if{ |repo| repo['name'] == name }
   end
 
+  def change_repo_path(name, new_path)
+    if (name.class.name == "RubyKObject") # for method results from Titanium
+      name = name.toString()
+    end
+    @@settings['repositories'].find{ |repo| repo['name'] == name }['source_dir'] = new_path
+  end
+
   def save()
     File.open(settings_file(), 'w') do |out|
       YAML.dump(@@settings, out)

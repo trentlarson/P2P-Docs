@@ -50,6 +50,14 @@ var remove_repo = function(name) {
   return remove_it;
 };
 
+var change_repo_path = function(name) {
+  return function(event) {
+    window.p2pdoc_settings.change_repo_path(name, event.target.value);
+    window.p2pdoc_settings.save();
+    Ti.api.print("repos: " + repos.toString() + "\n");
+  };
+}
+
 
 $(document).ready(function() {
 
@@ -74,7 +82,8 @@ try {
       addedItem.find("#repoRevert_").attr("id", "repoRevert_" + repo.name).hide();
       
       // attach methods to the visuals
-      $("#repoRemove_" + repo.name).click(remove_repo(repo.name));
+      addedItem.find("#repoRemove_" + repo.name).click(remove_repo(repo.name));
+      addedItem.find("#repoPath_" + repo.name).change(change_repo_path(repo.name));
 
     }
 
@@ -108,6 +117,7 @@ $('#repoItem_ #repoAdd_').click(function() {
   
   // attach methods to the visuals
   addedItem.find("#repoRemove_" + new_name).click(remove_repo(new_name));
+  addedItem.find("#repoPath_" + new_name).change(change_repo_path(new_name));
   
   addedItem.toggle(500);
 });
