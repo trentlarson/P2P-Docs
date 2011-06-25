@@ -67,8 +67,8 @@ try {
       addedItem.insertBefore(item);
       addedItem.attr("id", "repoItem_" + repo.name);
       addedItem.find("#repoRemove_").attr("id", "repoRemove_" + repo.name).show();
-      addedItem.find("#repoName_")  .attr("id", "repoName_"   + repo.name).show().val(repo.name).width(repo.name.length * 7);
-      addedItem.find("#repoPath_")  .attr("id", "repoPath_"   + repo.name).show().val(repo.source_dir).width(repo.source_dir.length * 7);
+      addedItem.find("#repoName_")  .attr("id", "repoName_"   + repo.name).show().val(repo.name).width(repo.name.length * 8);
+      addedItem.find("#repoPath_")  .attr("id", "repoPath_"   + repo.name).show().val(repo.source_dir).width(repo.source_dir.length * 8);
       addedItem.find("#repoAdd_")   .attr("id", "repoAdd_"    + repo.name).hide();
       addedItem.find("#repoAccept_").attr("id", "repoAccept_" + repo.name).hide();
       addedItem.find("#repoRevert_").attr("id", "repoRevert_" + repo.name).hide();
