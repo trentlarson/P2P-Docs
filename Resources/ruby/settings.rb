@@ -95,13 +95,6 @@ May reference a settings.yaml file.
     @@settings['repositories'].delete_if{ |repo| repo['name'] == name }
   end
 
-  def rename_repo(name, new_name)
-    if (name.class.name == "RubyKObject") # for method results from Titanium
-      name = name.toString()
-    end
-    @@settings['repositories'].find{ |repo| repo['name'] == name }['name'] = new_name
-  end
-
   def change_repo_path(name, new_path)
     if (name.class.name == "RubyKObject") # for method results from Titanium
       name = name.toString()

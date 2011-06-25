@@ -50,17 +50,6 @@ var remove_repo = function(name) {
   return remove_it;
 };
 
-var rename_repo = function(name) {
-  return function(event) {
-    window.p2pdoc_settings.rename_repo(name, event.target.value);
-    window.p2pdoc_settings.save();
-    // Now this function doesn't match any repo name, so remove it and add a new one.
-    event.target.unbind('change');
-    event.target.change(rename_repo(event.target.value));
-    Ti.api.print("repos: " + repos.toString() + "\n");
-  };
-}
-
 var change_repo_path = function(name) {
   return function(event) {
     window.p2pdoc_settings.change_repo_path(name, event.target.value);
@@ -86,7 +75,7 @@ try {
       addedItem.insertBefore(item);
       addedItem.attr("id", "repoItem_" + repo.name);
       addedItem.find("#repoRemove_").attr("id", "repoRemove_" + repo.name).show();
-      addedItem.find("#repoName_")  .attr("id", "repoName_"   + repo.name).show().val(repo.name).width(repo.name.length * 8);
+      addedItem.find("#repoName_")  .attr("id", "repoName_"   + repo.name).show().html(repo.name);
       addedItem.find("#repoPath_")  .attr("id", "repoPath_"   + repo.name).show().val(repo.source_dir).width(repo.source_dir.length * 8);
       addedItem.find("#repoAdd_")   .attr("id", "repoAdd_"    + repo.name).hide();
       addedItem.find("#repoAccept_").attr("id", "repoAccept_" + repo.name).hide();
@@ -94,7 +83,6 @@ try {
       
       // attach methods to the visuals
       addedItem.find("#repoRemove_" + repo.name).click(remove_repo(repo.name));
-      addedItem.find("#repoName_" + repo.name).change(rename_repo(repo.name));
       addedItem.find("#repoPath_" + repo.name).change(change_repo_path(repo.name));
 
     }
@@ -121,7 +109,7 @@ $('#repoItem_ #repoAdd_').click(function() {
   addedItem.insertBefore(item).hide();
   addedItem.attr("id", "repoItem_" + new_name).hide();
   addedItem.find("#repoRemove_").attr("id", "repoRemove_" + new_name).show();
-  addedItem.find("#repoName_")  .attr("id", "repoName_"   + new_name).show().val(new_name).width(new_name.length * 8);
+  addedItem.find("#repoName_")  .attr("id", "repoName_"   + new_name).show().html(new_name);
   addedItem.find("#repoPath_")  .attr("id", "repoPath_"   + new_name).show().val(new_dir).width(new_dir.length * 8);
   addedItem.find("#repoAdd_")   .attr("id", "repoAdd_"    + new_name).hide();
   addedItem.find("#repoAccept_").attr("id", "repoAccept_" + new_name).hide();
@@ -129,7 +117,6 @@ $('#repoItem_ #repoAdd_').click(function() {
   
   // attach methods to the visuals
   addedItem.find("#repoRemove_" + new_name).click(remove_repo(new_name));
-  addedItem.find("#repoName_" + new_name).change(rename_repo(new_name));
   addedItem.find("#repoPath_" + new_name).change(change_repo_path(new_name));
   
   addedItem.toggle(500);
@@ -149,7 +136,7 @@ $('#repoItem_ #repoAdd_').click(function() {
 <div id="repoList">
   <div id="repoItem_" class="repoItem">
     <img src="images/button-red-x.png" title="Remove" alt="Remove" id="repoRemove_" class="repoRemove">
-    <input type="text" name="name_" id="repoName_" class="repoInfo">
+    <span id="repoName_" class="repoInfo"></span>
     <input type="text" name="path_" id="repoPath_" class="repoInfo">
     <img src="images/button-green-plus.png" title="Add" alt="Add" id="repoAdd_" class="repoAdd">
     <img src="images/button-green-check.png" title="Accept" alt="Accept" id="repoAccept_" class="repoAccept">
