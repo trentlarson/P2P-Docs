@@ -50,6 +50,17 @@ var remove_repo = function(name) {
   return remove_it;
 };
 
+var rename_repo = function(name) {
+  return function(event) {
+    window.p2pdoc_settings.rename_repo(name, event.target.value);
+    window.p2pdoc_settings.save();
+    // Now this function doesn't match any repo name, so remove it and add a new one.
+    event.target.unbind('change');
+    event.target.change(rename_repo(event.target.value));
+    Ti.api.print("repos: " + repos.toString() + "\n");
+  };
+}
+
 var change_repo_path = function(name) {
   return function(event) {
     window.p2pdoc_settings.change_repo_path(name, event.target.value);
@@ -83,6 +94,7 @@ try {
       
       // attach methods to the visuals
       addedItem.find("#repoRemove_" + repo.name).click(remove_repo(repo.name));
+      addedItem.find("#repoName_" + repo.name).change(rename_repo(repo.name));
       addedItem.find("#repoPath_" + repo.name).change(change_repo_path(repo.name));
 
     }
@@ -117,6 +129,7 @@ $('#repoItem_ #repoAdd_').click(function() {
   
   // attach methods to the visuals
   addedItem.find("#repoRemove_" + new_name).click(remove_repo(new_name));
+  addedItem.find("#repoName_" + new_name).change(rename_repo(new_name));
   addedItem.find("#repoPath_" + new_name).change(change_repo_path(new_name));
   
   addedItem.toggle(500);
