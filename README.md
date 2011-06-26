@@ -17,9 +17,10 @@ To do before next release:
  * program auto-update
  * make this a background service... with notification hooks?
  * documentation and/or help
+ * any failing tests (below)
 
 Current task:
- * get a couple of read-only subscription tools to support Tolman family histories
+ * accept/ignore/postpone review of files in the P2P folders
 
-Bugs
- * click Settings, then Index, then Updates and crash
+Tests
+ * FAIL: Register & unregister repos: add/remove same name; add/remove funny names
