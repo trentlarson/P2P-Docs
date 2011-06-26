@@ -68,11 +68,11 @@ May reference a settings.yaml file.
   end
   
   # [a-zA-Z0-9_-.]
-  def self.char_allowed_in_name(c)
+  def char_allowed_in_name(c)
     ('a' <= c && c <= 'z') || ('A' <= c && c <= 'Z') || ('0' <= c && c <= '9') || c == '_' || c == '-' || c == '.'
   end
   # return a name with all non-allowed characters replaced by "_"
-  def self.fixed_repo_name(name)
+  def fixed_repo_name(name)
     name.gsub(/./){ |c| char_allowed_in_name(c) ? c : "_" }
   end
   
