@@ -61,7 +61,6 @@ var change_repo_path = function(name) {
   };
 }
 
-
 $(document).ready(function() {
 
 try {
@@ -103,6 +102,7 @@ $('#repoItem_ #repoAdd_').bind('click', function() {
     buttons: {
       "Register": function() {
         var new_name = $('#dialog-form #name')[0].value;
+        new_name = window.p2pdoc_settings.fixed_repo_name(new_name);
         var new_dir = Titanium.Filesystem.getApplicationDataDirectory() + "/" + new_name;
         window.p2pdoc_settings.add_repo(new_name, new_dir);
         window.p2pdoc_settings.save();

@@ -48,7 +48,18 @@ class SettingsTest
     end
   end
 
-  def test_a()
+  def test_repo_names()
+    name = "test_this-thing.here"
+    puts "fail: ${test} doesn't match expected" if Settings.fixed_repo_name(name) != name
+    name = "4nd_4n0th3r_Th1ng"
+    puts "fail: ${test} doesn't match expected" if Settings.fixed_repo_name(name) != name
+    name = "No spaces"
+    puts "fail: ${test} doesn't match expected" if Settings.fixed_repo_name(name) != "No_spaces"
+    name = "0!@\#$%^&*()11"
+    puts "fail: ${test} doesn't match expected" if Settings.fixed_repo_name(name) != "0__________11"
+  end
+
+  def test_repo_diffs()
 
     setup_settings(@settings.properties)
     all_repo_diffs = Updates.all_repo_diffs(@settings)

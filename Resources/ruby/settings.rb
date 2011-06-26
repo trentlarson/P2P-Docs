@@ -66,7 +66,16 @@ May reference a settings.yaml file.
   def reviewed_base_dir()
     File.join(@@settings_dir, "reviewed_files")
   end
-
+  
+  # [a-zA-Z0-9_-.]
+  def self.char_allowed_in_name(c)
+    ('a' <= c && c <= 'z') || ('A' <= c && c <= 'Z') || ('0' <= c && c <= '9') || c == '_' || c == '-' || c == '.'
+  end
+  # return a name with all non-allowed characters replaced by "_"
+  def self.fixed_repo_name(name)
+    name.gsub(/./){ |c| char_allowed_in_name(c) ? c : "_" }
+  end
+  
   def reviewed_dir(repo = nil)
     if (repo == nil)
       reviewed_base_dir
