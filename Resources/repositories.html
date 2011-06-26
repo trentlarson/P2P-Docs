@@ -3,6 +3,10 @@
 <head>
 <title>Repositories</title>
 
+<script type="text/javascript" src="js/jquery-1.5.1.min.js"></script>
+<script type="text/javascript" src="js/jquery-ui-1.8.13.custom.min.js"></script>
+
+<link type="text/css" href="css/smoothness/jquery-ui-1.8.13.custom.css" rel="stylesheet"/>
 
 <style type="text/css">
 .repoRemove {
@@ -27,16 +31,16 @@
 }
 </style>
 
-<script type="text/javascript" src="js/jquery-1.4.2.min.js"></script>
-<script type="text/ruby"       src="ruby/settings.rb"></script>
-
-
+<script type="text/ruby" src="ruby/settings.rb"></script>
 <script type="text/ruby">
   window.p2pdoc_settings = Settings.new(Titanium.Filesystem.getApplicationDataDirectory())
 </script>
 
 <script type="text/javascript">
 var Ti = {fs: Titanium.Filesystem, api:Titanium.API};
+
+//Titanium.UI.getWindows()[0].showInspector()
+//Titanium.api.print("to console");
 
 var remove_repo = function(name) {
   function remove_it() {
@@ -54,7 +58,6 @@ var change_repo_path = function(name) {
   return function(event) {
     window.p2pdoc_settings.change_repo_path(name, event.target.value);
     window.p2pdoc_settings.save();
-    Ti.api.print("repos: " + repos.toString() + "\n");
   };
 }
 
@@ -93,33 +96,41 @@ try {
   alert('error: ' + e);
 }
 
-$('#repoItem_ #repoAdd_').click(function() {
-  var new_name = "sample";
-  var new_dir = Titanium.Filesystem.getApplicationDataDirectory() + "/sample";
-  if (repos.length > 0) {
-  	new_name = repos.last().name + "-2";
-  	new_dir = repos.last().source_dir + "-2";
-  }
-  window.p2pdoc_settings.add_repo(new_name, new_dir);
-  window.p2pdoc_settings.save();
+$('#repoItem_ #repoAdd_').bind('click', function() {
   
-  // create the visual for it
-  var item = $('#repoItem_');
-  var addedItem = item.clone();
-  addedItem.insertBefore(item).hide();
-  addedItem.attr("id", "repoItem_" + new_name).hide();
-  addedItem.find("#repoRemove_").attr("id", "repoRemove_" + new_name).show();
-  addedItem.find("#repoName_")  .attr("id", "repoName_"   + new_name).show().html(new_name);
-  addedItem.find("#repoPath_")  .attr("id", "repoPath_"   + new_name).show().val(new_dir).width(new_dir.length * 8);
-  addedItem.find("#repoAdd_")   .attr("id", "repoAdd_"    + new_name).hide();
-  addedItem.find("#repoAccept_").attr("id", "repoAccept_" + new_name).hide();
-  addedItem.find("#repoRevert_").attr("id", "repoRevert_" + new_name).hide();
-  
-  // attach methods to the visuals
-  addedItem.find("#repoRemove_" + new_name).click(remove_repo(new_name));
-  addedItem.find("#repoPath_" + new_name).change(change_repo_path(new_name));
-  
-  addedItem.toggle(500);
+  $('#dialog-form').dialog({
+    modal: true,
+    buttons: {
+      "Register": function() {
+        var new_name = $('#dialog-form #name')[0].value;
+        var new_dir = Titanium.Filesystem.getApplicationDataDirectory() + "/" + new_name;
+        window.p2pdoc_settings.add_repo(new_name, new_dir);
+        window.p2pdoc_settings.save();
+        
+        // create the visual for it
+        var item = $('#repoItem_');
+        var addedItem = item.clone();
+        addedItem.insertBefore(item).hide();
+        addedItem.attr("id", "repoItem_" + new_name).hide();
+        addedItem.find("#repoRemove_").attr("id", "repoRemove_" + new_name).show();
+        addedItem.find("#repoName_")  .attr("id", "repoName_"   + new_name).show().html(new_name);
+        addedItem.find("#repoPath_")  .attr("id", "repoPath_"   + new_name).show().val(new_dir).width(new_dir.length * 8);
+        addedItem.find("#repoAdd_")   .attr("id", "repoAdd_"    + new_name).hide();
+        addedItem.find("#repoAccept_").attr("id", "repoAccept_" + new_name).hide();
+        addedItem.find("#repoRevert_").attr("id", "repoRevert_" + new_name).hide();
+        
+        // attach methods to the visuals
+        addedItem.find("#repoRemove_" + new_name).click(remove_repo(new_name));
+        addedItem.find("#repoPath_" + new_name).change(change_repo_path(new_name));
+        
+        addedItem.toggle(500);
+        $( this ).dialog( "close" );
+      },
+      "Cancel": function() {
+        $( this ).dialog( "close" );
+      }
+    }
+  });
 });
 
 });
@@ -132,7 +143,6 @@ $('#repoItem_ #repoAdd_').click(function() {
 
 <a href="index.html">Index</a>
 
-<p>
 <div id="repoList">
   <div id="repoItem_" class="repoItem">
     <img src="images/button-red-x.png" title="Remove" alt="Remove" id="repoRemove_" class="repoRemove">
@@ -142,6 +152,15 @@ $('#repoItem_ #repoAdd_').click(function() {
     <img src="images/button-green-check.png" title="Accept" alt="Accept" id="repoAccept_" class="repoAccept">
     <img src="images/button-red-back.png" title="Revert" alt="Revert" id="repoRevert_" class="repoRevert">
   </div>
+</div>
+
+<div id="dialog-form" title="Register Repository" style="display:none;">
+  <form>
+    <fieldset>
+      <label>Label</label>
+      <input type="text" id="name" name="name"/>
+    </fieldset>
+  </form>
 </div>
 
 </body>
