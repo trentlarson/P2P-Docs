@@ -55,8 +55,8 @@ class SettingsTest
     puts "fail: ${test} doesn't match expected" if @settings.fixed_repo_name(name) != name
     name = "No spaces"
     puts "fail: ${test} doesn't match expected" if @settings.fixed_repo_name(name) != "No_spaces"
-    name = "0!@\#$%^&*()11"
-    puts "fail: ${test} doesn't match expected" if @settings.fixed_repo_name(name) != "0__________11"
+    name = "0!@\#$%^&*()/.13"
+    puts "fail: ${test} doesn't match expected" if @settings.fixed_repo_name(name) != "0___________.13"
   end
 
   def test_repo_diffs()
