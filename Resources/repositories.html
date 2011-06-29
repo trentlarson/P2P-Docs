@@ -48,7 +48,11 @@ var remove_repo = function(name) {
       window.p2pdoc_settings.remove_repo(name);
       window.p2pdoc_settings.save();
       
-      $("#repoItem_" + name).hide(500);
+      var dom_suffix = window.p2pdoc_settings.fixed_repo_name(name);
+      var selector = "#repoItem_" + dom_suffix;
+      $(selector).hide(500, function() {
+        $(this).remove()
+      });
     }
   }
   return remove_it;
@@ -69,24 +73,26 @@ try {
 
   if (repos.length > 0) {
     var item = $('#repoItem_');
+    var repo, dom_suffix, added_item;
     for (var i = 0; i < repos.length; i++) {
-      var repo = repos[i];
-
+      repo = repos[i];
+      dom_suffix = window.p2pdoc_settings.fixed_repo_name(repo.name);
+      
       // create the visual for it
-      var addedItem = item.clone();
+      addedItem = item.clone();
       addedItem.insertBefore(item);
-      addedItem.attr("id", "repoItem_" + repo.name);
-      addedItem.find("#repoRemove_").attr("id", "repoRemove_" + repo.name).show();
-      addedItem.find("#repoName_")  .attr("id", "repoName_"   + repo.name).show().html(repo.name);
-      addedItem.find("#repoPath_")  .attr("id", "repoPath_"   + repo.name).show().val(repo.source_dir).width(repo.source_dir.length * 8);
-      addedItem.find("#repoAdd_")   .attr("id", "repoAdd_"    + repo.name).hide();
-      addedItem.find("#repoAccept_").attr("id", "repoAccept_" + repo.name).hide();
-      addedItem.find("#repoRevert_").attr("id", "repoRevert_" + repo.name).hide();
+      addedItem.attr("id", "repoItem_" + dom_suffix);
+      addedItem.find("#repoRemove_").attr("id", "repoRemove_" + dom_suffix).show();
+      addedItem.find("#repoName_")  .attr("id", "repoName_"   + dom_suffix).show().html(repo.name);
+      addedItem.find("#repoPath_")  .attr("id", "repoPath_"   + dom_suffix).show().val(repo.source_dir).width(repo.source_dir.length * 8);
+      addedItem.find("#repoAdd_")   .attr("id", "repoAdd_"    + dom_suffix).hide();
+      addedItem.find("#repoAccept_").attr("id", "repoAccept_" + dom_suffix).hide();
+      addedItem.find("#repoRevert_").attr("id", "repoRevert_" + dom_suffix).hide();
       
       // attach methods to the visuals
-      addedItem.find("#repoRemove_" + repo.name).click(remove_repo(repo.name));
-      addedItem.find("#repoPath_" + repo.name).change(change_repo_path(repo.name));
-
+      addedItem.find("#repoRemove_" + dom_suffix).click(remove_repo(repo.name));
+      addedItem.find("#repoPath_" + dom_suffix).change(change_repo_path(repo.name));
+      
     }
 
   }
@@ -102,26 +108,27 @@ $('#repoItem_ #repoAdd_').bind('click', function() {
     buttons: {
       "Register": function() {
         var new_name = $('#dialog-form #name')[0].value;
-        new_name = window.p2pdoc_settings.fixed_repo_name(new_name);
-        var new_dir = Titanium.Filesystem.getApplicationDataDirectory() + "/" + new_name;
+        var dom_suffix = window.p2pdoc_settings.fixed_repo_name(new_name);
+        var new_dir = Titanium.Filesystem.getApplicationDataDirectory() + "/" + dom_suffix;
         window.p2pdoc_settings.add_repo(new_name, new_dir);
         window.p2pdoc_settings.save();
+        var item, added_item;
         
         // create the visual for it
-        var item = $('#repoItem_');
-        var addedItem = item.clone();
+        item = $('#repoItem_');
+        addedItem = item.clone();
         addedItem.insertBefore(item).hide();
-        addedItem.attr("id", "repoItem_" + new_name).hide();
-        addedItem.find("#repoRemove_").attr("id", "repoRemove_" + new_name).show();
-        addedItem.find("#repoName_")  .attr("id", "repoName_"   + new_name).show().html(new_name);
-        addedItem.find("#repoPath_")  .attr("id", "repoPath_"   + new_name).show().val(new_dir).width(new_dir.length * 8);
-        addedItem.find("#repoAdd_")   .attr("id", "repoAdd_"    + new_name).hide();
-        addedItem.find("#repoAccept_").attr("id", "repoAccept_" + new_name).hide();
-        addedItem.find("#repoRevert_").attr("id", "repoRevert_" + new_name).hide();
+        addedItem.attr("id", "repoItem_" + dom_suffix).hide();
+        addedItem.find("#repoRemove_").attr("id", "repoRemove_" + dom_suffix).show();
+        addedItem.find("#repoName_")  .attr("id", "repoName_"   + dom_suffix).show().html(new_name);
+        addedItem.find("#repoPath_")  .attr("id", "repoPath_"   + dom_suffix).show().val(new_dir).width(new_dir.length * 8);
+        addedItem.find("#repoAdd_")   .attr("id", "repoAdd_"    + dom_suffix).hide();
+        addedItem.find("#repoAccept_").attr("id", "repoAccept_" + dom_suffix).hide();
+        addedItem.find("#repoRevert_").attr("id", "repoRevert_" + dom_suffix).hide();
         
         // attach methods to the visuals
-        addedItem.find("#repoRemove_" + new_name).click(remove_repo(new_name));
-        addedItem.find("#repoPath_" + new_name).change(change_repo_path(new_name));
+        addedItem.find("#repoRemove_" + dom_suffix).click(remove_repo(new_name));
+        addedItem.find("#repoPath_" + dom_suffix).change(change_repo_path(new_name));
         
         addedItem.toggle(500);
         $( this ).dialog( "close" );
@@ -154,7 +161,7 @@ $('#repoItem_ #repoAdd_').bind('click', function() {
   </div>
 </div>
 
-<div id="dialog-form" title="Register Repository" style="display:none;">
+<div id="dialog-form" title="Repository" style="display:none;">
   <form>
     <fieldset>
       <label>Label</label>

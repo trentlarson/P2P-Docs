@@ -49,14 +49,14 @@ class SettingsTest
   end
 
   def test_repo_names()
-    name = "test_this-thing.here"
-    puts "fail: ${test} doesn't match expected" if @settings.fixed_repo_name(name) != name
+    name = "test_this-thing_here-_"
+    puts "fail: #{name} doesn't match expected" if @settings.fixed_repo_name(name) != name
     name = "4nd_4n0th3r_Th1ng"
-    puts "fail: ${test} doesn't match expected" if @settings.fixed_repo_name(name) != name
+    puts "fail: #{name} doesn't match expected" if @settings.fixed_repo_name(name) != name
     name = "No spaces"
-    puts "fail: ${test} doesn't match expected" if @settings.fixed_repo_name(name) != "No_spaces"
-    name = "0!@\#$%^&*()/.13"
-    puts "fail: ${test} doesn't match expected" if @settings.fixed_repo_name(name) != "0___________.13"
+    puts "fail: #{name} doesn't match expected" if @settings.fixed_repo_name(name) != "No_spaces"
+    name = "0!@\#$%^&*()/12"
+    puts "fail: #{name} doesn't match expected" if @settings.fixed_repo_name(name) != "0___________12"
   end
 
   def test_repo_diffs()

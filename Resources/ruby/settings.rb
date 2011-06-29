@@ -69,7 +69,7 @@ May reference a settings.yaml file.
   
   # [a-zA-Z0-9_-.]
   def char_allowed_in_name(c)
-    ('a' <= c && c <= 'z') || ('A' <= c && c <= 'Z') || ('0' <= c && c <= '9') || c == '_' || c == '-' || c == '.'
+    ('a' <= c && c <= 'z') || ('A' <= c && c <= 'Z') || ('0' <= c && c <= '9') || c == '_' || c == '-'
   end
   # return a name with all non-allowed characters replaced by "_"
   def fixed_repo_name(name)

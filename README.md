@@ -12,6 +12,7 @@ User Stories
 
 
 To do before next release:
+
  * allow creating/updating/deleting repositories
  * hook up real search for content
  * program auto-update
@@ -20,7 +21,10 @@ To do before next release:
  * any failing tests (below)
 
 Current task:
+
  * accept/ignore/postpone review of files in the P2P folders
 
 Tests
- * FAIL: Register & unregister repos: add/remove same name; add/remove funny names
+
+ * Register & unregister repos: add/remove funny names; add/remove duplicate names
+ * FAIL: don't allow duplicate or blank repo names
