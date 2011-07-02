@@ -69,7 +69,11 @@ May reference a settings.yaml file.
   
   # [a-zA-Z0-9_-.]
   def char_allowed_in_name(c)
-    ('a' <= c && c <= 'z') || ('A' <= c && c <= 'Z') || ('0' <= c && c <= '9') || c == '_' || c == '-'
+    ('a' <= c && c <= 'z') ||
+    ('A' <= c && c <= 'Z') ||
+    ('0' <= c && c <= '9') ||
+    c == '_' ||
+    c == '-'
   end
   # return a name with all non-allowed characters replaced by "_"
   def fixed_repo_name(name)
@@ -81,9 +85,9 @@ May reference a settings.yaml file.
       reviewed_base_dir
     elsif (repo.class.name == "String")
       # allow the raw name
-      File.join(reviewed_base_dir, repo.tr(" ", "_"))
+      File.join(reviewed_base_dir, fixed_repo_name(repo))
     else
-      File.join(reviewed_base_dir, repo['name'].tr(" ", "_"))
+      File.join(reviewed_base_dir, fixed_repo_name(repo['name']))
     end
   end
 
