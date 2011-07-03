@@ -63,13 +63,23 @@ class SettingsTest
     setup_settings({'repositories' => []})
     success = @settings.add_repo("", "/anywhere/for/fail")
     puts "fail: added repo with blank name" if success
+    
     repo_name = "Test for dup"
     success = @settings.add_repo(repo_name, "/some/funky/dir")
     puts "fail: didn't add test repo" if !success
     success = @settings.add_repo(repo_name, "/another/funky/dir")
     puts "fail: added duplicate test repo" if success
+    success = @settings.add_repo(@settings.fixed_repo_name(repo_name), "/another/funky/dir/2")
+    puts "fail: added duplicate test repo with fixed name" if success
     @settings.remove_repo(repo_name)
-    success = @settings.add_repo(repo_name, "/first/funky/again")
+    
+    success = @settings.add_repo(@settings.fixed_repo_name(repo_name), "/some/funky/dir")
+    puts "fail: didn't add test repo" if !success
+    success = @settings.add_repo(repo_name, "/another/funky/dir")
+    puts "fail: added duplicate test repo matching fixed name" if success
+    @settings.remove_repo(@settings.fixed_repo_name(repo_name))
+    
+    success = @settings.add_repo(repo_name, "/some/funky/dir")
     puts "fail: didn't add test repo" if !success
   end
   

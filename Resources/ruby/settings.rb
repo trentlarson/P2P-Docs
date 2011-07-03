@@ -101,9 +101,10 @@ May reference a settings.yaml file.
     if (source_dir.class.name == "RubyKObject") # for method results from Titanium
       source_dir = source_dir.toString()
     end
+    fixed_name = fixed_repo_name(name)
     if ((name.nil?) ||
         (name == "") ||
-        (@@settings['repositories'].find{ |repo| repo['name'] == name } != nil))
+        (@@settings['repositories'].find{ |repo| repo['name'] == name || fixed_repo_name(repo['name']) == name || repo['name'] == fixed_name } != nil))
       return false
     end
     @@settings['repositories'] << { 'name' => name, 'source_dir' => source_dir }
