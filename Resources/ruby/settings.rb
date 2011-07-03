@@ -77,7 +77,7 @@ May reference a settings.yaml file.
   end
   # return a name with all non-allowed characters replaced by "_"
   # because some places don't work well with funny characters
-  # such as javascript IDs and directory names
+  # such as javascript IDs (where we can't have dots) and directory names
   def fixed_repo_name(name)
     name.gsub(/./){ |c| char_allowed_in_name(c) ? c : "_" }
   end
