@@ -76,6 +76,8 @@ May reference a settings.yaml file.
     c == '-'
   end
   # return a name with all non-allowed characters replaced by "_"
+  # because some places don't work well with funny characters
+  # such as javascript IDs and directory names
   def fixed_repo_name(name)
     name.gsub(/./){ |c| char_allowed_in_name(c) ? c : "_" }
   end
@@ -91,6 +93,7 @@ May reference a settings.yaml file.
     end
   end
 
+  # return true if the repo was added; otherwise, false (eg. name blank or duplicate)
   def add_repo(name, source_dir)
     if (name.class.name == "RubyKObject") # for method results from Titanium
       name = name.toString()
@@ -98,7 +101,13 @@ May reference a settings.yaml file.
     if (source_dir.class.name == "RubyKObject") # for method results from Titanium
       source_dir = source_dir.toString()
     end
+    if ((name.nil?) ||
+        (name == "") ||
+        (@@settings['repositories'].find{ |repo| repo['name'] == name } != nil))
+      return false
+    end
     @@settings['repositories'] << { 'name' => name, 'source_dir' => source_dir }
+    true
   end
 
   def remove_repo(name)

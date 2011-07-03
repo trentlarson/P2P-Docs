@@ -58,7 +58,21 @@ class SettingsTest
     name = "0!@\#$%^&*()/12"
     puts "fail: #{name} doesn't match expected" if @settings.fixed_repo_name(name) != "0___________12"
   end
-
+  
+  def test_repos()
+    setup_settings({'repositories' => []})
+    success = @settings.add_repo("", "/anywhere/for/fail")
+    puts "fail: added repo with blank name" if success
+    repo_name = "Test for dup"
+    success = @settings.add_repo(repo_name, "/some/funky/dir")
+    puts "fail: didn't add test repo" if !success
+    success = @settings.add_repo(repo_name, "/another/funky/dir")
+    puts "fail: added duplicate test repo" if success
+    @settings.remove_repo(repo_name)
+    success = @settings.add_repo(repo_name, "/first/funky/again")
+    puts "fail: didn't add test repo" if !success
+  end
+  
   def test_repo_diffs()
 
     setup_settings(@settings.properties)
