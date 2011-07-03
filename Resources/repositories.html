@@ -42,6 +42,33 @@ var Ti = {fs: Titanium.Filesystem, api:Titanium.API};
 //Titanium.UI.getWindows()[0].showInspector()
 //Titanium.api.print("to console");
 
+  // create the visual for a repository
+var insert_repo = function(name, source_dir, showSlowly) {
+  
+  var item = $('#repoItem_');
+  var dom_suffix = window.p2pdoc_settings.fixed_repo_name(name);
+  var addedItem = item.clone();
+  addedItem.insertBefore(item);
+  if (showSlowly) {
+    addedItem.hide();
+  }
+  addedItem.attr("id", "repoItem_" + dom_suffix);
+  addedItem.find("#repoRemove_").attr("id", "repoRemove_" + dom_suffix).show();
+  addedItem.find("#repoName_")  .attr("id", "repoName_"   + dom_suffix).show().html(name);
+  addedItem.find("#repoPath_")  .attr("id", "repoPath_"   + dom_suffix).show().val(source_dir).width(source_dir.length * 8);
+  addedItem.find("#repoAdd_")   .attr("id", "repoAdd_"    + dom_suffix).hide();
+  addedItem.find("#repoAccept_").attr("id", "repoAccept_" + dom_suffix).hide();
+  addedItem.find("#repoRevert_").attr("id", "repoRevert_" + dom_suffix).hide();
+  
+  // attach methods to the visuals
+  addedItem.find("#repoRemove_" + dom_suffix).click(remove_repo(name));
+  addedItem.find("#repoPath_" + dom_suffix).change(change_repo_path(name));
+  
+  if (showSlowly) {
+    addedItem.toggle(500);
+  }
+}
+
 var remove_repo = function(name) {
   function remove_it() {
     if (confirm("This will stop tracking the repository " + name + ", but it will leave all the files.  Are you sure you want to stop tracking it?")) {
@@ -70,29 +97,11 @@ $(document).ready(function() {
 try {
 
   var repos = window.p2pdoc_settings.properties().repositories;
-
+  var repo;
   if (repos.length > 0) {
-    var item = $('#repoItem_');
-    var repo, dom_suffix, added_item;
     for (var i = 0; i < repos.length; i++) {
       repo = repos[i];
-      dom_suffix = window.p2pdoc_settings.fixed_repo_name(repo.name);
-      
-      // create the visual for it
-      addedItem = item.clone();
-      addedItem.insertBefore(item);
-      addedItem.attr("id", "repoItem_" + dom_suffix);
-      addedItem.find("#repoRemove_").attr("id", "repoRemove_" + dom_suffix).show();
-      addedItem.find("#repoName_")  .attr("id", "repoName_"   + dom_suffix).show().html(repo.name);
-      addedItem.find("#repoPath_")  .attr("id", "repoPath_"   + dom_suffix).show().val(repo.source_dir).width(repo.source_dir.length * 8);
-      addedItem.find("#repoAdd_")   .attr("id", "repoAdd_"    + dom_suffix).hide();
-      addedItem.find("#repoAccept_").attr("id", "repoAccept_" + dom_suffix).hide();
-      addedItem.find("#repoRevert_").attr("id", "repoRevert_" + dom_suffix).hide();
-      
-      // attach methods to the visuals
-      addedItem.find("#repoRemove_" + dom_suffix).click(remove_repo(repo.name));
-      addedItem.find("#repoPath_" + dom_suffix).change(change_repo_path(repo.name));
-      
+      insert_repo(repo.name, repo.source_dir, false);
     }
 
   }
@@ -108,8 +117,8 @@ $('#repoItem_ #repoAdd_').bind('click', function() {
     buttons: {
       "Register": function() {
         var new_name = $('#dialog-form #name')[0].value;
-        var dom_suffix = window.p2pdoc_settings.fixed_repo_name(new_name);
-        var new_dir = Titanium.Filesystem.getApplicationDataDirectory() + "/" + dom_suffix;
+        var new_dir_name = window.p2pdoc_settings.fixed_repo_name(new_name);
+        var new_dir = Titanium.Filesystem.getApplicationDataDirectory() + "/" + new_dir_name;
         
         var added = window.p2pdoc_settings.add_repo(new_name, new_dir);
         if (!added) {
@@ -117,25 +126,9 @@ $('#repoItem_ #repoAdd_').bind('click', function() {
           
         } else {
           window.p2pdoc_settings.save();
-          var item, added_item;
           
-          // create the visual for it
-          item = $('#repoItem_');
-          addedItem = item.clone();
-          addedItem.insertBefore(item).hide();
-          addedItem.attr("id", "repoItem_" + dom_suffix).hide();
-          addedItem.find("#repoRemove_").attr("id", "repoRemove_" + dom_suffix).show();
-          addedItem.find("#repoName_")  .attr("id", "repoName_"   + dom_suffix).show().html(new_name);
-          addedItem.find("#repoPath_")  .attr("id", "repoPath_"   + dom_suffix).show().val(new_dir).width(new_dir.length * 8);
-          addedItem.find("#repoAdd_")   .attr("id", "repoAdd_"    + dom_suffix).hide();
-          addedItem.find("#repoAccept_").attr("id", "repoAccept_" + dom_suffix).hide();
-          addedItem.find("#repoRevert_").attr("id", "repoRevert_" + dom_suffix).hide();
+          insert_repo(new_name, new_dir, true);
           
-          // attach methods to the visuals
-          addedItem.find("#repoRemove_" + dom_suffix).click(remove_repo(new_name));
-          addedItem.find("#repoPath_" + dom_suffix).change(change_repo_path(new_name));
-          
-          addedItem.toggle(500);
           $( this ).dialog( "close" );
         }
       },
