@@ -110,28 +110,34 @@ $('#repoItem_ #repoAdd_').bind('click', function() {
         var new_name = $('#dialog-form #name')[0].value;
         var dom_suffix = window.p2pdoc_settings.fixed_repo_name(new_name);
         var new_dir = Titanium.Filesystem.getApplicationDataDirectory() + "/" + dom_suffix;
-        window.p2pdoc_settings.add_repo(new_name, new_dir);
-        window.p2pdoc_settings.save();
-        var item, added_item;
         
-        // create the visual for it
-        item = $('#repoItem_');
-        addedItem = item.clone();
-        addedItem.insertBefore(item).hide();
-        addedItem.attr("id", "repoItem_" + dom_suffix).hide();
-        addedItem.find("#repoRemove_").attr("id", "repoRemove_" + dom_suffix).show();
-        addedItem.find("#repoName_")  .attr("id", "repoName_"   + dom_suffix).show().html(new_name);
-        addedItem.find("#repoPath_")  .attr("id", "repoPath_"   + dom_suffix).show().val(new_dir).width(new_dir.length * 8);
-        addedItem.find("#repoAdd_")   .attr("id", "repoAdd_"    + dom_suffix).hide();
-        addedItem.find("#repoAccept_").attr("id", "repoAccept_" + dom_suffix).hide();
-        addedItem.find("#repoRevert_").attr("id", "repoRevert_" + dom_suffix).hide();
-        
-        // attach methods to the visuals
-        addedItem.find("#repoRemove_" + dom_suffix).click(remove_repo(new_name));
-        addedItem.find("#repoPath_" + dom_suffix).change(change_repo_path(new_name));
-        
-        addedItem.toggle(500);
-        $( this ).dialog( "close" );
+        var added = window.p2pdoc_settings.add_repo(new_name, new_dir);
+        if (!added) {
+          alert("Sorry, that repo has a problem, such as a bad name (eg. already used for another repository or blank).");
+          
+        } else {
+          window.p2pdoc_settings.save();
+          var item, added_item;
+          
+          // create the visual for it
+          item = $('#repoItem_');
+          addedItem = item.clone();
+          addedItem.insertBefore(item).hide();
+          addedItem.attr("id", "repoItem_" + dom_suffix).hide();
+          addedItem.find("#repoRemove_").attr("id", "repoRemove_" + dom_suffix).show();
+          addedItem.find("#repoName_")  .attr("id", "repoName_"   + dom_suffix).show().html(new_name);
+          addedItem.find("#repoPath_")  .attr("id", "repoPath_"   + dom_suffix).show().val(new_dir).width(new_dir.length * 8);
+          addedItem.find("#repoAdd_")   .attr("id", "repoAdd_"    + dom_suffix).hide();
+          addedItem.find("#repoAccept_").attr("id", "repoAccept_" + dom_suffix).hide();
+          addedItem.find("#repoRevert_").attr("id", "repoRevert_" + dom_suffix).hide();
+          
+          // attach methods to the visuals
+          addedItem.find("#repoRemove_" + dom_suffix).click(remove_repo(new_name));
+          addedItem.find("#repoPath_" + dom_suffix).change(change_repo_path(new_name));
+          
+          addedItem.toggle(500);
+          $( this ).dialog( "close" );
+        }
       },
       "Cancel": function() {
         $( this ).dialog( "close" );
