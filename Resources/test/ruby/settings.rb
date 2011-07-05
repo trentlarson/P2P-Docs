@@ -307,7 +307,7 @@ class SettingsTest
     all_repo_diffs = Updates.all_repo_diffs(@settings)
     puts "fail: mismatch file types w/ good link: #{all_repo_diffs.inspect}" if all_repo_diffs !=
       [{"name"=>"test 1",
-         "diffs"=>[{"reviewed"=>"file", "path"=>"1_sub_dir/1_sample.txt", "source"=>"file"}]}]
+         "diffs"=>[{"path"=>"1_sub_dir/1_sample.txt", "source"=>"file", "reviewed"=>"file"}]}]
 
 
 
@@ -318,7 +318,7 @@ class SettingsTest
     all_repo_diffs = Updates.all_repo_diffs(@settings)
     puts "fail: mismatch file types w/ bad link: #{all_repo_diffs.inspect}" if all_repo_diffs !=
       [{"name"=>"test 1",
-         "diffs"=>[{"reviewed"=>nil, "path"=>"1_sub_dir/1_sample.txt", "source"=>"file"}]}]
+         "diffs"=>[{"path"=>"1_sub_dir/1_sample.txt", "source"=>"file", "reviewed"=>nil}]}]
 
 
 
@@ -329,7 +329,7 @@ class SettingsTest
     all_repo_diffs = Updates.all_repo_diffs(@settings)
     puts "fail: mismatch file types: #{all_repo_diffs.inspect}" if all_repo_diffs !=
       [{"name"=>"test 1",
-         "diffs"=>[{"reviewed"=>"link", "path"=>"1_sub_dir/1_sample.txt", "source"=>"file"}]}]
+         "diffs"=>[{"path"=>"1_sub_dir/1_sample.txt", "source"=>"file", "reviewed"=>"link"}]}]
 
 
 
