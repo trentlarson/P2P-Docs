@@ -37,30 +37,51 @@ $(document).ready(function() {
       $('#diff').show();
       $('#same').hide();
 
-      var repoName;
-      var repoFileList, repoFile;
-      var item = $('#fileList #file_');
+      // declare the repo variables for data and DOM elements
+      var repoCount, oneRepoDiffs, repoName, repoDiffList, repoDiffCount;
+      var repoTemplate, addedRepo;
+      // declare the diff variables for data and DOM elements
       var diffSet;
-
-      for (var repoNum = 0, repoCount = all_diffs.length; repoNum < repoCount; repoNum++) {
+      var diffTemplate, addedDiff;
+      
+      repoCount = all_diffs.length;
+      repoTemplate = $('#repoList #repo_');
+      
+      for (var repoNum = 0; repoNum < repoCount; repoNum++) {
         oneRepoDiffs = all_diffs[repoNum];
         repoName = oneRepoDiffs.name;
         repoDiffList = oneRepoDiffs.diffs;
-        for (var diffNum = 0, diffCount = repoDiffList.length; diffNum < diffCount; diffNum++) {
-          var addedItem = item.clone();
-          addedItem.insertBefore(item);
-          addedItem.show();
-          addedItem.attr("id", "file_" + diffNum);
-
+        repoDiffCount = repoDiffList.length;
+        
+        addedRepo = repoTemplate.clone();
+        addedRepo.insertBefore(repoTemplate);
+        addedRepo.show();
+        addedRepo.attr("id", "repo_" + repoNum);
+        addedRepo.find("#repoName_").attr("id", "repoName_" + repoNum).html(repoName);
+        addedRepo.find("#repoDiffCount_").attr("id", "repoDiffCount_" + repoNum).html(repoDiffCount);
+        
+        repoDiffCount = repoDiffList.length;
+        diffTemplate = addedRepo.find('#diff_');
+        
+        for (var diffNum = 0; diffNum < repoDiffCount; diffNum++) {
           diffSet = repoDiffList[diffNum];
-          addedItem.find("#repoName_").attr("id", "repoName_" + diffNum).html(repoName);
-          addedItem.find("#diffPath_").attr("id", "diffPath_" + diffNum).html(diffSet.path);
-          addedItem.find("#diffCount_").attr("id", "diffCount_" + diffNum).html(diffSet.contents.length);
+          
+          addedDiff = diffTemplate.clone();
+          addedDiff.insertBefore(diffTemplate);
+          addedDiff.show();
+          addedDiff.attr("id", "diff_" + diffNum);
+          
+          if (diffSet.path != null) {
+            addedDiff.find("#diffPath_").attr("id", "diffPath_" + diffNum).html(diffSet.path);
+          }
+          if (diffSet.contents) {
+            addedDiff.find("#diffCount_").attr("id", "diffCount_" + diffNum).html(diffSet.contents.length);
+          }
         }
       }
     }
 
-    $("#fileList").accordion({ header: "h3", collapsible: true });
+    $("#repoList").accordion({ header: "h3", collapsible: true });
 
   } catch (e) {
     alert('error: ' + e);
@@ -77,16 +98,22 @@ $(document).ready(function() {
 <h4 id="same">Nothing to see.</h4>
 <h4 id="diff" style="display:none;">You've got changes!</h4>
 
-<div id="fileList">
-  <div id="file_" style="display:none;">
+<div id="repoList">
+  <div id="repo_" style="display:none;">
     <h3>
       <a href="#">
         <span id="repoName_">repo</span>
-        <span id="diffPath_">path</span>
-        <span id="diffCount_">count</span>
+        <span id="repoDiffCount_">count</span>
       </a>
     </h3>
-    <div>content</div>
+    <div>
+      <ul>
+        <li id="diff_" style="display:none;">
+          <span id="diffPath_">path</span>
+          <span id="diffCount_">count</span>
+        </li>
+      </ul>
+    </div>
   </div>
 </div>
 
