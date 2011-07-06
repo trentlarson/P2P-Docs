@@ -28,10 +28,10 @@ class Updates
   #
   # return an array of all different paths below dirs, like 'diff --brief'
   # return an array of:
-  # { 'path' => path,
-  #   'source' => 'file', 'directory', or ftype if exists in source dir tree,
-  #   'reviewed' => 'file', 'directory', or ftype if exists in reviewed dir tree,
-  #   'contents' => for directories that only exist in one, the recursive list of non-directories
+  # { 'path' => path (required),
+  #   'source' => 'file', 'directory', or ftype if exists in source dir tree (required),
+  #   'reviewed' => 'file', 'directory', or ftype if exists in reviewed dir tree (required),
+  #   'contents' => for directories that only exist in one, the recursive list of non-directories (optional)
   # }
   def self.diff_dirs(source_dir, reviewed_dir, subpath = "")
     if (subpath.start_with? "/")
