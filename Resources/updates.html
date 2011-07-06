@@ -4,6 +4,10 @@
 <title></title>
 
 <script type="text/javascript" src="js/jquery-1.5.1.min.js"></script>
+<script type="text/javascript" src="js/jquery-ui-1.8.13.custom.min.js"></script>
+
+<link type="text/css" href="css/smoothness/jquery-ui-1.8.13.custom.css" rel="stylesheet"/>
+
 <script type="text/ruby"       src="ruby/settings.rb"></script>
 <script type="text/ruby"       src="ruby/updates.rb"></script>
 
@@ -56,6 +60,7 @@ $(document).ready(function() {
       }
     }
 
+    $("#fileList").accordion({ header: "h3", collapsible: true });
 
   } catch (e) {
     alert('error: ' + e);
@@ -67,14 +72,21 @@ $(document).ready(function() {
 <body>
 <h1>Updates</h1>
 
+<a href="index.html">Index</a>
+
 <h4 id="same">Nothing to see.</h4>
 <h4 id="diff" style="display:none;">You've got changes!</h4>
 
 <div id="fileList">
   <div id="file_" style="display:none;">
-    <span id="repoName_">repo</span>
-    <span id="diffPath_">path</span>
-    <span id="diffCount_">count</span>
+    <h3>
+      <a href="#">
+        <span id="repoName_">repo</span>
+        <span id="diffPath_">path</span>
+        <span id="diffCount_">count</span>
+      </a>
+    </h3>
+    <div>content</div>
   </div>
 </div>
 
