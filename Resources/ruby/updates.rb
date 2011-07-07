@@ -28,10 +28,10 @@ class Updates
   #
   # return an array of all different paths below dirs, like 'diff --brief'
   # return an array of:
-  # { 'path' => path (required),
-  #   'source' => 'file', 'directory', or ftype if exists in source dir tree (required),
-  #   'reviewed' => 'file', 'directory', or ftype if exists in reviewed dir tree (required),
-  #   'contents' => for directories that only exist in one, the recursive list of non-directories (optional)
+  # { 'path' => path,
+  #   'source' => 'file', 'directory', or ftype if exists in source dir tree,
+  #   'reviewed' => 'file', 'directory', or ftype if exists in reviewed dir tree,
+  #   'contents' => for directories that only exist in one, the recursive list of non-directories
   # }
   def self.diff_dirs(source_dir, reviewed_dir, subpath = "")
     if (subpath.start_with? "/")
@@ -52,7 +52,7 @@ class Updates
           []
         end
       else
-        [{'path' => subpath, 'source' => File.ftype(source_file), 'reviewed' => nil }]
+        [{'path' => subpath, 'source' => File.ftype(source_file), 'reviewed' => nil, "contents" => nil }]
       end
     elsif (! File.exist? source_file)
       if (FileTest.directory? reviewed_file)
@@ -63,11 +63,11 @@ class Updates
           []
         end
       else
-        [{'path' => subpath, 'source' => nil, 'reviewed' => File.ftype(reviewed_file)}]
+        [{'path' => subpath, 'source' => nil, 'reviewed' => File.ftype(reviewed_file), "contents" => nil }]
       end
     elsif (File.file?(source_file) && File.file?(reviewed_file))
       if (File.size(source_file) != File.size(reviewed_file))
-        [{'path' => subpath, 'source' => 'file', 'reviewed' => 'file' }]
+        [{'path' => subpath, 'source' => 'file', 'reviewed' => 'file', "contents" => nil }]
       else
         []
       end
@@ -84,7 +84,7 @@ class Updates
           [{'path' => subpath, 'source' => File.ftype(source_file), 'reviewed' => 'directory',
              'contents' => all_files_below(reviewed_file, "")}]
       else
-        [{'path' => subpath, 'source' => File.ftype(source_file), 'reviewed' => File.ftype(reviewed_file) }]
+        [{'path' => subpath, 'source' => File.ftype(source_file), 'reviewed' => File.ftype(reviewed_file), "contents" => nil }]
       end
     else
       []
