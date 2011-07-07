@@ -18,6 +18,9 @@
 
 <script type="text/javascript">
 
+//Titanium.UI.getWindows()[0].showInspector()
+var Ti = {fs: Titanium.Filesystem, api:Titanium.API};
+
 function all_props(the_obj) {
   var str = "";
   for (prop in the_obj) {
@@ -25,9 +28,6 @@ function all_props(the_obj) {
   }
   return str;
 }
-
-var Ti = {fs: Titanium.Filesystem, api:Titanium.API};
-Titanium.UI.getWindows()[0].showInspector()
 
 $(document).ready(function() {
 
@@ -81,7 +81,7 @@ $(document).ready(function() {
       }
     }
 
-    $("#repoList").accordion({ header: "h3", collapsible: true });
+    $("#repoList").accordion({ header: "h3", collapsible: true, active: false });
 
   } catch (e) {
     alert('error: ' + e);
