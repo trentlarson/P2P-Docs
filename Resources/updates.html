@@ -71,20 +71,42 @@ $(document).ready(function() {
           addedDiff.show();
           addedDiff.attr("id", "diff_" + diffNum);
           
-          if (diffSet.path != null) {
-            addedDiff.find("#diffPath_").attr("id", "diffPath_" + diffNum).html(diffSet.path);
-          }
+          addedDiff.find("#diffPath_").attr("id", "diffPath_" + diffNum).html(diffSet.path);
           if (diffSet.contents != null) {
             addedDiff.find("#diffCount_").attr("id", "diffCount_" + diffNum).html(diffSet.contents.length);
+            addedDiff.find("a").attr("files", JSON.stringify(diffSet.contents)).show();
           }
         }
       }
     }
 
-    $('.accordion .panelHeader').click(function() {
+    // click to toggle panel
+    $('.panelHeader').click(function() {
       $(this).next().toggle(500);
       return false;
     }).next().hide();
+
+    // click to show full list of files in a directory
+    $('.contents').click(function() {
+      var expanded = false;
+      var toggleFiles = function() {
+        if (expanded) {
+          $(this).next().remove();
+          expanded = false;
+        } else {
+          var files = JSON.parse($(this).attr("files"));
+          var fileList = "<ul>\n";
+          for (var fileNum = 0, fileCount = files.length; fileNum < fileCount; fileNum++) {
+            fileList += "<li>" + files[fileNum] + "</li>\n";
+          }
+          fileList += "</ul>\n";
+          $(this).after(fileList);
+          expanded = true;
+        }
+        return false;
+      };
+      return toggleFiles;
+    }());
 
   } catch (e) {
     alert('error: ' + e);
@@ -113,7 +135,7 @@ $(document).ready(function() {
       <ul>
         <li id="diff_" style="display:none;">
           <span id="diffPath_">path</span>
-          <span id="diffCount_">count</span>
+          <a href="#" class="contents" style="display:none;" files="nil">contains <span id="diffCount_">count</span> files</a>
         </li>
       </ul>
     </div>
