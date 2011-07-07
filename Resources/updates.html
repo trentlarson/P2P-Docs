@@ -73,8 +73,18 @@ $(document).ready(function() {
           
           addedDiff.find("#diffPath_").attr("id", "diffPath_" + diffNum).html(diffSet.path);
           if (diffSet.contents != null) {
+            // show the count
             addedDiff.find("#diffCount_").attr("id", "diffCount_" + diffNum).html(diffSet.contents.length);
-            addedDiff.find("a").attr("files", JSON.stringify(diffSet.contents)).show();
+            // populate the contents
+            var fileList = "";
+            for (var fileNum = 0, fileCount = diffSet.contents.length; fileNum < fileCount; fileNum++) {
+              fileList += "<li>" + diffSet.contents[fileNum] + "</li>\n";
+            }
+            addedDiff.find("a").next().append(fileList).hide();
+            // add a toggling function
+            addedDiff.find("a").click(function() {
+              $(this).next().toggle(500);
+            }).show();
           }
         }
       }
@@ -85,28 +95,6 @@ $(document).ready(function() {
       $(this).next().toggle(500);
       return false;
     }).next().hide();
-
-    // click to show full list of files in a directory
-    $('.contents').click(function() {
-      var expanded = false;
-      var toggleFiles = function() {
-        if (expanded) {
-          $(this).next().remove();
-          expanded = false;
-        } else {
-          var files = JSON.parse($(this).attr("files"));
-          var fileList = "<ul>\n";
-          for (var fileNum = 0, fileCount = files.length; fileNum < fileCount; fileNum++) {
-            fileList += "<li>" + files[fileNum] + "</li>\n";
-          }
-          fileList += "</ul>\n";
-          $(this).after(fileList);
-          expanded = true;
-        }
-        return false;
-      };
-      return toggleFiles;
-    }());
 
   } catch (e) {
     alert('error: ' + e);
@@ -135,7 +123,8 @@ $(document).ready(function() {
       <ul>
         <li id="diff_" style="display:none;">
           <span id="diffPath_">path</span>
-          <a href="#" class="contents" style="display:none;" files="nil">contains <span id="diffCount_">count</span> files</a>
+          <a href="#" style="display:none;">contains <span id="diffCount_">count</span> files</a>
+          <ul></ul>
         </li>
       </ul>
     </div>
