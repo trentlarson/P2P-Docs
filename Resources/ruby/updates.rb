@@ -53,7 +53,7 @@ class Updates
   #
   # return an array of all different paths below dirs, like 'diff --brief'
   # return an array of:
-  # { 'path' => path,
+  # { 'path' => path, being the name of the file or directory (never nil, but may be an empty string),
   #   'source' => 'file', 'directory', or ftype if exists in source dir tree (otherwise nil),
   #   'reviewed' => 'file', 'directory', or ftype if exists in reviewed dir tree (otherwise nil),
   #   'contents' => for directories that only exist in one, the recursive list of non-directories (otherwise nil)
