@@ -52,15 +52,15 @@ $(document).ready(function() {
         oneRepoDiffs = all_diffs[repoNum];
         repoName = oneRepoDiffs.name;
         repoDiffList = oneRepoDiffs.diffs;
+        repoDiffCount = repoDiffList.length;
         
         addedRepo = repoTemplate.clone();
         addedRepo.insertBefore(repoTemplate);
         addedRepo.show();
         addedRepo.attr("id", "repo_" + repoNum);
         addedRepo.find("#repoName_").attr("id", "repoName_" + repoNum).html(repoName);
-        addedRepo.find("#repoDiffCount_").attr("id", "repoDiffCount_" + repoNum).html(repoDiffCount);
+        addedRepo.find("#repoDiffCount_").attr("id", "repoDiffCount_" + repoNum).html("(" + repoDiffCount + " changes)");
         
-        repoDiffCount = repoDiffList.length;
         diffTemplate = addedRepo.find('#diff_');
         
         for (var diffNum = 0; diffNum < repoDiffCount; diffNum++) {
@@ -80,10 +80,12 @@ $(document).ready(function() {
             for (var fileNum = 0, fileCount = diffSet.contents.length; fileNum < fileCount; fileNum++) {
               fileList += "<li>" + diffSet.contents[fileNum] + "</li>\n";
             }
-            addedDiff.find("a").next().append(fileList).hide();
+            addedDiff.find("a").after("<ul>" + fileList + "</ul>");
+            addedDiff.find("a").next().hide();
             // add a toggling function
             addedDiff.find("a").click(function() {
               $(this).next().toggle(500);
+              return false;
             }).show();
           }
         }
@@ -120,13 +122,10 @@ $(document).ready(function() {
       </a>
     </h3>
     <div>
-      <ul>
-        <li id="diff_" style="display:none;">
-          <span id="diffPath_">path</span>
-          <a href="#" style="display:none;">contains <span id="diffCount_">count</span> files</a>
-          <ul></ul>
-        </li>
-      </ul>
+      <div id="diff_" style="display:none;">
+        <span id="diffPath_">path</span>
+        <a href="#" style="display:none;">contains <span id="diffCount_">count</span> files</a>
+      </div>
     </div>
   </div>
 </div>
