@@ -14,7 +14,7 @@ class Updates
     if (arg == nil)
       "null"
     elsif (arg.class.name == "String")
-      "\"#{arg}\""
+      "\"" + arg.gsub("\"","\\\"") + "\""
     elsif (arg.class.name == "Array")
       recurse = arg.map { |elem| strings_arrays_hashes_json elem }
       "[" + recurse.join(", ") + "]"

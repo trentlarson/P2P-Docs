@@ -96,8 +96,8 @@ class SettingsTest
     puts "fail: bad json encoding of #{test}" if Updates.strings_arrays_hashes_json(test) != 
       "[]"
     
-    test = [nil,"junk2","junk3",nil]
-    want = "[null, \"junk2\", \"junk3\", null]"
+    test = [nil,"junk2","junk\"3\"",nil]
+    want = "[null, \"junk2\", \"junk\\\"3\\\"\", null]"
     puts "fail: bad json encoding\n test: #{test}\n got:  #{Updates.strings_arrays_hashes_json(test)}\n want: #{want}" if
       Updates.strings_arrays_hashes_json(test) != want
     
