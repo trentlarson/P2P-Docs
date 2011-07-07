@@ -92,9 +92,16 @@ class SettingsTest
     puts "fail: bad json encoding of #{test}" if Updates.strings_arrays_hashes_json(test) != 
       "\"junk\""
     
+    # I had to do this because Macs have stupid "Icon\n" files.
+    test = "junk\"\\/\b\f\n\r\t"
+    want = "\"junk\\\"\\\\/\\b\\f\\n\\r\\t\""
+    puts "fail: bad json encoding\n test: #{test}\n got:  #{Updates.strings_arrays_hashes_json(test)}\n want: #{want}" if
+      Updates.strings_arrays_hashes_json(test) != want
+    
     test = []
-    puts "fail: bad json encoding of #{test}" if Updates.strings_arrays_hashes_json(test) != 
-      "[]"
+    want = "[]"
+    puts "fail: bad json encoding\n test: #{test}\n got:  #{Updates.strings_arrays_hashes_json(test)}\n want: #{want}" if
+      Updates.strings_arrays_hashes_json(test) != want
     
     test = [nil,"junk2","junk\"3\"",nil]
     want = "[null, \"junk2\", \"junk\\\"3\\\"\", null]"
