@@ -7,7 +7,22 @@ require 'fileutils'
 # ruby -e 'load "updates.rb"; SEE_END_OF_FILE'
 
 class Updates
-
+  
+  # takes an argument which is any nesting of String, Array, and Hash objects (and nil)
+  # return a string holding JSON representation of the argument
+  def self.strings_arrays_hashes_json(arg)
+    if (arg == nil)
+      "nil"
+    elsif (arg.class.name == "String")
+      "\"#{arg}\""
+    elsif (arg.class.name == "Array")
+      arg.each { |elem| strings_arrays_hashes_json elem }.to_s
+    elsif (arg.class.name == "Hash")
+      hashes = arg.to_a.map { |key, val| "\"#{key}\":#{strings_arrays_hashes_json(val)}" }
+      "{" + hashes.join(", ") + "}"
+    end
+  end
+  
   # return an array of { 'name' => REPO_NAME, 'diffs' => RESULT_OF_DIFF_DIRS }
   def self.all_repo_diffs(settings)
     result = settings.properties['repositories']
@@ -23,15 +38,15 @@ class Updates
       junk
     end
   end
-
+  
   # subpath is assumed to be in one of them
   #
   # return an array of all different paths below dirs, like 'diff --brief'
   # return an array of:
   # { 'path' => path,
-  #   'source' => 'file', 'directory', or ftype if exists in source dir tree,
-  #   'reviewed' => 'file', 'directory', or ftype if exists in reviewed dir tree,
-  #   'contents' => for directories that only exist in one, the recursive list of non-directories
+  #   'source' => 'file', 'directory', or ftype if exists in source dir tree (otherwise nil),
+  #   'reviewed' => 'file', 'directory', or ftype if exists in reviewed dir tree (otherwise nil),
+  #   'contents' => for directories that only exist in one, the recursive list of non-directories (otherwise nil)
   # }
   def self.diff_dirs(source_dir, reviewed_dir, subpath = "")
     if (subpath.start_with? "/")

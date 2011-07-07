@@ -83,6 +83,46 @@ class SettingsTest
     puts "fail: didn't add test repo" if !success
   end
   
+  def test_simple_json()
+    test = nil
+    puts "fail: bad json encoding of #{test}" if Updates.strings_arrays_hashes_json(test) != 
+      "nil"
+    
+    test = "junk"
+    puts "fail: bad json encoding of #{test}" if Updates.strings_arrays_hashes_json(test) != 
+      "\"junk\""
+    
+    test = []
+    puts "fail: bad json encoding of #{test}" if Updates.strings_arrays_hashes_json(test) != 
+      "[]"
+    
+    test = [nil,"junk2","junk3",nil]
+    want = "[nil, \"junk2\", \"junk3\", nil]"
+    puts "fail: bad json encoding\n test: #{test}\n got:  #{Updates.strings_arrays_hashes_json(test)}\n want: #{want}" if
+      Updates.strings_arrays_hashes_json(test) != want
+    
+    test = [nil,"junk2",["junk31",nil],[nil,[],["junk43"]]]
+    want = "[nil, \"junk2\", [\"junk31\", nil], [nil, [], [\"junk43\"]]]"
+    puts "fail: bad json encoding\n test: #{test}\n got:  #{Updates.strings_arrays_hashes_json(test)}\n want: #{want}" if
+      Updates.strings_arrays_hashes_json(test) != want
+    
+    test = {}
+    want = "{}"
+    puts "fail: bad json encoding\n test: #{test}\n got:  #{Updates.strings_arrays_hashes_json(test)}\n want: #{want}" if
+      Updates.strings_arrays_hashes_json(test) != want
+
+    test = { "akey" => "aval", "bkey" => "bval", "ckey" => "cval" }
+    want = "{\"akey\":\"aval\", \"bkey\":\"bval\", \"ckey\":\"cval\"}"
+    puts "fail: bad json encoding\n test: #{test}\n got:  #{Updates.strings_arrays_hashes_json(test)}\n want: #{want}" if
+      Updates.strings_arrays_hashes_json(test) != want
+    
+    test = { "akey" => nil, "bkey" => ["bval1","bval2"], "ckey" => [], "dkey" => {"dkey1" => "dval1", "ekey1" => {"ekey11" => ["eval11",nil]}} }
+    want = "{\"akey\":nil, \"bkey\":[\"bval1\", \"bval2\"], \"ckey\":[], \"dkey\":{\"dkey1\":\"dval1\", \"ekey1\":{\"ekey11\":[\"eval11\", nil]}}}"
+    puts "fail: bad json encoding\n test: #{test}\n got:  #{Updates.strings_arrays_hashes_json(test)}\n want: #{want}" if
+      Updates.strings_arrays_hashes_json(test) != want
+    
+  end
+
   def test_repo_diffs()
 
     setup_settings(@settings.properties)
@@ -342,3 +382,4 @@ class SettingsTest
 end
 
 SettingsTest.new.run
+#SettingsTest.new.test_simple_json
