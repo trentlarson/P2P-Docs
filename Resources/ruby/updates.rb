@@ -12,11 +12,12 @@ class Updates
   # return a string holding JSON representation of the argument
   def self.strings_arrays_hashes_json(arg)
     if (arg == nil)
-      "nil"
+      "null"
     elsif (arg.class.name == "String")
       "\"#{arg}\""
     elsif (arg.class.name == "Array")
-      arg.each { |elem| strings_arrays_hashes_json elem }.to_s
+      recurse = arg.map { |elem| strings_arrays_hashes_json elem }
+      "[" + recurse.join(", ") + "]"
     elsif (arg.class.name == "Hash")
       hashes = arg.to_a.map { |key, val| "\"#{key}\":#{strings_arrays_hashes_json(val)}" }
       "{" + hashes.join(", ") + "}"

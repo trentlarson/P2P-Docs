@@ -86,7 +86,7 @@ class SettingsTest
   def test_simple_json()
     test = nil
     puts "fail: bad json encoding of #{test}" if Updates.strings_arrays_hashes_json(test) != 
-      "nil"
+      "null"
     
     test = "junk"
     puts "fail: bad json encoding of #{test}" if Updates.strings_arrays_hashes_json(test) != 
@@ -97,12 +97,12 @@ class SettingsTest
       "[]"
     
     test = [nil,"junk2","junk3",nil]
-    want = "[nil, \"junk2\", \"junk3\", nil]"
+    want = "[null, \"junk2\", \"junk3\", null]"
     puts "fail: bad json encoding\n test: #{test}\n got:  #{Updates.strings_arrays_hashes_json(test)}\n want: #{want}" if
       Updates.strings_arrays_hashes_json(test) != want
     
     test = [nil,"junk2",["junk31",nil],[nil,[],["junk43"]]]
-    want = "[nil, \"junk2\", [\"junk31\", nil], [nil, [], [\"junk43\"]]]"
+    want = "[null, \"junk2\", [\"junk31\", null], [null, [], [\"junk43\"]]]"
     puts "fail: bad json encoding\n test: #{test}\n got:  #{Updates.strings_arrays_hashes_json(test)}\n want: #{want}" if
       Updates.strings_arrays_hashes_json(test) != want
     
@@ -117,7 +117,7 @@ class SettingsTest
       Updates.strings_arrays_hashes_json(test) != want
     
     test = { "akey" => nil, "bkey" => ["bval1","bval2"], "ckey" => [], "dkey" => {"dkey1" => "dval1", "ekey1" => {"ekey11" => ["eval11",nil]}} }
-    want = "{\"akey\":nil, \"bkey\":[\"bval1\", \"bval2\"], \"ckey\":[], \"dkey\":{\"dkey1\":\"dval1\", \"ekey1\":{\"ekey11\":[\"eval11\", nil]}}}"
+    want = "{\"akey\":null, \"bkey\":[\"bval1\", \"bval2\"], \"ckey\":[], \"dkey\":{\"dkey1\":\"dval1\", \"ekey1\":{\"ekey11\":[\"eval11\", null]}}}"
     puts "fail: bad json encoding\n test: #{test}\n got:  #{Updates.strings_arrays_hashes_json(test)}\n want: #{want}" if
       Updates.strings_arrays_hashes_json(test) != want
     
