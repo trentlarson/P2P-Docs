@@ -81,7 +81,10 @@ $(document).ready(function() {
       }
     }
 
-    $("#repoList").accordion({ header: "h3", collapsible: true, active: false });
+    $('.accordion .panelHeader').click(function() {
+      $(this).next().toggle(500);
+      return false;
+    }).next().hide();
 
   } catch (e) {
     alert('error: ' + e);
@@ -99,8 +102,8 @@ $(document).ready(function() {
 <h4 id="diff" style="display:none;">You've got changes!</h4>
 
 <div id="repoList">
-  <div id="repo_" style="display:none;">
-    <h3>
+  <div id="repo_" class="accordion" style="display:none;">
+    <h3 class="panelHeader">
       <a href="#">
         <span id="repoName_">repo</span>
         <span id="repoDiffCount_">count</span>
