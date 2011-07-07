@@ -13,7 +13,7 @@
 
 <script type="text/ruby">
   window.p2pdoc_settings = Settings.new(Titanium.Filesystem.getApplicationDataDirectory())
-  window.p2pdoc_all_diffs = Updates.all_repo_diffs(window.p2pdoc_settings)
+  window.p2pdoc_all_diffs_json = Updates.strings_arrays_hashes_json(Updates.all_repo_diffs(window.p2pdoc_settings))
 </script>
 
 <script type="text/javascript">
@@ -27,11 +27,12 @@ function all_props(the_obj) {
 }
 
 var Ti = {fs: Titanium.Filesystem, api:Titanium.API};
+Titanium.UI.getWindows()[0].showInspector()
 
 $(document).ready(function() {
 
   try {
-    var all_diffs = window.p2pdoc_all_diffs;
+    var all_diffs = JSON.parse(window.p2pdoc_all_diffs_json);
     if (all_diffs.length > 0) {
 
       $('#diff').show();
@@ -51,7 +52,6 @@ $(document).ready(function() {
         oneRepoDiffs = all_diffs[repoNum];
         repoName = oneRepoDiffs.name;
         repoDiffList = oneRepoDiffs.diffs;
-        repoDiffCount = repoDiffList.length;
         
         addedRepo = repoTemplate.clone();
         addedRepo.insertBefore(repoTemplate);
@@ -74,7 +74,7 @@ $(document).ready(function() {
           if (diffSet.path != null) {
             addedDiff.find("#diffPath_").attr("id", "diffPath_" + diffNum).html(diffSet.path);
           }
-          if (diffSet.contents) {
+          if (diffSet.contents != null) {
             addedDiff.find("#diffCount_").attr("id", "diffCount_" + diffNum).html(diffSet.contents.length);
           }
         }
