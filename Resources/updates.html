@@ -8,6 +8,37 @@
 
 <link type="text/css" href="css/smoothness/jquery-ui-1.8.13.custom.css" rel="stylesheet"/>
 
+<style>
+#fullContent {
+  position: relative;
+}
+
+#repoList {
+  float:left;
+  width:450px;
+}
+
+#sideActionWrapper { /* required to avoid jumping */
+  left: 450px;
+  position: absolute;
+  margin-left: 35px;
+  width:280px;
+}
+
+#sideAction {
+  position: absolute;
+  top: 0;
+  margin-top: 20px;
+  border-top: 1px solid purple;
+  padding-top: 19px;
+}
+
+#sideAction.fixed {
+  position: fixed;
+  top: 0;
+}
+</style>
+
 <script type="text/ruby"       src="ruby/settings.rb"></script>
 <script type="text/ruby"       src="ruby/updates.rb"></script>
 
@@ -97,6 +128,22 @@ $(document).ready(function() {
       $(this).next().toggle(500);
       return false;
     }).next().hide();
+    
+    // from http://jqueryfordesigners.com/fixed-floating-elements/
+    var top = $('#sideAction').offset().top - parseFloat($('#sideAction').css('margin-top').replace(/auto/, 0));
+    $(window).scroll(function (event) {
+      // what the y position of the scroll is
+      var y = $(this).scrollTop();
+      
+      // whether that's below the form
+      if (y >= top) {
+        // if so, ad the fixed class
+        $('#sideAction').addClass('fixed');
+      } else {
+        // otherwise remove it
+        $('#sideAction').removeClass('fixed');
+      }
+    });
 
   } catch (e) {
     alert('error: ' + e);
@@ -113,21 +160,31 @@ $(document).ready(function() {
 <h4 id="same">Nothing to see.</h4>
 <h4 id="diff" style="display:none;">You've got changes!</h4>
 
-<div id="repoList">
-  <div id="repo_" class="accordion" style="display:none;">
-    <h3 class="panelHeader">
-      <a href="#">
-        <span id="repoName_">repo</span>
-        <span id="repoDiffCount_">count</span>
-      </a>
-    </h3>
-    <div>
-      <div id="diff_" style="display:none;">
-        <span id="diffPath_">path</span>
-        <a href="#" style="display:none;">contains <span id="diffCount_">count</span> files</a>
+<div id="fullContent">
+  <div id="repoList">
+    <div id="repo_" class="accordion" style="display:none;">
+      <h3 class="panelHeader">
+        <a href="#">
+          <span id="repoName_">repo</span>
+          <span id="repoDiffCount_">count</span>
+        </a>
+      </h3>
+      <div>
+        <div id="diff_" style="display:none;">
+          <input type="checkbox">
+          <span id="diffPath_">path</span>
+          <a href="#" style="display:none;">contains <span id="diffCount_">count</span> files</a>
+        </div>
       </div>
     </div>
   </div>
+  
+  <div id="sideActionWrapper">
+    <div id="sideAction">
+      Some stuff
+    </div>
+  </div>
+
 </div>
 
 </body>
