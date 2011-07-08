@@ -52,12 +52,23 @@
 //Titanium.UI.getWindows()[0].showInspector()
 var Ti = {fs: Titanium.Filesystem, api:Titanium.API};
 
-function all_props(the_obj) {
+function allProps(the_obj) {
   var str = "";
   for (prop in the_obj) {
     str += prop + " value: "+ the_obj[prop]+"\n";
   }
   return str;
+}
+
+function markAccepted() {
+  $('input[type="checkbox"]').each(function() {
+    var path;
+    if ($(this).is(":checked")) {
+      repoNumStr = $(this).attr("repo");
+      path = $(this).attr("path");
+      $(this).parent().hide(500);
+    }
+  });
 }
 
 $(document).ready(function() {
@@ -101,6 +112,7 @@ $(document).ready(function() {
           addedDiff.insertBefore(diffTemplate);
           addedDiff.show();
           addedDiff.attr("id", "diff_" + diffNum);
+          addedDiff.find("#reviewed_").attr("id", "reviewed_" + diffNum).attr("repo", repoNum).attr("path", diffSet.path);
           
           addedDiff.find("#diffPath_").attr("id", "diffPath_" + diffNum).html(diffSet.path);
           if (diffSet.contents != null) {
@@ -171,7 +183,7 @@ $(document).ready(function() {
       </h3>
       <div>
         <div id="diff_" style="display:none;">
-          <input type="checkbox">
+          <input type="checkbox" id="reviewed_" repo="_" path="_">
           <span id="diffPath_">path</span>
           <a href="#" style="display:none;">contains <span id="diffCount_">count</span> files</a>
         </div>
@@ -181,7 +193,7 @@ $(document).ready(function() {
   
   <div id="sideActionWrapper">
     <div id="sideAction">
-      Some stuff
+      <a href="#" onclick="javascript: markAccepted(); return false;">Accept</a>
     </div>
   </div>
 
