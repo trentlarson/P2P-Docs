@@ -139,7 +139,8 @@ class Updates
   end
 
   # marks the subpath in repo as reviewed
-  def self.mark_reviewed(settings, repo, subpath)
+  def self.mark_reviewed(settings, repo_name, subpath)
+    repo = settings.get_repo(repo_name)
     source = File.join(repo['source_dir'], subpath)
     target = File.join(settings.reviewed_dir(repo), subpath)
     if (FileTest.exist? source)

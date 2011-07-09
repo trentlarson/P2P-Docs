@@ -45,6 +45,7 @@
 <script type="text/ruby">
   window.p2pdoc_settings = Settings.new(Titanium.Filesystem.getApplicationDataDirectory())
   window.p2pdoc_all_diffs_json = Updates.strings_arrays_hashes_json(Updates.all_repo_diffs(window.p2pdoc_settings))
+  window.p2pdoc_mark_reviewed = lambda {|repo, path| Updates.mark_reviewed(window.p2pdoc_settings, repo, path)}
 </script>
 
 <script type="text/javascript">
@@ -62,10 +63,11 @@ function allProps(the_obj) {
 
 function markAccepted() {
   $('input[type="checkbox"]').each(function() {
-    var path;
+    var repoName, path;
     if ($(this).is(":checked")) {
-      repoNumStr = $(this).attr("repo");
+      repoName = $(this).attr("repoName");
       path = $(this).attr("path");
+      window.p2pdoc_mark_reviewed(repoName, path);
       $(this).parent().hide(500);
     }
   });
@@ -112,7 +114,7 @@ $(document).ready(function() {
           addedDiff.insertBefore(diffTemplate);
           addedDiff.show();
           addedDiff.attr("id", "diff_" + diffNum);
-          addedDiff.find("#reviewed_").attr("id", "reviewed_" + diffNum).attr("repo", repoNum).attr("path", diffSet.path);
+          addedDiff.find("#reviewed_").attr("id", "reviewed_" + diffNum).attr("repoName", repoName).attr("path", diffSet.path);
           
           addedDiff.find("#diffPath_").attr("id", "diffPath_" + diffNum).html(diffSet.path);
           if (diffSet.contents != null) {

@@ -165,7 +165,7 @@ class SettingsTest
 
 
     sleep(1) # for testing modified time
-    Updates.mark_reviewed(@settings, repo_test0, 'sample.txt')
+    Updates.mark_reviewed(@settings, 'test 0', 'sample.txt')
     all_repo_diffs = Updates.all_repo_diffs(@settings)
     puts "fail: after review: #{all_repo_diffs.inspect}" if all_repo_diffs != []
     source_mtime = File.mtime(File.join(repo_test0['source_dir'], "sample.txt"))
@@ -183,7 +183,7 @@ class SettingsTest
 
 
 
-    Updates.mark_reviewed(@settings, repo_test0, 'sample.txt')
+    Updates.mark_reviewed(@settings, 'test 0', 'sample.txt')
     all_repo_diffs = Updates.all_repo_diffs(@settings)
     puts "fail: no changed files: #{all_repo_diffs.inspect}" if all_repo_diffs != []
 
@@ -193,7 +193,7 @@ class SettingsTest
       out.write "mitch\n"
     end
     File.new(File.join(repo_test1['source_dir'], '1_sample.txt'), 'w')
-    Updates.mark_reviewed(@settings, repo_test1, '1_sample.txt')
+    Updates.mark_reviewed(@settings, 'test 1', '1_sample.txt')
     File.open(File.join(repo_test1['source_dir'], '1_sample.txt'), 'w') do |out|
       out.write "yabba dabba doo\n"
     end
@@ -204,8 +204,8 @@ class SettingsTest
 
 
 
-    Updates.mark_reviewed(@settings, repo_test0, 'sample.txt')
-    Updates.mark_reviewed(@settings, repo_test1, '1_sample.txt')
+    Updates.mark_reviewed(@settings, 'test 0', 'sample.txt')
+    Updates.mark_reviewed(@settings, 'test 1', '1_sample.txt')
     all_repo_diffs = Updates.all_repo_diffs(@settings)
     puts "fail: no changed files: #{all_repo_diffs.inspect}" if all_repo_diffs != []
 
@@ -230,7 +230,7 @@ class SettingsTest
 
 
 
-    Updates.mark_reviewed(@settings, repo_test0, a_filename)
+    Updates.mark_reviewed(@settings, 'test 0', a_filename)
     all_repo_diffs = Updates.all_repo_diffs(@settings)
     puts "fail: all synched up: #{all_repo_diffs.inspect}" if all_repo_diffs != []
 
@@ -260,8 +260,8 @@ class SettingsTest
 
 
 
-    Updates.mark_reviewed(@settings, repo_test1, File.join(deeper1, "1_sample.txt"))
-    Updates.mark_reviewed(@settings, repo_test1, File.join(deeper1, "1_sample2.txt"))
+    Updates.mark_reviewed(@settings, 'test 1', File.join(deeper1, "1_sample.txt"))
+    Updates.mark_reviewed(@settings, 'test 1', File.join(deeper1, "1_sample2.txt"))
     all_repo_diffs = Updates.all_repo_diffs(@settings)
     puts "fail: source files in deep sources: #{all_repo_diffs.inspect}" if all_repo_diffs !=
       [{"name"=>"test 1",
@@ -283,13 +283,13 @@ class SettingsTest
           {"path"=>File.join("1_sub_dir", "11_sub_dir", "sample.txt"), "source"=>nil, "reviewed"=>"file", "contents"=>nil}]}]
 
 
-    Updates.mark_reviewed(@settings, repo_test1, File.join('1_sub_dir', '11_sub_dir'))
+    Updates.mark_reviewed(@settings, 'test 1', File.join('1_sub_dir', '11_sub_dir'))
     all_repo_diffs = Updates.all_repo_diffs(@settings)
     puts "fail: reviewed directory in deep sources: #{all_repo_diffs.inspect}" if all_repo_diffs != []
 
 
 
-    Updates.mark_reviewed(@settings, repo_test1, File.join('1_sub_dir', '11_sub_dir', 'sample.txt'))
+    Updates.mark_reviewed(@settings, 'test 1', File.join('1_sub_dir', '11_sub_dir', 'sample.txt'))
     all_repo_diffs = Updates.all_repo_diffs(@settings)
     puts "fail: reviewed removed file: #{all_repo_diffs.inspect}" if all_repo_diffs != []
 
@@ -307,7 +307,7 @@ class SettingsTest
 
 
 
-    Updates.mark_reviewed(@settings, repo_test1, File.join('1_sub_dir', '11_sub_dir'))
+    Updates.mark_reviewed(@settings, 'test 1', File.join('1_sub_dir', '11_sub_dir'))
     all_repo_diffs = Updates.all_repo_diffs(@settings)
     puts "fail: reviewed entire subdirectory: #{all_repo_diffs.inspect}" if all_repo_diffs != []
 
@@ -323,7 +323,7 @@ class SettingsTest
 
 
 
-    Updates.mark_reviewed(@settings, repo_test1, '1_sub_dir')
+    Updates.mark_reviewed(@settings, 'test 1', '1_sub_dir')
     all_repo_diffs = Updates.all_repo_diffs(@settings)
     puts "fail: reviewed file replaced dir: #{all_repo_diffs.inspect}" if all_repo_diffs != []
 
@@ -341,7 +341,7 @@ class SettingsTest
 
 
 
-    Updates.mark_reviewed(@settings, repo_test1, '1_sub_dir')
+    Updates.mark_reviewed(@settings, 'test 1', '1_sub_dir')
     all_repo_diffs = Updates.all_repo_diffs(@settings)
     puts "fail: reviewed dir replaced file: #{all_repo_diffs.inspect}" if all_repo_diffs != []
 
@@ -380,7 +380,7 @@ class SettingsTest
 
 
 
-    Updates.mark_reviewed(@settings, repo_test1, '1_sub_dir')
+    Updates.mark_reviewed(@settings, 'test 1', '1_sub_dir')
     all_repo_diffs = Updates.all_repo_diffs(@settings)
     puts "fail: reviewed dir replaced file: #{all_repo_diffs.inspect}" if all_repo_diffs != []
 

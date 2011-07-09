@@ -93,6 +93,10 @@ May reference a settings.yaml file.
     end
   end
 
+  def get_repo(name)
+    @@settings['repositories'].find{ |repo| repo['name'] == name }
+  end
+
   # return true if the repo was added; otherwise, false (eg. name blank or duplicate)
   def add_repo(name, source_dir)
     if (name.class.name == "RubyKObject") # for method results from Titanium
@@ -122,7 +126,7 @@ May reference a settings.yaml file.
     if (name.class.name == "RubyKObject") # for method results from Titanium
       name = name.toString()
     end
-    @@settings['repositories'].find{ |repo| repo['name'] == name }['source_dir'] = new_path
+    get_repo(name)['source_dir'] = new_path
   end
 
   def save()
