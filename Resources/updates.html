@@ -84,10 +84,10 @@ $(document).ready(function() {
 
       // declare the repo variables for data and DOM elements
       var repoCount, oneRepoDiffs, repoName, repoDiffList, repoDiffCount;
-      var repoTemplate, addedRepo;
+      var repoTemplate, addedRepo, numChanges;
       // declare the diff variables for data and DOM elements
       var diffSet;
-      var diffTemplate, addedDiff;
+      var diffTemplate, addedDiff, numFiles;
       
       repoCount = all_diffs.length;
       repoTemplate = $('#repoList #repo_');
@@ -103,7 +103,8 @@ $(document).ready(function() {
         addedRepo.show();
         addedRepo.attr("id", "repo_" + repoNum);
         addedRepo.find("#repoName_").attr("id", "repoName_" + repoNum).html(repoName);
-        addedRepo.find("#repoDiffCount_").attr("id", "repoDiffCount_" + repoNum).html("(" + repoDiffCount + " changes)");
+        numChanges = repoDiffCount + " " + (repoDiffCount == 1 ? "change" : "changes");
+        addedRepo.find("#repoDiffCount_").attr("id", "repoDiffCount_" + repoNum).html("(" + numChanges + ")");
         
         diffTemplate = addedRepo.find('#diff_');
         
@@ -119,7 +120,8 @@ $(document).ready(function() {
           addedDiff.find("#diffPath_").attr("id", "diffPath_" + diffNum).html(diffSet.path);
           if (diffSet.contents != null) {
             // show the count
-            addedDiff.find("#diffCount_").attr("id", "diffCount_" + diffNum).html(diffSet.contents.length);
+            numFiles = diffSet.contents.length + " " + (diffSet.contents.length == 1 ? "file" : "files");
+            addedDiff.find("#diffCount_").attr("id", "diffCount_" + diffNum).html(numFiles);
             // populate the contents
             var fileList = "";
             for (var fileNum = 0, fileCount = diffSet.contents.length; fileNum < fileCount; fileNum++) {
@@ -187,7 +189,7 @@ $(document).ready(function() {
         <div id="diff_" style="display:none;">
           <input type="checkbox" id="reviewed_" repo="_" path="_">
           <span id="diffPath_">path</span>
-          <a href="#" style="display:none;">contains <span id="diffCount_">count</span> files</a>
+          <a href="#" style="display:none;">(<span id="diffCount_">count</span>)</a>
         </div>
       </div>
     </div>
