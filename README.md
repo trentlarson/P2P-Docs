@@ -22,8 +22,9 @@ To do before next release:
 
 Current task:
 
- * accept/ignore/postpone review of files in the P2P folders
+ * fix the 'view' link showing after directories (should only show after files)
 
 Tests
 
  * Register & unregister repos: add/remove funny names; add/remove duplicate names
+ * Create different repository configurations: empty ones, ones with thousands of dirs/files
