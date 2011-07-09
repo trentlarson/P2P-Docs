@@ -73,6 +73,14 @@ function markAccepted() {
   });
 }
 
+function viewFileWrapperFunc(sourceDir, path) {
+  var viewFileFunc = function() {
+    Titanium.Platform.openApplication(sourceDir + "/" + path);
+    return false;
+  }
+  return viewFileFunc;
+}
+
 $(document).ready(function() {
 
   try {
@@ -83,7 +91,7 @@ $(document).ready(function() {
       $('#same').hide();
 
       // declare the repo variables for data and DOM elements
-      var repoCount, oneRepoDiffs, repoName, repoDiffList, repoDiffCount;
+      var repoCount, oneRepoDiffs, repoData, repoName, repoDiffList, repoDiffCount;
       var repoTemplate, addedRepo, numChanges;
       // declare the diff variables for data and DOM elements
       var diffSet;
@@ -118,6 +126,10 @@ $(document).ready(function() {
           addedDiff.find("#reviewed_").attr("id", "reviewed_" + diffNum).attr("repoName", repoName).attr("path", diffSet.path);
           
           addedDiff.find("#diffPath_").attr("id", "diffPath_" + diffNum).html(diffSet.path);
+          if (diffSet.source === "file") {
+            repoData = window.p2pdoc_settings.get_repo(repoName);
+            addedDiff.find("#sourceView a").click(viewFileWrapperFunc(repoData.source_dir, diffSet.path)).show();
+          }
           if (diffSet.contents != null) {
             // show the count
             numFiles = diffSet.contents.length + " " + (diffSet.contents.length == 1 ? "file" : "files");
@@ -189,6 +201,7 @@ $(document).ready(function() {
         <div id="diff_" style="display:none;">
           <input type="checkbox" id="reviewed_" repo="_" path="_">
           <span id="diffPath_">path</span>
+          <span id="sourceView"><a href="#" style="display:none;">(view)</a></span>
           <a href="#" style="display:none;">(<span id="diffCount_">count</span>)</a>
         </div>
       </div>
