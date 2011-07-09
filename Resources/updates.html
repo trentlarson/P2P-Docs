@@ -75,7 +75,22 @@ function markAccepted() {
 
 function viewFileWrapperFunc(sourceDir, path) {
   var viewFileFunc = function() {
-    Titanium.Platform.openApplication(sourceDir + "/" + path);
+    var file = sourceDir + "/" + path;
+    try {
+      var result = Titanium.Platform.openApplication(file);
+      if (result !== "true"     // The API says that the result is a string...
+          && result !== true) { // ... but I'm getting a boolean result.
+        alert("Sorry!  We had a problem opening that file.  If you report this problem, the following info will help.\nfile: " + file + "\nresult: " + result);
+        throw 10;
+      }
+    } catch (err) {
+      var errDebug = "";
+      for (var prop in err) {
+         errDebug += "property: " + prop + " value: [" + err[prop] + "]\n";
+      }
+      errDebug += "toString(): " + " value: [" + err.toString() + "]";
+      alert("Sorry!  We had a problem opening that file.  If you report this problem, the following info will help.\nfile: " + file + "\n" + errDebug);
+    }
     return false;
   }
   return viewFileFunc;
