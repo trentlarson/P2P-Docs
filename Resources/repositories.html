@@ -33,7 +33,7 @@
 
 <script type="text/ruby" src="ruby/settings.rb"></script>
 <script type="text/ruby">
-  window.p2pdoc_settings = Settings.new(Titanium.Filesystem.getApplicationDataDirectory())
+  window.p2pdoc_settings = Settings.new(Titanium.App.Properties.getString("settings-dir"))
 </script>
 
 <script type="text/javascript">
