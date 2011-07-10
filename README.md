@@ -1,4 +1,4 @@
-All In The P2P / P2PDOCs
+All In The P2P / P2P-Docs
 ==============
 
 User Stories
