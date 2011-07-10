@@ -3,3 +3,7 @@ task :default => [:test]
 task :test do
   ruby "Resources/test/ruby/settings.rb"
 end
+
+task :sample_repos do
+  ruby "Resources/test/ruby/sample_repositories.rb"
+end
