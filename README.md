@@ -18,7 +18,10 @@ A "-" means it's not done yet.
 Test Details:
 
  * Register & unregister repos: add/remove funny names; add/remove duplicate names
- * Create different repository configurations: empty ones, ones with thousands of dirs/files
+ * Create different repository configurations
+    * empty ones
+    * - many repositories (eg. crashes on repositories page with 25 repos; see sample_repos test)
+    * - ones with thousands of dirs/files
 
 
 Plans
