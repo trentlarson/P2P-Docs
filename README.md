@@ -29,14 +29,11 @@ Plans
 
 To do before next release:
 
+ * fix crashes on too many (eg. 25) repos
  * repository choices (dir choosing: browse, hints; small x)
  * hook up real search for content
  * program auto-update
  * make this a background service... with notification hooks?
  * documentation and/or help
- * any failing tests (below)
-
-Current task:
-
- * fix the 'view' link showing after directories (should only show after files)
+ * any failing tests
 

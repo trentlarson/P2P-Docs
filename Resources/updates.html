@@ -154,10 +154,10 @@ $(document).ready(function() {
             for (var fileNum = 0, fileCount = diffSet.contents.length; fileNum < fileCount; fileNum++) {
               fileList += "<li>" + diffSet.contents[fileNum] + "</li>\n";
             }
-            addedDiff.find("a").after("<ul>" + fileList + "</ul>");
-            addedDiff.find("a").next().hide();
+            addedDiff.find("#showContents a").after("<ul>" + fileList + "</ul>");
+            addedDiff.find("#showContents a").next().hide();
             // add a toggling function
-            addedDiff.find("a").click(function() {
+            addedDiff.find("#showContents a").click(function() {
               $(this).next().toggle(500);
               return false;
             }).show();
@@ -217,7 +217,7 @@ $(document).ready(function() {
           <input type="checkbox" id="reviewed_" repo="_" path="_">
           <span id="diffPath_">path</span>
           <span id="sourceView"><a href="#" style="display:none;">(view)</a></span>
-          <a href="#" style="display:none;">(<span id="diffCount_">count</span>)</a>
+          <span id="showContents"><a href="#" style="display:none;">(<span id="diffCount_">count</span>)</a></span>
         </div>
       </div>
     </div>
