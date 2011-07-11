@@ -20,9 +20,10 @@ Test Details:
  * Register & unregister repos: add/remove funny names; add/remove duplicate names
  * Create different repository configurations
     * empty ones
-    * combinations: empty repo, repo w/ files, repo w/ dirs, repo w/ files & dirs, recursively
+    * - combinations: empty repo, repo w/ files, repo w/ dirs, repo w/ files & dirs, recursively
     * - many repositories (eg. crashes on repositories page with 25 repos; see sample_repos test)
     * - ones with thousands of dirs/files
+    * - repo changes, mirroring the tests in SettingsTest
 
 
 Plans
