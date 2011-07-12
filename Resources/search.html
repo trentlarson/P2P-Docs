@@ -1,30 +1,93 @@
-<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
-<html> <head>
-<title></title>
+<html>
+<head>
+
+<style type=text/css>
+
+.blurb {
+  height: 30px;
+}
+
+.openApp {
+  cursor: pointer;
+  color: #0000ff;
+  text-decoration: underline;
+}
+
+</style>
+
+<script type="text/javascript" src="js/jquery-1.5.1.min.js"></script>
+<script type="text/ruby"       src="ruby/search.rb"></script>
+
+<script type="text/ruby">
+  if (!Titanium.App.Properties.hasProperty('settings-dir'))
+    Titanium.App.Properties.setString('settings-dir', Titanium.Filesystem.getApplicationDataDirectory().toString());
+  end
+</script>
+
+<script type="text/ruby">
+  window.searcher = Search.new
+</script>
+
+<script type="text/javascript">
+
+var Ti = {fs: Titanium.Filesystem, api:Titanium.API};
+
+function endsWith(str, suffix) {
+  return str.indexOf(suffix, str.length - suffix.length) !== -1;
+}
 
 $(document).ready(function() {
-  try {
-    //alert('resource dir ' + Ti.fs.getApplicationDataDirectory());
-    //alert('resource dir ' + Ti.fs.getApplicationDataDirectory());
-    //alert("sep " + Ti.fs.getSeparator());
-    //var f = Titanium.Filesystem.getFile('/Users/tlarson/.p2pevents.info');
-    //alert('exists? ' + f.exists());
 
+  try {
+
+    // create an element for each search result
     var dir = Titanium.Filesystem.getFile('/Users/tlarson/backed/doc/family-histories');
-    var files = dir.getDirectoryListing();
-    files.forEach(function(filename) {
-      $("#files").append("<li>" + filename + "</li>");
+    var moreInfo = window.searcher.main("/Users/tlarson/backed/doc/family-histories/JeanGould.html", "dog");
+    moreInfo.forEach(function(resultInfo) {
+      $("#files").append("<div class='blurb'><span class='openApp' file='" + resultInfo.file + "' pos='" + resultInfo.pos + "'>" + resultInfo.line + "</span></div>");
     });
+
+    // attach a function to open each file on a click
+    $(".blurb .openApp").each(function() {
+      $(this).click(function(e) {
+        filename = $(this).attr("file");
+        filepos = parseInt($(this).attr("pos"));
+        if (endsWith(filename, ".htm")
+            || endsWith(filename, ".html")) {
+          anchorName = window.searcher.previous_anchor_name(filename, filepos);
+          if (anchorName) {
+            filename = filename + "#" + anchorName;
+          } else {
+            alert("There is no anchor point near that text.  The file will open at the top, and you'll have to search for that text.");
+          }
+         Titanium.Desktop.openURL("file://" + filename);
+        } else {
+          Titanium.Desktop.openApplication(filename);
+        }
+      });
+    });
+
   } catch (e) {
     alert('error: ' + e);
   }
+
 });
 
+</script>
+
+
 </head>
-
 <body>
-<h1>Search</h1>
 
-
-
-</body> </html>
+  <a href="updates.html">Updates</a>
+  <a href="repositories.html">Settings</a>
+  
+  <div>
+    <form action="search.html">
+      <input type="text" name="term" />
+      <input type="submit" />
+    </form>
+  </div>
+  <div id="files"></div>
+</body>
+</html>
