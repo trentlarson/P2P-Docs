@@ -62,15 +62,18 @@ function allProps(the_obj) {
 }
 
 function markAccepted() {
-  $('input[type="checkbox"]').each(function() {
-    var repoName, path;
-    if ($(this).is(":checked")) {
+  var checkedBoxes = $('input[type="checkbox"]:checked');
+  if (checkedBoxes.length == 0) {
+    alert("You need to select some items for this to work.");
+  } else {
+    checkedBoxes.each(function() {
+      var repoName, path;
       repoName = $(this).attr("repoName");
       path = $(this).attr("path");
       window.p2pdoc_mark_reviewed(repoName, path);
       $(this).parent().hide(500);
-    }
-  });
+    });
+  }
 }
 
 function viewFileWrapperFunc(sourceDir, path) {
@@ -210,13 +213,13 @@ $(document).ready(function() {
 </head>
 <body>
 
-<a href="repositories.html" style="float:right;">Configure</a>
+<a href="repositories.html" class="ui-state-default" style="float:right;">Configure</a>
 
 <h2 id="same">Nothing to see.</h2>
 <h2 id="diff" style="display:none;">You've got changes!</h2>
 
 <div id="fullContent">
-  <div id="repoList">
+  <div id="repoList" class="ui-widget">
     <div id="repo_" class="accordion" style="display:none;">
       <h3 class="panelHeader">
         <a href="#">
@@ -228,16 +231,16 @@ $(document).ready(function() {
         <div id="diff_" style="display:none;">
           <input type="checkbox" id="reviewed_" repo="_" path="_">
           <span id="diffPath_">path</span>
-          <span id="sourceView"><a href="#" style="display:none;">(view)</a></span>
-          <span id="changeView"><a href="#" style="display:none;">(changes)</a></span>
+          <span id="sourceView"><a href="#" style="display:none;">(open)</a></span>
+          <span id="changeView"><a href="#" style="display:none;">(see changes)</a></span>
           <span id="strangeView"><a href="#" style="display:none;" onClick="javascript: alert('The source is an object of a different type, so something very strange happened to this thing.');">(strange)</a></span>
-          <span id="showContents"><a href="#" style="display:none;">(<span id="diffCount_">count</span>)</a></span>
+          <span id="showContents"><a href="#" style="display:none;">(list <span id="diffCount_">count</span>)</a></span>
         </div>
       </div>
     </div>
   </div>
   
-  <div id="sideActionWrapper">
+  <div id="sideActionWrapper" class="ui-widget">
     <div id="sideAction">
       <a href="#" onclick="javascript: markAccepted(); return false;">Accept</a>
     </div>
