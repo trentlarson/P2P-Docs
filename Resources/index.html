@@ -28,8 +28,6 @@
 #sideAction {
   position: absolute;
   top: 0;
-  margin-top: 20px;
-  border-top: 1px solid purple;
   padding-top: 19px;
 }
 
@@ -64,7 +62,7 @@ function allProps(the_obj) {
 function markAccepted() {
   var checkedBoxes = $('input[type="checkbox"]:checked');
   if (checkedBoxes.length == 0) {
-    alert("You need to select some items for this to work.");
+    alert("If you really want to accept something, you'll have to select it first.");
   } else {
     checkedBoxes.each(function() {
       var repoName, path;
@@ -105,7 +103,6 @@ $(document).ready(function() {
     var all_diffs = JSON.parse(window.p2pdoc_all_diffs_json);
     if (all_diffs.length > 0) {
 
-      $('#diff').show();
       $('#same').hide();
 
       // declare the repo variables for data and DOM elements
@@ -215,8 +212,7 @@ $(document).ready(function() {
 
 <a href="repositories.html" class="ui-state-default" style="float:right;">Configure</a>
 
-<h2 id="same">Nothing to see.</h2>
-<h2 id="diff" style="display:none;">You've got changes!</h2>
+<h2 id="same" class="ui-widget">Nothing to see.</h2>
 
 <div id="fullContent">
   <div id="repoList" class="ui-widget">
