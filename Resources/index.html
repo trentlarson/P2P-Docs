@@ -28,7 +28,7 @@
 #sideAction {
   position: absolute;
   top: 0;
-  padding-top: 19px;
+  padding-top: 30px;
 }
 
 #sideAction.fixed {
@@ -69,7 +69,22 @@ function markAccepted() {
       repoName = $(this).attr("repoName");
       path = $(this).attr("path");
       window.p2pdoc_mark_reviewed(repoName, path);
-      $(this).parent().hide(500);
+      var repoDiv = $(this).parent().parent().parent();
+      $(this).parent().hide(500, function() {
+        $(this).remove();
+        // now hide the repo if that was the last child
+        if (repoDiv.find('#diffList').children().length == 1) {
+          repoDiv.hide(500, function() {
+            repoDiv.remove();
+            // now revert to default display if that was the last repo
+            if ($('#repoList').children().length == 1) {
+              $('#sideActionWrapper').hide(500);
+              $('#same').show(500);
+            }
+            $(this).remove();
+          });
+        }
+      });
     });
   }
 }
@@ -104,6 +119,7 @@ $(document).ready(function() {
     if (all_diffs.length > 0) {
 
       $('#same').hide();
+      $('#sideActionWrapper').show();
 
       // declare the repo variables for data and DOM elements
       var repoCount, oneRepoDiffs, repoData, repoName, repoDiffList, repoDiffCount;
@@ -212,18 +228,18 @@ $(document).ready(function() {
 
 <a href="repositories.html" class="ui-state-default" style="float:right;">Configure</a>
 
-<h2 id="same" class="ui-widget">Nothing to see.</h2>
+<h2 id="same" class="ui-widget">You've see it all, so you can go play with another toy.<br/>See you real soon!</h2>
 
 <div id="fullContent">
   <div id="repoList" class="ui-widget">
-    <div id="repo_" class="accordion" style="display:none;">
+    <div id="repo_" style="display:none;">
       <h3 class="panelHeader">
         <a href="#">
           <span id="repoName_">repo</span>
           <span id="repoDiffCount_">count</span>
         </a>
       </h3>
-      <div>
+      <div id="diffList">
         <div id="diff_" style="display:none;">
           <input type="checkbox" id="reviewed_" repo="_" path="_">
           <span id="diffPath_">path</span>
@@ -236,7 +252,7 @@ $(document).ready(function() {
     </div>
   </div>
   
-  <div id="sideActionWrapper" class="ui-widget">
+  <div id="sideActionWrapper" class="ui-widget" style="display:none;">
     <div id="sideAction">
       <a href="#" onclick="javascript: markAccepted(); return false;">Accept</a>
     </div>
