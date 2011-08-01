@@ -31,6 +31,7 @@ Plans
 
 In priority order:
 
+ * make file repo show up in diffs
  * Doc Changes
  * fix crashes on too many (eg. 25) repos
  * repository choices (dir choosing: browse, hints; small x)
