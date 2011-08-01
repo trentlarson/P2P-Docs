@@ -23,14 +23,6 @@
   display: none;
   cursor: pointer;
 }
-.repoAccept {
-  visibility: hidden;
-  cursor: pointer;
-}
-.repoRevert {
-  visibility: hidden;
-  cursor: pointer;
-}
 </style>
 
 <script type="text/ruby" src="ruby/settings.rb"></script>
@@ -58,10 +50,7 @@ var insertRepo = function(name, source_dir, showSlowly) {
   addedItem.find("#repoRemove_").attr("id", "repoRemove_" + dom_suffix).show();
   addedItem.find("#repoName_")  .attr("id", "repoName_"   + dom_suffix).show().html(name + ":");
   addedItem.find("#repoPath_")  .attr("id", "repoPath_"   + dom_suffix).show().html(source_dir);
-  addedItem.find("#repoPath2_") .attr("id", "repoPath2_"  + dom_suffix).show().val(source_dir).width(source_dir.length * 8);
   addedItem.find("#repoAdd_")   .attr("id", "repoAdd_"    + dom_suffix).hide();
-  addedItem.find("#repoAccept_").attr("id", "repoAccept_" + dom_suffix).hide();
-  addedItem.find("#repoRevert_").attr("id", "repoRevert_" + dom_suffix).hide();
   addedItem.find("#fileChooser_")  .attr("id", "fileChooser_"   + dom_suffix).show().click(function() {
     chooseFile(name, "repoPath_" + dom_suffix);
   });
@@ -71,7 +60,6 @@ var insertRepo = function(name, source_dir, showSlowly) {
   
   // attach methods to the visuals
   addedItem.find("#repoRemove_" + dom_suffix).click(removeRepo(name));
-  addedItem.find("#repoPath2_" + dom_suffix).change(changeRepoPath2(name));
   
   
   if (showSlowly) {
@@ -98,13 +86,6 @@ var removeRepo = function(name) {
 var changeRepoPath = function(name, value) {
   window.p2pdoc_settings.change_repo_path(name, value);
   window.p2pdoc_settings.save();
-}
-
-var changeRepoPath2 = function(name) {
-  return function(event) {
-    window.p2pdoc_settings.change_repo_path(name, event.target.value);
-    window.p2pdoc_settings.save();
-  };
 }
 
 var chooseFile = function(repoName, idForPath) {
@@ -201,8 +182,6 @@ $('#repoItem_ #repoAdd_').bind('click', function() {
     <span id="repoPath_" class="repoInfo"></span>
     <a href="#" id="fileChooser_" class="repoAct" onclick="javascript:chooseFile();">file</a>
     <a href="#" id="folderChooser_" class="repoAct">folder</a>
-    <img src="images/button-green-check.png" title="Accept" alt="Accept" id="repoAccept_" class="repoAccept">
-    <img src="images/button-red-back.png" title="Revert" alt="Revert" id="repoRevert_" class="repoRevert">
   </div>
 </div>
 
