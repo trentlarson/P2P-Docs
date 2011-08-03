@@ -51,9 +51,6 @@ var insertRepo = function(name, source_dir, showSlowly) {
   addedItem.find("#repoName_")  .attr("id", "repoName_"   + dom_suffix).show().html(name + ":");
   addedItem.find("#repoPath_")  .attr("id", "repoPath_"   + dom_suffix).show().html(source_dir);
   addedItem.find("#repoAdd_")   .attr("id", "repoAdd_"    + dom_suffix).hide();
-  addedItem.find("#fileChooser_")  .attr("id", "fileChooser_"   + dom_suffix).show().click(function() {
-    chooseFile(name, "repoPath_" + dom_suffix);
-  });
   addedItem.find("#folderChooser_").attr("id", "folderChooser_" + dom_suffix).show().click(function() {
     chooseFolder(name, "repoPath_" + dom_suffix);
   });
@@ -88,21 +85,6 @@ var changeRepoPath = function(name, value) {
   window.p2pdoc_settings.save();
 }
 
-var chooseFile = function(repoName, idForPath) {
-   Titanium.UI.getCurrentWindow().openFileChooserDialog(function(selectionResponse) {
-     // selectionResponse is an array of file strings
-     if (selectionResponse.length === 0) {
-       // cancelled or none chosen, so leave things as-is
-     } else {
-       if (selectionResponse.length > 1) {
-         alert("You chose multiple folders, but I'll only take the first one.");
-       }
-       changeRepoPath(repoName, selectionResponse[0]);
-       $("#" + idForPath).html(selectionResponse[0]);
-     }
-   });
-}
-     
 var chooseFolder = function(repoName, idForPath) {
    Titanium.UI.getCurrentWindow().openFolderChooserDialog(function(selectionResponse) {
      // selectionResponse is an array of folder strings
@@ -180,7 +162,6 @@ $('#repoItem_ #repoAdd_').bind('click', function() {
     <img src="images/button-red-x.png" title="Remove" alt="Remove" id="repoRemove_" class="repoRemove">
     <span id="repoName_" class="repoInfo"></span>
     <span id="repoPath_" class="repoInfo"></span>
-    <a href="#" id="fileChooser_" class="repoAct" onclick="javascript:chooseFile();">file</a>
     <a href="#" id="folderChooser_" class="repoAct">folder</a>
   </div>
 </div>
