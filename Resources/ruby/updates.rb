@@ -59,12 +59,19 @@ class Updates
   #   'contents' => for directories that only exist in one, the recursive list of non-directories (otherwise nil)
   # }
   def self.diff_dirs(source_dir, reviewed_dir, subpath = "")
-    source_file = File.join(source_dir, subpath)
-    reviewed_file = File.join(reviewed_dir, subpath)
+    
+    if (subpath == "")
+      source_file = source_dir
+      reviewed_file = reviewed_dir
+    else
+      source_file = File.join(source_dir, subpath)
+      reviewed_file = File.join(reviewed_dir, subpath)
+    end
+    
     if (!File.exist?(source_file) && !File.exist?(reviewed_file))
       # we shouldn't even be here in this case, but we'll play nice
       []
-    elsif (! File.exist? reviewed_file)
+    elsif (! File.exist? reviewed_file) # but source_file must exist
       if (FileTest.directory? source_file)
         contents = all_files_below(source_file, "")
         if (!contents.empty?)
@@ -75,7 +82,7 @@ class Updates
       else
         [{'path' => subpath, 'source' => File.ftype(source_file), 'reviewed' => nil, "contents" => nil }]
       end
-    elsif (! File.exist? source_file)
+    elsif (! File.exist? source_file) # but reviewed_file must exist
       if (FileTest.directory? reviewed_file)
         contents = all_files_below(reviewed_file, "")
         if (!contents.empty?)
@@ -86,6 +93,8 @@ class Updates
       else
         [{'path' => subpath, 'source' => nil, 'reviewed' => File.ftype(reviewed_file), "contents" => nil }]
       end
+      
+    # both source_file and reviewed_file exist
     elsif (File.file?(source_file) && File.file?(reviewed_file))
       if (File.size(source_file) != File.size(reviewed_file))
         [{'path' => subpath, 'source' => 'file', 'reviewed' => 'file', "contents" => nil }]

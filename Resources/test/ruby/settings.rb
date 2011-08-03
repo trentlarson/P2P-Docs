@@ -138,6 +138,27 @@ class SettingsTest
 
 
 
+=begin
+    # This test shows how it doesn't work yet to point to a file as the source repo.
+    # The problem is strange: the File.exist? check fails on the reviewed directory.
+    repo_test_file = {'name'=>'test file', 'source_dir'=>File.join(@test_data_dir, 'sources', 'a_file.txt')}
+    @settings.replace({'repositories'=>[repo_test_file]})
+    puts "fail: repo file, where neither exists: #{all_repo_diffs}" if all_repo_diffs != []
+    File.open(repo_test_file['source_dir'], 'w') do |out|
+      out.write "Hey batta batta!\n"
+    end
+    all_repo_diffs = Updates.all_repo_diffs(@settings)
+    puts "fail: repo file, where source exists: #{all_repo_diffs.inspect}" if all_repo_diffs != 
+      [{"name"=>"test file", "diffs"=>[{"path"=>"", "source"=>"file", "reviewed"=>nil, "contents"=>nil}]}]
+    Dir.mkdir(@settings.reviewed_dir(repo_test_file))
+    File.open(File.join(@settings.reviewed_dir(repo_test_file), 'a_file.txt'), 'w') do |out|
+      out.write "Hey batta batta!\n"
+    end
+    puts "fail: repo file, where both exist: #{all_repo_diffs}" if all_repo_diffs != []
+=end
+
+
+
     repo_test0 = {'name'=>'test 0', 'source_dir'=>File.join(@test_data_dir, 'sources', 'hacked')}
     @settings.replace({'repositories'=>[repo_test0]})
     Dir.mkdir(repo_test0['source_dir'])
@@ -390,3 +411,4 @@ end
 
 SettingsTest.new.run
 #SettingsTest.new.test_simple_json
+#SettingsTest.new.test_repo_diffs
