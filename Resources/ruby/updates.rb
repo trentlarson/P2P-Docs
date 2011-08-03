@@ -59,10 +59,6 @@ class Updates
   #   'contents' => for directories that only exist in one, the recursive list of non-directories (otherwise nil)
   # }
   def self.diff_dirs(source_dir, reviewed_dir, subpath = "")
-    if (subpath.start_with? "/")
-      # this is just to solve where the first recursive call joins "" and the file
-      subpath = subpath[1, subpath.length - 1]
-    end
     source_file = File.join(source_dir, subpath)
     reviewed_file = File.join(reviewed_dir, subpath)
     if (!File.exist?(source_file) && !File.exist?(reviewed_file))
@@ -99,7 +95,7 @@ class Updates
     elsif (File.directory?(source_file) && File.directory?(reviewed_file))
       diff_subs = Dir.entries(source_file) | Dir.entries(reviewed_file)
       diff_subs.reject! { |sub| sub == '.' || sub == '..' }
-      diff_subs.map! { |entry| diff_dirs(source_dir, reviewed_dir, File.join(subpath, entry)) }
+      diff_subs.map! { |entry| diff_dirs(source_dir, reviewed_dir, subpath == "" ? entry : File.join(subpath, entry)) }
       diff_subs.flatten.compact
     elsif (File.ftype(source_file) != File.ftype(reviewed_file))
       if (File.directory?(source_file))
