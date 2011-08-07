@@ -35,14 +35,15 @@ Plans
 In priority order:
 
  * Doc Changes
- * fix crashes on too many (eg. 25) repos
+ * fix crashes on repositories page with too many (21+) repos
+ * fix crashes on repeated clicks back-and-forth from main to configure
  * fix crashes on search, eg "Robert"
  * repository choices (hints for choosing P2P folders; small x)
- * program auto-update
  * make this a background service... with notification hooks?
  * make the configuration a menu
  * documentation and/or help
  * search through repository files (not just Jean's file)
+ * program auto-update
 
 
 Finished
