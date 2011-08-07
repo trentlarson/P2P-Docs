@@ -190,6 +190,9 @@ $(document).ready(function() {
               // show the count
               numFiles = diffSet.contents.length + " " + (diffSet.contents.length == 1 ? "file" : "files");
               addedDiff.find("#diffCount_").attr("id", "diffCount_" + diffNum).html(numFiles);
+              // show a link to open in the browser
+              repoData = window.p2pdoc_settings.get_repo(repoName);
+              addedDiff.find("#sourceView a").html("(open file browser)").click(viewFileWrapperFunc(repoData.source_dir, diffSet.path)).show();
               // populate the contents
               var fileList = "";
               for (var fileNum = 0, fileCount = diffSet.contents.length; fileNum < fileCount; fileNum++) {
