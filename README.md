@@ -36,6 +36,7 @@ In priority order:
 
  * Doc Changes
  * fix crashes on too many (eg. 25) repos
+ * fix crashes on search, eg "Robert"
  * repository choices (hints for choosing P2P folders; small x)
  * hook up real search for content
  * program auto-update
