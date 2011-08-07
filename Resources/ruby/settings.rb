@@ -12,7 +12,7 @@ class Settings
   VERSION = "0"
 
   @@settings_dir = ""
-  # format: { repositories => [ { name => "", source_dir => "" } ... ] }
+  # format: { repositories => [ { id => N, name => "", source_dir => "" } ... ] }
   # see test settings.rb for example structures
   BLANK_SETTINGS = {'repositories' => []}
   @@settings = BLANK_SETTINGS
@@ -93,7 +93,7 @@ May reference a settings.yaml file.
     end
   end
 
-  def get_repo(name)
+  def get_repo_by_name(name)
     @@settings['repositories'].find{ |repo| repo['name'] == name }
   end
 
@@ -126,7 +126,7 @@ May reference a settings.yaml file.
     if (name.class.name == "RubyKObject") # for method results from Titanium
       name = name.toString()
     end
-    get_repo(name)['source_dir'] = new_path
+    get_repo_by_name(name)['source_dir'] = new_path
   end
 
   def save()
