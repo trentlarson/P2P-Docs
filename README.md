@@ -14,7 +14,7 @@ A "-" means it's not done yet.
  * Doc Changes (external?): display the new content
  * - Doc Resolution: accept or reject the changes in my own versions
     * - then copy my version into any shared areas
- * - Search (external?): search for items of interest
+ * - Search: search for items of interest
  * - Notifications: notify of changes, via desktop and via preferred media
 
 
@@ -38,11 +38,11 @@ In priority order:
  * fix crashes on too many (eg. 25) repos
  * fix crashes on search, eg "Robert"
  * repository choices (hints for choosing P2P folders; small x)
- * hook up real search for content
  * program auto-update
  * make this a background service... with notification hooks?
  * make the configuration a menu
  * documentation and/or help
+ * search through repository files (not just Jean's file)
 
 
 Finished
