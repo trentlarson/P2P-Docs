@@ -111,42 +111,41 @@ $(document).ready(function() {
         repo = repos[i];
         insertRepo(repo.name, repo.source_dir, false);
       }
-  
     }
   
+    $('#repoItem_ #repoAdd_').bind('click', function() {
+      
+      $('#dialog-form').dialog({
+        modal: true,
+        buttons: {
+          "Register": function() {
+            var new_name = $('#dialog-form #name')[0].value;
+            var new_dir_name = window.p2pdoc_settings.fixed_repo_name(new_name);
+            var new_dir = Titanium.Filesystem.getApplicationDataDirectory() + "/" + new_dir_name;
+            
+            var added = window.p2pdoc_settings.add_repo(new_name, new_dir);
+            if (!added) {
+              alert("Sorry, that repo has a problem, such as a bad name (eg. already used for another repository, or blank).");
+              
+            } else {
+              window.p2pdoc_settings.save();
+              
+              insertRepo(new_name, new_dir, true);
+              
+              $( this ).dialog( "close" );
+            }
+          },
+          "Cancel": function() {
+            $( this ).dialog( "close" );
+          }
+        }
+      });
+    });
+
   } catch (e) {
     alert('error: ' + e);
   }
   
-  $('#repoItem_ #repoAdd_').bind('click', function() {
-    
-    $('#dialog-form').dialog({
-      modal: true,
-      buttons: {
-        "Register": function() {
-          var new_name = $('#dialog-form #name')[0].value;
-          var new_dir_name = window.p2pdoc_settings.fixed_repo_name(new_name);
-          var new_dir = Titanium.Filesystem.getApplicationDataDirectory() + "/" + new_dir_name;
-          
-          var added = window.p2pdoc_settings.add_repo(new_name, new_dir);
-          if (!added) {
-            alert("Sorry, that repo has a problem, such as a bad name (eg. already used for another repository, or blank).");
-            
-          } else {
-            window.p2pdoc_settings.save();
-            
-            insertRepo(new_name, new_dir, true);
-            
-            $( this ).dialog( "close" );
-          }
-        },
-        "Cancel": function() {
-          $( this ).dialog( "close" );
-        }
-      }
-    });
-  });
-
 });
 
 </script>
