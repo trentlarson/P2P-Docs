@@ -40,6 +40,13 @@
 <script type="text/ruby"       src="ruby/settings.rb"></script>
 <script type="text/ruby"       src="ruby/updates.rb"></script>
 
+<script type="text/javascript">
+  // Initialize the basic setup.
+  if (!Titanium.App.Properties.hasProperty('settings-dir'))
+    // Titanium.App.Properties pulls from the application.properties file.  Note that lines beginning with # may disappear; I use // for commentary.
+    Titanium.App.Properties.setString('settings-dir', Titanium.Filesystem.getApplicationDataDirectory().toString());
+  end
+</script>
 <script type="text/ruby">
   window.p2pdoc_settings = Settings.new(Titanium.App.Properties.getString("settings-dir"))
   window.p2pdoc_all_diffs_json = Updates.strings_arrays_hashes_json(Updates.all_repo_diffs(window.p2pdoc_settings))
