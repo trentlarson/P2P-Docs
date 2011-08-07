@@ -36,36 +36,61 @@ function endsWith(str, suffix) {
   return str.indexOf(suffix, str.length - suffix.length) !== -1;
 }
 
+// http://www.netlobo.com/url_query_string_javascript.html
+function getParam(name) {
+  name = name.replace(/[\[]/,"\\\[").replace(/[\]]/,"\\\]");
+  var regexS = "[\\?&]"+name+"=([^&#]*)";
+  var regex = new RegExp( regexS );
+  var results = regex.exec( window.location.href );
+  if( results == null )
+    return null;
+  else
+    return results[1];
+}
+
 $(document).ready(function() {
-
   try {
+    $('#term').focus();
 
-    // create an element for each search result
-    var dir = Titanium.Filesystem.getFile('/Users/tlarson/backed/doc/family-histories');
-    var moreInfo = window.searcher.main("/Users/tlarson/backed/doc/family-histories/JeanGould.html", "dog");
-    moreInfo.forEach(function(resultInfo) {
-      $("#files").append("<div class='blurb'><span class='openApp' file='" + resultInfo.file + "' pos='" + resultInfo.pos + "'>" + resultInfo.line + "</span></div>");
-    });
-
-    // attach a function to open each file on a click
-    $(".blurb .openApp").each(function() {
-      $(this).click(function(e) {
-        filename = $(this).attr("file");
-        filepos = parseInt($(this).attr("pos"));
-        if (endsWith(filename, ".htm")
-            || endsWith(filename, ".html")) {
-          anchorName = window.searcher.previous_anchor_name(filename, filepos);
-          if (anchorName) {
-            filename = filename + "#" + anchorName;
-          } else {
-            alert("There is no anchor point near that text.  The file will open at the top, and you'll have to search for that text.");
-          }
-         Titanium.Desktop.openURL("file://" + filename);
+    var term = getParam("term");
+    if (term != null) {
+      
+      if (term.length < 2) {
+        alert("Sorry, I'm not going to even try for fear I'll choke on it.");
+      } else {
+        var moreInfo = window.searcher.main("/Users/tlarson/backed/doc/family-histories/JeanGould.html", term);
+        
+        if (moreInfo.length == 0) {
+          $("#files").append("Nothing.");
         } else {
-          Titanium.Desktop.openApplication(filename);
+          
+          // create an element for each search result
+          for (i = 0; i < moreInfo.length; i++) {
+            $("#files").append("<div class='blurb'><span class='openApp' file='" + moreInfo[i].file + "' pos='" + moreInfo[i].pos + "'>" + moreInfo[i].line + "</span></div>");
+          }
+          
+          // attach a function to open each file on a click
+          $(".blurb .openApp").each(function() {
+            $(this).click(function(e) {
+              filename = $(this).attr("file");
+              filepos = parseInt($(this).attr("pos"));
+              if (endsWith(filename, ".htm")
+                  || endsWith(filename, ".html")) {
+                anchorName = window.searcher.previous_anchor_name(filename, filepos);
+                if (anchorName) {
+                  filename = filename + "#" + anchorName;
+                } else {
+                  alert("There is no anchor point near that text.  The file will open at the top, and you'll have to search for that text.");
+                }
+               Titanium.Desktop.openURL("file://" + filename);
+              } else {
+                Titanium.Desktop.openApplication(filename);
+              }
+            });
+          });
         }
-      });
-    });
+      }
+    }
 
   } catch (e) {
     alert('error: ' + e);
@@ -75,14 +100,13 @@ $(document).ready(function() {
 
 </script>
 
-
 </head>
 <body>
 
   <div>
     <form action="search.html">
-      <input type="text" name="term" />
-      <input type="submit" />
+      <input type="text" id="term" name="term" />
+      <input type="submit" value="search"/>
     </form>
   </div>
   <div id="files"></div>
