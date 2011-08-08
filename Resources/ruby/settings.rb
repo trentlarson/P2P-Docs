@@ -11,29 +11,36 @@ class Settings
 
   VERSION = "0"
 
+  BLANK_SETTINGS = {'repositories' => []}
+  
   @@settings_dir = ""
   # format: { repositories => [ { id => N, name => "", source_dir => "" } ... ] }
   # see test settings.rb for example structures
-  BLANK_SETTINGS = {'repositories' => []}
   @@settings = BLANK_SETTINGS
 
 
 =begin
-May be empty.
-May reference a settings.yaml file.
+This will set the static data for the settings.
+dirname: directory name for location of settings.yaml; if nil, @@settings_dir will not be reset
+settings: initial settings; if nil, @@settings will not be reset
 =end
-  def initialize(dirname)
+  def initialize(dirname, settings = nil)
 
     #puts "class: " + dirname.class.to_s
     #dirname.public_methods.sort.each{|name| puts name }
     #dirname.methods.sort.each{|name| puts name }
 
-    if (dirname.class.name == "RubyKObject") # for method results from Titanium
-      @@settings_dir = dirname.toString()
-    else
-      @@settings_dir = dirname
+    if (dirname != nil)
+      if (dirname.class.name == "RubyKObject") # for method results from Titanium
+        @@settings_dir = dirname.toString()
+      else
+        @@settings_dir = dirname
+      end
     end
-
+    
+    if (settings != nil)
+      @@settings = settings
+    end
     if (@@settings == BLANK_SETTINGS)
       if (File.exist? settings_file())
         @@settings = YAML.load_file(settings_file())
@@ -93,11 +100,15 @@ May reference a settings.yaml file.
     end
   end
 
+  def get_repo_by_id(id)
+    @@settings['repositories'].find{ |repo| repo['id'] == id }
+  end
+
   def get_repo_by_name(name)
     @@settings['repositories'].find{ |repo| repo['name'] == name }
   end
 
-  # return true if the repo was added; otherwise, false (eg. name blank or duplicate)
+  # return repo if the repo was added; otherwise, nil (eg. name blank or duplicate)
   def add_repo(name, source_dir)
     if (name.class.name == "RubyKObject") # for method results from Titanium
       name = name.toString()
@@ -109,17 +120,36 @@ May reference a settings.yaml file.
     if ((name.nil?) ||
         (name == "") ||
         (@@settings['repositories'].find{ |repo| repo['name'] == name || fixed_repo_name(repo['name']) == name || repo['name'] == fixed_name } != nil))
-      return false
+      return nil
     end
-    @@settings['repositories'] << { 'name' => name, 'source_dir' => source_dir }
-    true
+    max = @@settings['repositories'].max { |repo1,repo2| repo1['id'] <=> repo2['id'] }
+    if (max == nil)
+      max = 0
+    end
+    new_repo = { 'id' => max+1, 'name' => name, 'source_dir' => source_dir }
+    @@settings['repositories'] << new_repo
+    Dir.mkdir reviewed_dir(new_repo)
+    new_repo
   end
 
   def remove_repo(name)
     if (name.class.name == "RubyKObject") # for method results from Titanium
       name = name.toString()
     end
-    @@settings['repositories'].delete_if{ |repo| repo['name'] == name }
+    # archive the reviewed directory
+    repo = get_repo_by_name(name)
+    if (repo != nil)
+      if (File.exist? reviewed_dir(repo))
+        archive_base_name = reviewed_dir(repo) + "_archive"
+        count = 0
+        while (File.exist? archive_base_name + "_" + count.to_s)
+          count = count + 1
+        end
+        File.rename(reviewed_dir(repo), archive_base_name + "_" + count.to_s)
+      end
+      # remove it from settings
+      @@settings['repositories'].delete_if{ |repo| repo['name'] == name }
+    end
   end
 
   def change_repo_path(name, new_path)

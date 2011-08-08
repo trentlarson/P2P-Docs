@@ -43,7 +43,6 @@ class SettingsTest
     if (settings_data['repositories'] != nil)
       settings_data['repositories'].each do |repo|
         Dir.mkdir(repo['source_dir'])
-        Dir.mkdir(@settings.reviewed_dir(repo['name']))
       end
     end
   end
@@ -59,28 +58,30 @@ class SettingsTest
     puts "fail: #{name} doesn't match expected" if @settings.fixed_repo_name(name) != "0___________12"
   end
   
-  def test_repos()
+  def test_repo_creation()
     setup_settings({'repositories' => []})
-    success = @settings.add_repo("", "/anywhere/for/fail")
-    puts "fail: added repo with blank name" if success
+    repo = @settings.add_repo("", @test_data_dir + "/anywhere/for/fail")
+    puts "fail: added repo with blank name" if repo != nil
     
     repo_name = "Test for dup"
-    success = @settings.add_repo(repo_name, "/some/funky/dir")
-    puts "fail: didn't add test repo" if !success
-    success = @settings.add_repo(repo_name, "/another/funky/dir")
-    puts "fail: added duplicate test repo" if success
-    success = @settings.add_repo(@settings.fixed_repo_name(repo_name), "/another/funky/dir/2")
-    puts "fail: added duplicate test repo with fixed name" if success
+    repo = @settings.add_repo(repo_name, @test_data_dir + "/some/funky/dir")
+    puts "fail: didn't add test repo" if repo == nil
+    puts "fail: didn't create reviewed folder" if !(File.exist? @settings.reviewed_dir(repo))
+    repo = @settings.add_repo(repo_name, @test_data_dir + "/another/funky/dir")
+    puts "fail: added duplicate test repo" if repo != nil
+    repo = @settings.add_repo(@settings.fixed_repo_name(repo_name), @test_data_dir + "/another/funky/dir/2")
+    puts "fail: added duplicate test repo with fixed name" if repo != nil
     @settings.remove_repo(repo_name)
+    puts "fail: didn't remove reviewed folder" if File.exist? @settings.reviewed_dir(repo_name)
     
-    success = @settings.add_repo(@settings.fixed_repo_name(repo_name), "/some/funky/dir")
-    puts "fail: didn't add test repo" if !success
-    success = @settings.add_repo(repo_name, "/another/funky/dir")
-    puts "fail: added duplicate test repo matching fixed name" if success
+    repo = @settings.add_repo(@settings.fixed_repo_name(repo_name), @test_data_dir + "/some/funky/dir")
+    puts "fail: didn't add test repo after removal" if repo == nil
+    repo = @settings.add_repo(repo_name, @test_data_dir + "/another/funky/dir")
+    puts "fail: added duplicate test repo matching fixed name" if repo != nil
     @settings.remove_repo(@settings.fixed_repo_name(repo_name))
     
-    success = @settings.add_repo(repo_name, "/some/funky/dir")
-    puts "fail: didn't add test repo" if !success
+    repo = @settings.add_repo(repo_name, @test_data_dir + "/some/funky/dir")
+    puts "fail: didn't add test repo after 2nd removal" if repo == nil
   end
   
   def test_simple_json()
@@ -132,7 +133,7 @@ class SettingsTest
 
   def test_repo_diffs()
 
-    setup_settings(@settings.properties)
+    setup_settings({'repositories'=>[]})
     all_repo_diffs = Updates.all_repo_diffs(@settings)
     puts "fail: diffs on no repos: #{all_repo_diffs.inspect}" if all_repo_diffs != []
 
@@ -159,7 +160,7 @@ class SettingsTest
 
 
 
-    repo_test0 = {'name'=>'test 0', 'source_dir'=>File.join(@test_data_dir, 'sources', 'hacked')}
+    repo_test0 = {'id' => 0, 'name'=>'test 0', 'source_dir'=>File.join(@test_data_dir, 'sources', 'hacked')}
     @settings.replace({'repositories'=>[repo_test0]})
     Dir.mkdir(repo_test0['source_dir'])
     Dir.mkdir(@settings.reviewed_dir(repo_test0))
@@ -168,7 +169,7 @@ class SettingsTest
 
 
 
-    repo_test1 = {'name'=>'test 1', 'source_dir'=>File.join(@test_data_dir, 'sources', 'hacked-again')}
+    repo_test1 = {'id' => 1, 'name'=>'test 1', 'source_dir'=>File.join(@test_data_dir, 'sources', 'hacked-again')}
     @settings.replace({'repositories'=>[repo_test0, repo_test1]})
     Dir.mkdir(repo_test1['source_dir'])
     Dir.mkdir(@settings.reviewed_dir(repo_test1))
@@ -411,4 +412,5 @@ end
 
 SettingsTest.new.run
 #SettingsTest.new.test_simple_json
+#SettingsTest.new.test_repo_creation
 #SettingsTest.new.test_repo_diffs
