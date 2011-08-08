@@ -125,7 +125,7 @@ $(document).ready(function() {
     
     if (window.p2pdoc_settings.properties().repositories.length > 0) {
       $('#noRepos').hide();
-    
+      
       var all_diffs = JSON.parse(window.p2pdoc_all_diffs_json);
       if (all_diffs.length == 0) {
         $('#noDiffs').show();
@@ -172,12 +172,12 @@ $(document).ready(function() {
             if (diffSet.source === "file") {
               if (diffSet.reviewed == null) {
                 repoData = window.p2pdoc_settings.get_repo_by_name(repoName);
-                addedDiff.find("#sourceView a").click(viewFileWrapperFunc(repoData.source_dir, diffSet.path)).show();
+                addedDiff.find("#sourceView a").click(viewFileWrapperFunc(repoData.incoming_loc, diffSet.path)).show();
               } else {
                 // there's another file or something that's been reviewed
                 if (diffSet.reviewed === "file") {
                   repoData = window.p2pdoc_settings.get_repo_by_name(repoName);
-                  file1 = repoData.source_dir + Titanium.Filesystem.getSeparator() + diffSet.path;
+                  file1 = repoData.incoming_loc + Titanium.Filesystem.getSeparator() + diffSet.path;
                   file2 = window.p2pdoc_settings.reviewed_dir(repoName) + Titanium.Filesystem.getSeparator() + diffSet.path;
                   addedDiff.find("#changeView a").attr("href", "changes.html?file1=" + file1 + "&file2=" + file2).show();
                 } else {
@@ -192,7 +192,7 @@ $(document).ready(function() {
               addedDiff.find("#diffCount_").attr("id", "diffCount_" + diffNum).html(numFiles);
               // show a link to open in the browser
               repoData = window.p2pdoc_settings.get_repo_by_name(repoName);
-              addedDiff.find("#sourceView a").html("(open file browser)").click(viewFileWrapperFunc(repoData.source_dir, diffSet.path)).show();
+              addedDiff.find("#sourceView a").html("(open file browser)").click(viewFileWrapperFunc(repoData.incoming_loc, diffSet.path)).show();
               // populate the contents
               var fileList = "";
               for (var fileNum = 0, fileCount = diffSet.contents.length; fileNum < fileCount; fileNum++) {

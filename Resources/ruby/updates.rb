@@ -41,7 +41,7 @@ class Updates
     else
       result = 
         result.collect do |repo|
-        { 'name' => repo['name'], 'diffs' => diff_dirs(repo['source_dir'], settings.reviewed_dir(repo['name'])) }
+        { 'name' => repo['name'], 'diffs' => diff_dirs(repo['incoming_loc'], settings.reviewed_dir(repo['name'])) }
       end
       junk = result.select { |hash| hash['diffs'] != [] }
 #puts "My whole diff: " + junk.inspect
@@ -58,13 +58,13 @@ class Updates
   #   'reviewed' => 'file', 'directory', or ftype if exists in reviewed dir tree (otherwise nil),
   #   'contents' => for directories that only exist in one, the recursive list of non-directories (otherwise nil)
   # }
-  def self.diff_dirs(source_dir, reviewed_dir, subpath = "")
+  def self.diff_dirs(incoming_loc, reviewed_dir, subpath = "")
     
     if (subpath == "")
-      source_file = source_dir
+      source_file = incoming_loc
       reviewed_file = reviewed_dir
     else
-      source_file = File.join(source_dir, subpath)
+      source_file = File.join(incoming_loc, subpath)
       reviewed_file = File.join(reviewed_dir, subpath)
     end
     
@@ -104,7 +104,7 @@ class Updates
     elsif (File.directory?(source_file) && File.directory?(reviewed_file))
       diff_subs = Dir.entries(source_file) | Dir.entries(reviewed_file)
       diff_subs.reject! { |sub| sub == '.' || sub == '..' }
-      diff_subs.map! { |entry| diff_dirs(source_dir, reviewed_dir, subpath == "" ? entry : File.join(subpath, entry)) }
+      diff_subs.map! { |entry| diff_dirs(incoming_loc, reviewed_dir, subpath == "" ? entry : File.join(subpath, entry)) }
       diff_subs.flatten.compact
     elsif (File.ftype(source_file) != File.ftype(reviewed_file))
       if (File.directory?(source_file))
@@ -123,20 +123,20 @@ class Updates
 
   # takes the name of a file or directory
   # return array of same thing if a file, or all the files underneath if a directory
-  def self.all_files_below(source_dir, subpath)
+  def self.all_files_below(incoming_loc, subpath)
     if (subpath.start_with? "/")
       # this is just to solve where the first recursive call joins "" and the file
       subpath = subpath[1, subpath.length - 1]
     end
-    full_dir = File.join(source_dir, subpath)
+    full_dir = File.join(incoming_loc, subpath)
 #puts "  recursing... #{full_dir} a file? #{FileTest.file? full_dir} #{File.ftype(full_dir)}"
     if (FileTest.file? full_dir)
 #puts "  recurse ended on file #{full_dir}: #{[full_dir]}"
       [subpath]
     elsif (FileTest.directory? full_dir)
       entries = Dir.entries(full_dir).reject{ |entry| entry == '.' || entry == '..' }
-#puts "  recursing on #{entries}: #{entries.map{ |entry| all_files_below(source_dir, File.join(subpath, entry)) }.flatten}"
-      entries.map{ |entry| all_files_below(source_dir, File.join(subpath, entry)) }.flatten
+#puts "  recursing on #{entries}: #{entries.map{ |entry| all_files_below(incoming_loc, File.join(subpath, entry)) }.flatten}"
+      entries.map{ |entry| all_files_below(incoming_loc, File.join(subpath, entry)) }.flatten
     else
       # it's an unknown ftype; we'll ignore it
       []
@@ -146,7 +146,7 @@ class Updates
   # marks the subpath in repo as reviewed
   def self.mark_reviewed(settings, repo_name, subpath)
     repo = settings.get_repo_by_name(repo_name)
-    source = File.join(repo['source_dir'], subpath)
+    source = File.join(repo['incoming_loc'], subpath)
     target = File.join(settings.reviewed_dir(repo), subpath)
     if (FileTest.exist? source)
       FileUtils::mkpath(File.dirname(target))

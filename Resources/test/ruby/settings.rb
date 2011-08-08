@@ -42,7 +42,7 @@ class SettingsTest
     Dir.mkdir(@settings.reviewed_base_dir)
     if (settings_data['repositories'] != nil)
       settings_data['repositories'].each do |repo|
-        Dir.mkdir(repo['source_dir'])
+        Dir.mkdir(repo['incoming_loc'])
       end
     end
   end
@@ -146,10 +146,10 @@ class SettingsTest
 =begin
     # This test shows how it doesn't work yet to point to a file as the source repo.
     # The problem is strange: the File.exist? check fails on the reviewed directory.
-    repo_test_file = {'name'=>'test file', 'source_dir'=>File.join(@test_data_dir, 'sources', 'a_file.txt')}
+    repo_test_file = {'name'=>'test file', 'incoming_loc'=>File.join(@test_data_dir, 'sources', 'a_file.txt')}
     @settings.replace({'repositories'=>[repo_test_file]})
     puts "fail: repo file, where neither exists: #{all_repo_diffs}" if all_repo_diffs != []
-    File.open(repo_test_file['source_dir'], 'w') do |out|
+    File.open(repo_test_file['incoming_loc'], 'w') do |out|
       out.write "Hey batta batta!\n"
     end
     all_repo_diffs = Updates.all_repo_diffs(@settings)
@@ -164,18 +164,18 @@ class SettingsTest
 
 
 
-    repo_test0 = {'id' => 0, 'name'=>'test 0', 'source_dir'=>File.join(@test_data_dir, 'sources', 'hacked')}
+    repo_test0 = {'id' => 0, 'name'=>'test 0', 'incoming_loc'=>File.join(@test_data_dir, 'sources', 'hacked')}
     @settings.replace({'repositories'=>[repo_test0]})
-    Dir.mkdir(repo_test0['source_dir'])
+    Dir.mkdir(repo_test0['incoming_loc'])
     Dir.mkdir(@settings.reviewed_dir(repo_test0))
     all_repo_diffs = Updates.all_repo_diffs(@settings)
     puts "fail: diffs on one blank repo: #{all_repo_diffs.inspect}" if all_repo_diffs != []
 
 
 
-    repo_test1 = {'id' => 1, 'name'=>'test 1', 'source_dir'=>File.join(@test_data_dir, 'sources', 'hacked-again')}
+    repo_test1 = {'id' => 1, 'name'=>'test 1', 'incoming_loc'=>File.join(@test_data_dir, 'sources', 'hacked-again')}
     @settings.replace({'repositories'=>[repo_test0, repo_test1]})
-    Dir.mkdir(repo_test1['source_dir'])
+    Dir.mkdir(repo_test1['incoming_loc'])
     Dir.mkdir(@settings.reviewed_dir(repo_test1))
     all_repo_diffs = Updates.all_repo_diffs(@settings)
     puts "fail: diffs on two blank repos: #{all_repo_diffs.inspect}" if all_repo_diffs != []
@@ -183,7 +183,7 @@ class SettingsTest
 
 
 
-    File.new(File.join(repo_test0['source_dir'], 'sample.txt'), 'w')
+    File.new(File.join(repo_test0['incoming_loc'], 'sample.txt'), 'w')
     all_repo_diffs = Updates.all_repo_diffs(@settings)
     puts "fail: one empty file: #{all_repo_diffs.inspect}" if all_repo_diffs !=
       [{"name"=>"test 0", "diffs"=>[{"path"=>"sample.txt", "source"=>"file", "reviewed"=>nil, "contents"=>nil}]}]
@@ -194,13 +194,13 @@ class SettingsTest
     Updates.mark_reviewed(@settings, 'test 0', 'sample.txt')
     all_repo_diffs = Updates.all_repo_diffs(@settings)
     puts "fail: after review: #{all_repo_diffs.inspect}" if all_repo_diffs != []
-    source_mtime = File.mtime(File.join(repo_test0['source_dir'], "sample.txt"))
+    source_mtime = File.mtime(File.join(repo_test0['incoming_loc'], "sample.txt"))
     target_mtime = File.mtime(File.join(@settings.reviewed_dir(repo_test0), 'sample.txt'))
     puts "fail: different times: #{source_mtime} #{target_mtime}" if source_mtime != target_mtime
 
 
 
-    File.open(File.join(repo_test0['source_dir'], 'sample.txt'), 'w') do |out|
+    File.open(File.join(repo_test0['incoming_loc'], 'sample.txt'), 'w') do |out|
       out.write "gabba gabba hey\n"
     end
     all_repo_diffs = Updates.all_repo_diffs(@settings)
@@ -215,12 +215,12 @@ class SettingsTest
 
 
 
-    File.open(File.join(repo_test0['source_dir'], 'sample.txt'), 'w') do |out|
+    File.open(File.join(repo_test0['incoming_loc'], 'sample.txt'), 'w') do |out|
       out.write "mitch\n"
     end
-    File.new(File.join(repo_test1['source_dir'], '1_sample.txt'), 'w')
+    File.new(File.join(repo_test1['incoming_loc'], '1_sample.txt'), 'w')
     Updates.mark_reviewed(@settings, 'test 1', '1_sample.txt')
-    File.open(File.join(repo_test1['source_dir'], '1_sample.txt'), 'w') do |out|
+    File.open(File.join(repo_test1['incoming_loc'], '1_sample.txt'), 'w') do |out|
       out.write "yabba dabba doo\n"
     end
     all_repo_diffs = Updates.all_repo_diffs(@settings)
@@ -237,13 +237,13 @@ class SettingsTest
 
 
 
-    Dir.mkdir(File.join(repo_test0['source_dir'], "a_sub_dir"))
+    Dir.mkdir(File.join(repo_test0['incoming_loc'], "a_sub_dir"))
     all_repo_diffs = Updates.all_repo_diffs(@settings)
     puts "fail: new empty source directory: #{all_repo_diffs.inspect}" if all_repo_diffs != []
 
 
 
-    File.open(File.join(repo_test0['source_dir'], 'a_sub_dir', 'a_sample.txt'), 'w') do |out|
+    File.open(File.join(repo_test0['incoming_loc'], 'a_sub_dir', 'a_sample.txt'), 'w') do |out|
       out.write "more gabba gabba hey\n"
     end
     all_repo_diffs = Updates.all_repo_diffs(@settings)
@@ -264,15 +264,15 @@ class SettingsTest
 
     deeper1 = File.join('1_sub_dir', '11_sub_dir', '111_sub_dir')
     deeper2 = File.join('1_sub_dir', '11_sub_dir', '112_sub_dir', '1121_sub_dir')
-    FileUtils::mkpath(File.join(repo_test1['source_dir'], deeper1))
-    FileUtils::mkpath(File.join(repo_test1['source_dir'], deeper2))
-    File.open(File.join(repo_test1['source_dir'], deeper1, '1_sample.txt'), 'w') do |out|
+    FileUtils::mkpath(File.join(repo_test1['incoming_loc'], deeper1))
+    FileUtils::mkpath(File.join(repo_test1['incoming_loc'], deeper2))
+    File.open(File.join(repo_test1['incoming_loc'], deeper1, '1_sample.txt'), 'w') do |out|
       out.write "less\n"
     end
-    File.open(File.join(repo_test1['source_dir'], deeper1, '1_sample2.txt'), 'w') do |out|
+    File.open(File.join(repo_test1['incoming_loc'], deeper1, '1_sample2.txt'), 'w') do |out|
       out.write "less\n"
     end
-    File.open(File.join(repo_test1['source_dir'], deeper2, '1_sample3.txt'), 'w') do |out|
+    File.open(File.join(repo_test1['incoming_loc'], deeper2, '1_sample3.txt'), 'w') do |out|
       out.write "less\n"
     end
     all_repo_diffs = Updates.all_repo_diffs(@settings)
@@ -321,7 +321,7 @@ class SettingsTest
 
 
 
-    FileUtils.rm_rf(File.join(repo_test1['source_dir'], '1_sub_dir', '11_sub_dir'))
+    FileUtils.rm_rf(File.join(repo_test1['incoming_loc'], '1_sub_dir', '11_sub_dir'))
     all_repo_diffs = Updates.all_repo_diffs(@settings)
     puts "fail: removed entire source subdirectory: #{all_repo_diffs.inspect}" if all_repo_diffs !=
       [{"name"=>"test 1",
@@ -340,8 +340,8 @@ class SettingsTest
 
 
     # mismatch file and dir
-    Dir.rmdir(File.join(repo_test1['source_dir'], '1_sub_dir'))
-    File.new(File.join(repo_test1['source_dir'], '1_sub_dir'), 'w')
+    Dir.rmdir(File.join(repo_test1['incoming_loc'], '1_sub_dir'))
+    File.new(File.join(repo_test1['incoming_loc'], '1_sub_dir'), 'w')
     all_repo_diffs = Updates.all_repo_diffs(@settings)
     puts "fail: file vs dir: #{all_repo_diffs.inspect}" if all_repo_diffs != 
       [{"name"=>"test 1",
@@ -356,9 +356,9 @@ class SettingsTest
 
 
     # mismatch dir and file
-    FileUtils::rm_f(File.join(repo_test1['source_dir'], '1_sub_dir'))
-    Dir.mkdir(File.join(repo_test1['source_dir'], '1_sub_dir'))
-    File.new(File.join(repo_test1['source_dir'], '1_sub_dir', '1_sample.txt'), 'w')
+    FileUtils::rm_f(File.join(repo_test1['incoming_loc'], '1_sub_dir'))
+    Dir.mkdir(File.join(repo_test1['incoming_loc'], '1_sub_dir'))
+    File.new(File.join(repo_test1['incoming_loc'], '1_sub_dir', '1_sample.txt'), 'w')
     all_repo_diffs = Updates.all_repo_diffs(@settings)
     puts "fail: dir vs file: #{all_repo_diffs.inspect}" if all_repo_diffs != 
       [{"name"=>"test 1",

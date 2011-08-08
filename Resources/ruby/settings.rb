@@ -10,12 +10,11 @@ require 'fileutils'
 class Settings
 
   VERSION = "0"
-
-  BLANK_SETTINGS = {'repositories' => []}
   
   @@settings_dir = ""
-  # format: { repositories => [ { id => N, name => "", source_dir => "" } ... ] }
+  # format: { repositories => [ { id => N, name => "", incoming_loc => "" } ... ] }
   # see test settings.rb for example structures
+  BLANK_SETTINGS = {'repositories' => []}
   @@settings = BLANK_SETTINGS
 
 
@@ -109,12 +108,12 @@ settings: initial settings; if nil, @@settings will not be reset
   end
 
   # return repo if the repo was added; otherwise, nil (eg. name blank or duplicate)
-  def add_repo(name, source_dir)
+  def add_repo(name, incoming_loc)
     if (name.class.name == "RubyKObject") # for method results from Titanium
       name = name.toString()
     end
-    if (source_dir.class.name == "RubyKObject") # for method results from Titanium
-      source_dir = source_dir.toString()
+    if (incoming_loc.class.name == "RubyKObject") # for method results from Titanium
+      incoming_loc = incoming_loc.toString()
     end
     fixed_name = fixed_repo_name(name)
     if ((name.nil?) ||
@@ -126,9 +125,9 @@ settings: initial settings; if nil, @@settings will not be reset
     if (maxRepo == nil)
       max = 0
     else
-      max = maxRepo['id']
+      max = maxRepo['id'] + 1
     end
-    new_repo = { 'id' => max+1, 'name' => name, 'source_dir' => source_dir }
+    new_repo = { 'id' => max, 'name' => name, 'incoming_loc' => incoming_loc }
     @@settings['repositories'] << new_repo
     Dir.mkdir reviewed_dir(new_repo)
     new_repo
@@ -142,6 +141,7 @@ settings: initial settings; if nil, @@settings will not be reset
     repo = get_repo_by_name(name)
     if (repo != nil)
       if (File.exist? reviewed_dir(repo))
+        # move the old directory so that it's not lost and/or overridden
         archive_base_name = reviewed_dir(repo) + "_archive"
         count = 0
         while (File.exist? archive_base_name + "_" + count.to_s)
@@ -158,7 +158,7 @@ settings: initial settings; if nil, @@settings will not be reset
     if (name.class.name == "RubyKObject") # for method results from Titanium
       name = name.toString()
     end
-    get_repo_by_name(name)['source_dir'] = new_path
+    get_repo_by_name(name)['incoming_loc'] = new_path
   end
 
   def save()
