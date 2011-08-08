@@ -122,9 +122,11 @@ settings: initial settings; if nil, @@settings will not be reset
         (@@settings['repositories'].find{ |repo| repo['name'] == name || fixed_repo_name(repo['name']) == name || repo['name'] == fixed_name } != nil))
       return nil
     end
-    max = @@settings['repositories'].max { |repo1,repo2| repo1['id'] <=> repo2['id'] }
-    if (max == nil)
+    maxRepo = @@settings['repositories'].max { |repo1,repo2| repo1['id'] <=> repo2['id'] }
+    if (maxRepo == nil)
       max = 0
+    else
+      max = maxRepo['id']
     end
     new_repo = { 'id' => max+1, 'name' => name, 'source_dir' => source_dir }
     @@settings['repositories'] << new_repo

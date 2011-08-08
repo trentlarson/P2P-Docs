@@ -66,6 +66,7 @@ class SettingsTest
     repo_name = "Test for dup"
     repo = @settings.add_repo(repo_name, @test_data_dir + "/some/funky/dir")
     puts "fail: didn't add test repo" if repo == nil
+    puts "fail: repo doesn't have ID of 0" if repo['id'] != 0
     puts "fail: didn't create reviewed folder" if !(File.exist? @settings.reviewed_dir(repo))
     repo = @settings.add_repo(repo_name, @test_data_dir + "/another/funky/dir")
     puts "fail: added duplicate test repo" if repo != nil
@@ -76,12 +77,15 @@ class SettingsTest
     
     repo = @settings.add_repo(@settings.fixed_repo_name(repo_name), @test_data_dir + "/some/funky/dir")
     puts "fail: didn't add test repo after removal" if repo == nil
+    puts "fail: repo doesn't have ID of 0 after removal" if repo['id'] != 0
     repo = @settings.add_repo(repo_name, @test_data_dir + "/another/funky/dir")
     puts "fail: added duplicate test repo matching fixed name" if repo != nil
     @settings.remove_repo(@settings.fixed_repo_name(repo_name))
     
     repo = @settings.add_repo(repo_name, @test_data_dir + "/some/funky/dir")
     puts "fail: didn't add test repo after 2nd removal" if repo == nil
+    repo = @settings.add_repo(repo_name + "2", @test_data_dir + "/some/funky/dir2")
+    puts "fail: repo doesn't have ID of 1" if repo['id'] != 1
   end
   
   def test_simple_json()

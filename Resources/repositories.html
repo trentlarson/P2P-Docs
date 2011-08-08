@@ -124,7 +124,7 @@ $(document).ready(function() {
             var new_dir = Titanium.Filesystem.getApplicationDataDirectory() + "/" + new_dir_name;
             
             var added = window.p2pdoc_settings.add_repo(new_name, new_dir);
-            if (!added) {
+            if (added == null) {
               alert("Sorry, that repo has a problem, such as a bad name (eg. already used for another repository, or blank).");
               
             } else {
