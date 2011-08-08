@@ -54,8 +54,8 @@ class Updates
   # return an array of all different paths below dirs, like 'diff --brief'
   # return an array of:
   # { 'path' => path, being the name of the file or directory (never nil, but may be an empty string),
-  #   'source' => 'file', 'directory', or ftype if exists in source dir tree (otherwise nil),
-  #   'reviewed' => 'file', 'directory', or ftype if exists in reviewed dir tree (otherwise nil),
+  #   'source_type' => 'file', 'directory', or ftype if exists in source dir tree (otherwise nil),
+  #   'reviewed_type' => 'file', 'directory', or ftype if exists in reviewed dir tree (otherwise nil),
   #   'contents' => for directories that only exist in one, the recursive list of non-directories (otherwise nil)
   # }
   def self.diff_dirs(incoming_loc, reviewed_dir, subpath = "")
@@ -75,29 +75,29 @@ class Updates
       if (FileTest.directory? source_file)
         contents = all_files_below(source_file, "")
         if (!contents.empty?)
-          [{'path' => subpath, 'source' => 'directory', 'reviewed' => nil, 'contents' => contents}]
+          [{'path' => subpath, 'source_type' => 'directory', 'reviewed_type' => nil, 'contents' => contents}]
         else
           []
         end
       else
-        [{'path' => subpath, 'source' => File.ftype(source_file), 'reviewed' => nil, "contents" => nil }]
+        [{'path' => subpath, 'source_type' => File.ftype(source_file), 'reviewed_type' => nil, "contents" => nil }]
       end
     elsif (! File.exist? source_file) # but reviewed_file must exist
       if (FileTest.directory? reviewed_file)
         contents = all_files_below(reviewed_file, "")
         if (!contents.empty?)
-          [{'path' => subpath, 'source' => nil, 'reviewed' => 'directory', 'contents' => contents}]
+          [{'path' => subpath, 'source_type' => nil, 'reviewed_type' => 'directory', 'contents' => contents}]
         else
           []
         end
       else
-        [{'path' => subpath, 'source' => nil, 'reviewed' => File.ftype(reviewed_file), "contents" => nil }]
+        [{'path' => subpath, 'source_type' => nil, 'reviewed_type' => File.ftype(reviewed_file), "contents" => nil }]
       end
       
     # both source_file and reviewed_file exist
     elsif (File.file?(source_file) && File.file?(reviewed_file))
       if (File.size(source_file) != File.size(reviewed_file))
-        [{'path' => subpath, 'source' => 'file', 'reviewed' => 'file', "contents" => nil }]
+        [{'path' => subpath, 'source_type' => 'file', 'reviewed_type' => 'file', "contents" => nil }]
       else
         []
       end
@@ -108,13 +108,13 @@ class Updates
       diff_subs.flatten.compact
     elsif (File.ftype(source_file) != File.ftype(reviewed_file))
       if (File.directory?(source_file))
-          [{'path' => subpath, 'source' => 'directory', 'reviewed' => File.ftype(reviewed_file),
+          [{'path' => subpath, 'source_type' => 'directory', 'reviewed_type' => File.ftype(reviewed_file),
              'contents' => all_files_below(source_file, "")}]
       elsif (File.directory?(reviewed_file))
-          [{'path' => subpath, 'source' => File.ftype(source_file), 'reviewed' => 'directory',
+          [{'path' => subpath, 'source_type' => File.ftype(source_file), 'reviewed_type' => 'directory',
              'contents' => all_files_below(reviewed_file, "")}]
       else
-        [{'path' => subpath, 'source' => File.ftype(source_file), 'reviewed' => File.ftype(reviewed_file), "contents" => nil }]
+        [{'path' => subpath, 'source_type' => File.ftype(source_file), 'reviewed_type' => File.ftype(reviewed_file), "contents" => nil }]
       end
     else
       []

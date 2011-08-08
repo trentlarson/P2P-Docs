@@ -169,13 +169,13 @@ $(document).ready(function() {
             addedDiff.find("#reviewed_").attr("id", "reviewed_" + diffNum).attr("repoName", repoName).attr("path", diffSet.path);
             
             addedDiff.find("#diffPath_").attr("id", "diffPath_" + diffNum).html(diffSet.path);
-            if (diffSet.source === "file") {
-              if (diffSet.reviewed == null) {
+            if (diffSet.source_type === "file") {
+              if (diffSet.reviewed_type == null) {
                 repoData = window.p2pdoc_settings.get_repo_by_name(repoName);
                 addedDiff.find("#sourceView a").click(viewFileWrapperFunc(repoData.incoming_loc, diffSet.path)).show();
               } else {
                 // there's another file or something that's been reviewed
-                if (diffSet.reviewed === "file") {
+                if (diffSet.reviewed_type === "file") {
                   repoData = window.p2pdoc_settings.get_repo_by_name(repoName);
                   file1 = repoData.incoming_loc + Titanium.Filesystem.getSeparator() + diffSet.path;
                   file2 = window.p2pdoc_settings.reviewed_dir(repoName) + Titanium.Filesystem.getSeparator() + diffSet.path;
