@@ -37,10 +37,10 @@ var Ti = {fs: Titanium.Filesystem, api:Titanium.API};
 //Titanium.api.print("to console");
 
 // render each repository
-var insertRepo = function(name, source_dir, showSlowly) {
+var insertRepo = function(id, name, source_dir, showSlowly) {
   
   var item = $('#repoItem_');
-  var dom_suffix = window.p2pdoc_settings.fixed_repo_name(name);
+  var dom_suffix = id;
   var addedItem = item.clone();
   addedItem.insertBefore(item);
   if (showSlowly) {
@@ -56,7 +56,7 @@ var insertRepo = function(name, source_dir, showSlowly) {
   });
   
   // attach methods to the visuals
-  addedItem.find("#repoRemove_" + dom_suffix).click(removeRepo(name));
+  addedItem.find("#repoRemove_" + dom_suffix).click(removeRepo(dom_suffix, name));
   
   
   if (showSlowly) {
@@ -64,20 +64,19 @@ var insertRepo = function(name, source_dir, showSlowly) {
   }
 }
 
-var removeRepo = function(name) {
-  function remove_it() {
+var removeRepo = function(dom_suffix, name) {
+  function removeIt() {
     if (confirm("This will stop tracking the repository " + name + ", but it will leave all the files.  Are you sure you want to stop tracking it?")) {
       window.p2pdoc_settings.remove_repo(name);
       window.p2pdoc_settings.save();
       
-      var dom_suffix = window.p2pdoc_settings.fixed_repo_name(name);
       var selector = "#repoItem_" + dom_suffix;
       $(selector).hide(500, function() {
         $(this).remove()
       });
     }
   }
-  return remove_it;
+  return removeIt;
 };
 
 var changeRepoPath = function(name, value) {
@@ -109,7 +108,7 @@ $(document).ready(function() {
     if (repos.length > 0) {
       for (var i = 0; i < repos.length; i++) {
         repo = repos[i];
-        insertRepo(repo.name, repo.source_dir, false);
+        insertRepo(repo.id, repo.name, repo.source_dir, false);
       }
     }
   
@@ -130,7 +129,7 @@ $(document).ready(function() {
             } else {
               window.p2pdoc_settings.save();
               
-              insertRepo(new_name, new_dir, true);
+              insertRepo(added.id, new_name, new_dir, true);
               
               $( this ).dialog( "close" );
             }
