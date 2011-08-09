@@ -37,10 +37,10 @@ var Ti = {fs: Titanium.Filesystem, api:Titanium.API};
 //Titanium.api.print("to console");
 
 // render each repository
-var insertRepo = function(id, name, incoming_loc, showSlowly) {
+var insertRepo = function(repo, showSlowly) {
   
   var item = $('#repoItem_');
-  var dom_suffix = id;
+  var dom_suffix = repo.id;
   var addedItem = item.clone();
   addedItem.insertBefore(item);
   if (showSlowly) {
@@ -48,15 +48,16 @@ var insertRepo = function(id, name, incoming_loc, showSlowly) {
   }
   addedItem.attr("id", "repoItem_" + dom_suffix);
   addedItem.find("#repoRemove_").attr("id", "repoRemove_" + dom_suffix).show();
-  addedItem.find("#repoName_")  .attr("id", "repoName_"   + dom_suffix).show().html(name + ":");
-  addedItem.find("#repoPath_")  .attr("id", "repoPath_"   + dom_suffix).show().html("input=" + incoming_loc);
+  addedItem.find("#repoName_")  .attr("id", "repoName_"   + dom_suffix).show().html(repo.name + ":");
+  addedItem.find("#repoInPath_").attr("id", "repoInPath_" + dom_suffix).show().html("input=" + repo.incoming_loc);
+  addedItem.find("#repoMyLocPath_") .attr("id", "repoMyLocPath_"  + dom_suffix).show().html("my_loc=" + repo.my_loc);
   addedItem.find("#repoAdd_")   .attr("id", "repoAdd_"    + dom_suffix).hide();
-  addedItem.find("#folderChooser_").attr("id", "folderChooser_" + dom_suffix).show().click(function() {
-    chooseFolder(name, "repoPath_" + dom_suffix);
+  addedItem.find("#inFolderChooser_").attr("id", "inFolderChooser_" + dom_suffix).show().click(function() {
+    chooseIncomingFolder(repo.name, "repoInPath_" + dom_suffix);
   });
   
   // attach methods to the visuals
-  addedItem.find("#repoRemove_" + dom_suffix).click(removeRepo(dom_suffix, name));
+  addedItem.find("#repoRemove_" + dom_suffix).click(removeRepo(dom_suffix, repo.name));
   
   
   if (showSlowly) {
@@ -79,12 +80,7 @@ var removeRepo = function(dom_suffix, name) {
   return removeIt;
 };
 
-var changeRepoPath = function(name, value) {
-  window.p2pdoc_settings.change_repo_path(name, value);
-  window.p2pdoc_settings.save();
-}
-
-var chooseFolder = function(repoName, idForPath) {
+var chooseIncomingFolder = function(repoName, idForPath) {
  Titanium.UI.getCurrentWindow().openFolderChooserDialog(function(selectionResponse) {
    // selectionResponse is an array of folder strings
    if (selectionResponse.length === 0) {
@@ -93,12 +89,13 @@ var chooseFolder = function(repoName, idForPath) {
      if (selectionResponse.length > 1) {
        alert("You chose multiple folders, but I'll only take the first one.");
      }
-     changeRepoPath(repoName, selectionResponse[0]);
+     window.p2pdoc_settings.change_repo_incoming(repoName, selectionResponse[0]);
+     window.p2pdoc_settings.save();
      $("#" + idForPath).html(selectionResponse[0]);
    }
  });
 }
-     
+
 $(document).ready(function() {
 
   try {
@@ -107,8 +104,7 @@ $(document).ready(function() {
     var repo;
     if (repos.length > 0) {
       for (var i = 0; i < repos.length; i++) {
-        repo = repos[i];
-        insertRepo(repo.id, repo.name, repo.incoming_loc, false);
+        insertRepo(repos[i], false);
       }
     }
   
@@ -120,16 +116,17 @@ $(document).ready(function() {
           "Register": function() {
             var new_name = $('#dialog-form #name')[0].value;
             var new_dir_name = window.p2pdoc_settings.fixed_repo_name(new_name);
-            var new_dir = Titanium.Filesystem.getApplicationDataDirectory() + "/" + new_dir_name;
+            var incoming_dir = Titanium.Filesystem.getApplicationDataDirectory() + "/" + new_dir_name;
+            var my_dir = Titanium.Filesystem.getApplicationDataDirectory() + "/" + new_dir_name + "_mine";
             
-            var added = window.p2pdoc_settings.add_repo(new_name, new_dir);
+            var added = window.p2pdoc_settings.add_repo(new_name, incoming_dir, my_dir);
             if (added == null) {
               alert("Sorry, that repo has a problem, such as a bad name (eg. already used for another repository, or blank).");
               
             } else {
               window.p2pdoc_settings.save();
               
-              insertRepo(added.id, new_name, new_dir, true);
+              insertRepo(added, true);
               
               $( this ).dialog( "close" );
             }
@@ -160,8 +157,10 @@ $(document).ready(function() {
     <img src="images/button-red-x.png" title="Remove" alt="Remove" id="repoRemove_" class="repoRemove">
     <span id="repoName_" class="repoInfo"></span>
     <div>
-      <span id="repoPath_" class="repoInfo"></span>
-      <a href="#" id="folderChooser_" class="repoAct">folder</a>
+      <span id="repoInPath_" class="repoInfo"></span>
+      <a href="#" id="inFolderChooser_" class="repoAct">folder</a>
+      <br/>
+      <span id="repoMyLocPath_" class="repoInfo"></span>
     </div>
   </div>
 </div>

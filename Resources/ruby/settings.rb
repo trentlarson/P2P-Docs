@@ -12,7 +12,8 @@ class Settings
   VERSION = "0"
   
   @@settings_dir = ""
-  # format: { repositories => [ { id => N, name => "", incoming_loc => "" } ... ] }
+  # format: { 'repositories' => [ { 'id' => NUM, 'name' => 'XYZ', 'incoming_loc' => 'XYZ', 'my_loc' => 'XYZ' } ... ] }
+  #   where incoming_loc value may be nil, my_loc value may be nil
   # see test settings.rb for example structures
   BLANK_SETTINGS = {'repositories' => []}
   @@settings = BLANK_SETTINGS
@@ -108,12 +109,15 @@ settings: initial settings; if nil, @@settings will not be reset
   end
 
   # return repo if the repo was added; otherwise, nil (eg. name blank or duplicate)
-  def add_repo(name, incoming_loc)
+  def add_repo(name, incoming_loc, my_loc)
     if (name.class.name == "RubyKObject") # for method results from Titanium
       name = name.toString()
     end
     if (incoming_loc.class.name == "RubyKObject") # for method results from Titanium
       incoming_loc = incoming_loc.toString()
+    end
+    if (my_loc.class.name == "RubyKObject") # for method results from Titanium
+      my_loc = my_loc.toString()
     end
     fixed_name = fixed_repo_name(name)
     if ((name.nil?) ||
@@ -127,7 +131,7 @@ settings: initial settings; if nil, @@settings will not be reset
     else
       max = maxRepo['id'] + 1
     end
-    new_repo = { 'id' => max, 'name' => name, 'incoming_loc' => incoming_loc }
+    new_repo = { 'id' => max, 'name' => name, 'incoming_loc' => incoming_loc, 'my_loc' => my_loc }
     @@settings['repositories'] << new_repo
     Dir.mkdir reviewed_dir(new_repo)
     new_repo
@@ -154,11 +158,14 @@ settings: initial settings; if nil, @@settings will not be reset
     end
   end
 
-  def change_repo_path(name, new_path)
+  def change_repo_incoming(name, incoming_loc)
     if (name.class.name == "RubyKObject") # for method results from Titanium
       name = name.toString()
     end
-    get_repo_by_name(name)['incoming_loc'] = new_path
+    if (incoming_loc.class.name == "RubyKObject") # for method results from Titanium
+      incoming_loc = incoming_loc.toString()
+    end
+    get_repo_by_name(name)['incoming_loc'] = incoming_loc
   end
 
   def save()
