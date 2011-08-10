@@ -15,13 +15,13 @@
   cursor: pointer;
 }
 .repoInfo {
-  vertical-align: 100%;
 }
 .repoAdd {
   cursor: pointer;
 }
 .repoAct {
   cursor: pointer;
+  vertical-align: top;
 }
 </style>
 
@@ -50,7 +50,7 @@ var insertRepo = function(repo, showSlowly) {
   }
   addedItem.attr("id", "repoItem_" + dom_suffix);
   addedItem.find("#repoRemove_").attr("id", "repoRemove_" + dom_suffix);
-  addedItem.find("#repoName_")  .attr("id", "repoName_"   + dom_suffix).html(repo.name + ":");
+  addedItem.find("#repoName_")  .attr("id", "repoName_"   + dom_suffix).find("span").html(repo.name);
   addedItem.find("#repoInPath_").attr("id", "repoInPath_" + dom_suffix).html(repo.incoming_loc);
   addedItem.find("#repoMyLocPath_") .attr("id", "repoMyLocPath_"  + dom_suffix).html(repo.my_loc);
   addedItem.find("#inFolderChooser_").attr("id", "inFolderChooser_" + dom_suffix).click(function() {
@@ -174,16 +174,23 @@ $(document).ready(function() {
 <div id="repoList">
   <div id="repoItem_" class="repoItem">
     <img src="images/button-red-x.png" title="Remove" alt="Remove" id="repoRemove_" class="repoRemove">
-    <span id="repoName_" class="repoInfo"></span>
-    <div>
-      <span>Input</span>
-      <span id="repoInPath_" class="repoInfo"></span>
-      <a href="#" id="inFolderChooser_" class="repoAct">folder</a>
-      <br/>
-      <span>My Copy</span>
-      <span id="repoMyLocPath_" class="repoInfo"></span>
-      <a href="#" id="myLocFolderChooser_" class="repoAct">folder</a>
-    </div>
+    <span id="repoName_"><span class="repoInfo"></span></span>
+    <table>
+      <tr>
+        <td><span class="repoInfo">Incoming</span></td>
+        <td>
+          <span id="repoInPath_" class="repoInfo"></span>
+          <a href="#" id="inFolderChooser_" class="repoAct">(change)</a>
+        </td>
+      </tr>
+      <tr>
+        <td><span class="repoInfo">My Copy</span></td>
+        <td>
+          <span id="repoMyLocPath_" class="repoInfo"></span>
+          <a href="#" id="myLocFolderChooser_" class="repoAct">(change)</a>
+        </td>
+      </tr>
+    </table>
   </div>
 </div>
 
