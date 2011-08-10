@@ -55,6 +55,9 @@ var insertRepo = function(repo, showSlowly) {
   addedItem.find("#inFolderChooser_").attr("id", "inFolderChooser_" + dom_suffix).show().click(function() {
     chooseIncomingFolder(repo.name, "repoInPath_" + dom_suffix);
   });
+  addedItem.find("#myLocFolderChooser_").attr("id", "myLocFolderChooser_" + dom_suffix).show().click(function() {
+    chooseMyLocFolder(repo.name, "repoMyLocPath_" + dom_suffix);
+  });
   
   // attach methods to the visuals
   addedItem.find("#repoRemove_" + dom_suffix).click(removeRepo(dom_suffix, repo.name));
@@ -90,6 +93,22 @@ var chooseIncomingFolder = function(repoName, idForPath) {
        alert("You chose multiple folders, but I'll only take the first one.");
      }
      window.p2pdoc_settings.change_repo_incoming(repoName, selectionResponse[0]);
+     window.p2pdoc_settings.save();
+     $("#" + idForPath).html(selectionResponse[0]);
+   }
+ });
+}
+
+var chooseMyLocFolder = function(repoName, idForPath) {
+ Titanium.UI.getCurrentWindow().openFolderChooserDialog(function(selectionResponse) {
+   // selectionResponse is an array of folder strings
+   if (selectionResponse.length === 0) {
+     // cancelled or none chosen, so leave things as-is
+   } else {
+     if (selectionResponse.length > 1) {
+       alert("You chose multiple folders, but I'll only take the first one.");
+     }
+     window.p2pdoc_settings.change_repo_my_loc(repoName, selectionResponse[0]);
      window.p2pdoc_settings.save();
      $("#" + idForPath).html(selectionResponse[0]);
    }
@@ -161,6 +180,7 @@ $(document).ready(function() {
       <a href="#" id="inFolderChooser_" class="repoAct">folder</a>
       <br/>
       <span id="repoMyLocPath_" class="repoInfo"></span>
+      <a href="#" id="myLocFolderChooser_" class="repoAct">folder</a>
     </div>
   </div>
 </div>

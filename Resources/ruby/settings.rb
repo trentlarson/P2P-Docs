@@ -168,6 +168,16 @@ settings: initial settings; if nil, @@settings will not be reset
     get_repo_by_name(name)['incoming_loc'] = incoming_loc
   end
 
+  def change_repo_my_loc(name, my_loc)
+    if (name.class.name == "RubyKObject") # for method results from Titanium
+      name = name.toString()
+    end
+    if (my_loc.class.name == "RubyKObject") # for method results from Titanium
+      my_loc = my_loc.toString()
+    end
+    get_repo_by_name(name)['my_loc'] = my_loc
+  end
+
   def save()
     File.open(settings_file(), 'w') do |out|
       YAML.dump(@@settings, out)
