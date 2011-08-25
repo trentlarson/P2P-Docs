@@ -49,3 +49,9 @@ In priority order:
 Finished
 --------
 
+
+Externalities
+-------------
+
+various JavaScript libraries; see Resources/js files
+icons for home-interact-people from dellustrations.com; see http://www.smashingmagazine.com/2008/10/01/dellipack-2-a-free-icon-set/
