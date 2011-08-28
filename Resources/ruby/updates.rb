@@ -58,20 +58,20 @@ class Updates
   #   'reviewed_type' => 'file', 'directory', or ftype if exists in reviewed dir tree (otherwise nil),
   #   'contents' => for directories that only exist in one, the recursive list of non-directories (otherwise nil)
   # }
-  def self.diff_dirs(incoming_loc, reviewed_dir, subpath = "")
+  def self.diff_dirs(incoming_loc, target_dir, subpath = "")
     
     if (subpath == "")
       source_file = incoming_loc
-      reviewed_file = reviewed_dir
+      target_file = target_dir
     else
       source_file = File.join(incoming_loc, subpath)
-      reviewed_file = File.join(reviewed_dir, subpath)
+      target_file = File.join(target_dir, subpath)
     end
     
-    if (!File.exist?(source_file) && !File.exist?(reviewed_file))
+    if (!File.exist?(source_file) && !File.exist?(target_file))
       # we shouldn't even be here in this case, but we'll play nice
       []
-    elsif (! File.exist? reviewed_file) # but source_file must exist
+    elsif (! File.exist? target_file) # but source_file must exist
       if (FileTest.directory? source_file)
         contents = all_files_below(source_file, "")
         if (!contents.empty?)
@@ -82,41 +82,41 @@ class Updates
       else
         [{'path' => subpath, 'source_type' => File.ftype(source_file), 'reviewed_type' => nil, "contents" => nil }]
       end
-    elsif (! File.exist? source_file) # but reviewed_file must exist
-      if (FileTest.directory? reviewed_file)
-        contents = all_files_below(reviewed_file, "")
+    elsif (! File.exist? source_file) # but target_file must exist
+      if (FileTest.directory? target_file)
+        contents = all_files_below(target_file, "")
         if (!contents.empty?)
           [{'path' => subpath, 'source_type' => nil, 'reviewed_type' => 'directory', 'contents' => contents}]
         else
           []
         end
       else
-        [{'path' => subpath, 'source_type' => nil, 'reviewed_type' => File.ftype(reviewed_file), "contents" => nil }]
+        [{'path' => subpath, 'source_type' => nil, 'reviewed_type' => File.ftype(target_file), "contents" => nil }]
       end
       
-    # both source_file and reviewed_file exist
-    elsif (File.file?(source_file) && File.file?(reviewed_file))
-      if (File.size(source_file) != File.size(reviewed_file))
+    # both source_file and target_file exist
+    elsif (File.file?(source_file) && File.file?(target_file))
+      if (File.size(source_file) != File.size(target_file))
         [{'path' => subpath, 'source_type' => 'file', 'reviewed_type' => 'file', "contents" => nil }]
-      elsif (File.mtime(source_file) > File.mtime(reviewed_file))
+      elsif (File.mtime(source_file) > File.mtime(target_file))
         [{'path' => subpath, 'source_type' => 'file', 'reviewed_type' => 'file', "contents" => nil }]
       else
         []
       end
-    elsif (File.directory?(source_file) && File.directory?(reviewed_file))
-      diff_subs = Dir.entries(source_file) | Dir.entries(reviewed_file)
+    elsif (File.directory?(source_file) && File.directory?(target_file))
+      diff_subs = Dir.entries(source_file) | Dir.entries(target_file)
       diff_subs.reject! { |sub| sub == '.' || sub == '..' }
-      diff_subs.map! { |entry| diff_dirs(incoming_loc, reviewed_dir, subpath == "" ? entry : File.join(subpath, entry)) }
+      diff_subs.map! { |entry| diff_dirs(incoming_loc, target_dir, subpath == "" ? entry : File.join(subpath, entry)) }
       diff_subs.flatten.compact
-    elsif (File.ftype(source_file) != File.ftype(reviewed_file))
+    elsif (File.ftype(source_file) != File.ftype(target_file))
       if (File.directory?(source_file))
-          [{'path' => subpath, 'source_type' => 'directory', 'reviewed_type' => File.ftype(reviewed_file),
+          [{'path' => subpath, 'source_type' => 'directory', 'reviewed_type' => File.ftype(target_file),
              'contents' => all_files_below(source_file, "")}]
-      elsif (File.directory?(reviewed_file))
+      elsif (File.directory?(target_file))
           [{'path' => subpath, 'source_type' => File.ftype(source_file), 'reviewed_type' => 'directory',
-             'contents' => all_files_below(reviewed_file, "")}]
+             'contents' => all_files_below(target_file, "")}]
       else
-        [{'path' => subpath, 'source_type' => File.ftype(source_file), 'reviewed_type' => File.ftype(reviewed_file), "contents" => nil }]
+        [{'path' => subpath, 'source_type' => File.ftype(source_file), 'reviewed_type' => File.ftype(target_file), "contents" => nil }]
       end
     else
       []
