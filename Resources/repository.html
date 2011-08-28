@@ -27,7 +27,12 @@
   window.p2pdoc_settings = Settings.new(Titanium.App.Properties.getString("settings-dir"))
 </script>
 
-<script type="text/javascript"> 
+<script type="text/javascript">
+
+function truncPathForDisplay(loc) {
+  return loc == null ? "" : loc.length < 40 ? loc : ("..." + loc.substring(loc.length - 37));
+}
+
 $(document).ready(function() {
     $('#everything').show('slide', { direction: "down" }, 500);
     
@@ -38,13 +43,21 @@ $(document).ready(function() {
       return false;
     });
 
+    // knockout bindings
+    
+    var viewModel = {
+      homeLoc: ko.observable(null),
+      incomingLoc: ko.observable(null),
+      outgoingLoc: ko.observable(null)
+    };
+  
     $('#save').bind('click', function() {
       var new_name = $('#name')[0].value;
-      var new_dir_name = window.p2pdoc_settings.fixed_repo_name(new_name);
-      var incoming_dir = Titanium.Filesystem.getApplicationDataDirectory() + "/" + new_dir_name;
-      var my_dir = Titanium.Filesystem.getApplicationDataDirectory() + "/" + new_dir_name + "_mine";
+      var incoming_dir = viewModel.incomingLoc();
+      var my_dir = viewModel.homeLoc();
+      var outgoing_dir = viewModel.outgoingLoc();
       
-      var added = window.p2pdoc_settings.add_repo(new_name, incoming_dir, my_dir);
+      var added = window.p2pdoc_settings.add_repo(new_name, incoming_dir, my_dir, outgoing_dir);
       if (added == null) {
         alert("Sorry, that repo has a problem, such as a bad name (eg. already used for another repository, or blank).");
       } else {
@@ -56,14 +69,6 @@ $(document).ready(function() {
       return false;
     });
     
-    // bindings for new repository setup
-    
-    var viewModel = {
-      homeLoc: ko.observable(null),
-      incomingLoc: ko.observable(null),
-      outgoingLoc: ko.observable(null)
-    };
-  
     viewModel.homePic = ko.dependentObservable(function() {
       return (this.homeLoc() == null ? "images/home-grey.png" : "images/home.png");
     }, viewModel);
@@ -73,7 +78,17 @@ $(document).ready(function() {
     viewModel.outgoingPic = ko.dependentObservable(function() {
       return (this.outgoingLoc() == null ? "images/people-in-grey.png" : "images/people-in.png");
     }, viewModel);
-  
+    
+    viewModel.homeLocText = ko.dependentObservable(function() {
+      return truncPathForDisplay(this.homeLoc());
+    }, viewModel);
+    viewModel.incomingLocText = ko.dependentObservable(function() {
+      return truncPathForDisplay(this.incomingLoc());
+    }, viewModel);
+    viewModel.outgoingLocText = ko.dependentObservable(function() {
+      return truncPathForDisplay(this.outgoingLoc());
+    }, viewModel);
+    
     $("#homePic").hover(
       function() { $(this).attr("src", "images/home.png"); },
       function() { if (viewModel.homeLoc() == null) { $(this).attr("src", "images/home-grey.png"); } }
@@ -123,7 +138,7 @@ $(document).ready(function() {
       }
     });
   
-    $("#homePic[title]").tooltip({ position:"bottom center", offset:[10,0], effect:"slide", direction:"down" });
+    $("#homePic[title]").tooltip({ position:"bottom center", offset:[20,0], effect:"slide", direction:"down" });
     $("#incomingPic[title]").tooltip({ effect:"slide" });
     $("#outgoingPic[title]").tooltip({ effect:"slide" });
   
@@ -131,17 +146,31 @@ $(document).ready(function() {
     $('#incomingPic').dataBind({ attr: { src: 'incomingPic' } });
     $('#outgoingPic').dataBind({ attr: { src: 'outgoingPic' } });
     
-    $('#homeLoc').dataBind({text: 'homeLoc'});
-    $('#incomingLoc').dataBind({text: 'incomingLoc'});
-    $('#outgoingLoc').dataBind({text: 'outgoingLoc'});
+    $('#homeLoc').dataBind({ text: 'homeLocText' });
+    $('#incomingLoc').dataBind({ text: 'incomingLocText' });
+    $('#outgoingLoc').dataBind({ text: 'outgoingLocText' });
     
-    $('#homeLocInput').dataBind({value: 'homeLoc'});
-    $('#incomingLocInput').dataBind({value: 'incomingLoc'});
-    $('#outgoingLocInput').dataBind({value: 'outgoingLoc'});
-  
     // activate knockout.js
     ko.applyBindings(viewModel);
     
+    $("#homeFolderChooser").click(function() {
+      Titanium.UI.getCurrentWindow().openFolderChooserDialog(function(selectionResponse) {
+        if (selectionResponse.length > 0) { viewModel.homeLoc(selectionResponse[0]); }
+      });
+    });
+
+    $("#inFolderChooser").click(function() {
+      Titanium.UI.getCurrentWindow().openFolderChooserDialog(function(selectionResponse) {
+        if (selectionResponse.length > 0) { viewModel.incomingLoc(selectionResponse[0]); }
+      });
+    });
+
+    $("#outFolderChooser").click(function() {
+      Titanium.UI.getCurrentWindow().openFolderChooserDialog(function(selectionResponse) {
+        if (selectionResponse.length > 0) { viewModel.outgoingLoc(selectionResponse[0]); }
+      });
+    });
+
 });
 </script>
 
@@ -164,23 +193,29 @@ $(document).ready(function() {
       <img id="homePic" src="images/home-grey.png" title="This is to keep your own copy of the data."/>
       <br/>
       <div id="homeLocHolder" style="display:none;">
-        <span id="homeLoc"></span><input type="text" id="homeLocInput">
+        <span id="homeLoc"></span>
+        <br/>
+        <a href="#" id="homeFolderChooser">(change)</a>
       </div>
     </div>
   </div>
-  <div style="width:450px; display:inline-block; float:center;">
+  <div style="width:600px; display:inline-block; float:center;">
     <div style="float:left;">
       <img id="incomingPic" src="images/people-out-grey.png" title="This is if you're receiving copies of this data from other people."/>
       <br/>
       <div id="incomingLocHolder" style="display:none;">
-        <span id="incomingLoc"></span><input type="text" id="incomingLocInput">
+        <span id="incomingLoc"></span>
+        <br/>
+        <a href="#" id="inFolderChooser">(change)</a>
       </div>
     </div>
     <div style="float:right;">
       <img id="outgoingPic" src="images/people-in-grey.png" title="This is to send copies of your data to other people."/>
       <br/>
       <div id="outgoingLocHolder" style="display:none;">
-        <span id="outgoingLoc"></span><input type="text" id="outgoingLocInput">
+        <span id="outgoingLoc"></span>
+        <br/>
+        <a href="#" id="outFolderChooser">(change)</a>
       </div>
     </div>
     <div style="clear:both;"></div>
