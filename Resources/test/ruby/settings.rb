@@ -405,9 +405,44 @@ class SettingsTest
 
   end
 
+  def test_repo_outgoing()
+    
+    setup_settings({'repositories'=>[]})
+    repo_test0 = @settings.add_repo('test out 0', File.join(@test_data_dir, 'sources', 'cracked'),
+      File.join(@test_data_dir, 'my_copies', 'cracked'), File.join(@test_data_dir, 'targets', 'cracked'))
+    FileUtils::mkpath(repo_test0['incoming_loc'])
+    FileUtils::mkpath(@settings.reviewed_dir(repo_test0))
+    FileUtils::mkpath(repo_test0['my_loc'])
+    FileUtils::mkpath(repo_test0['outgoing_loc'])
+    File.open(File.join(repo_test0['incoming_loc'], 'sample.txt'), 'w') do |out|
+      out.write "gabba gabba hey\n"
+    end
+    all_repo_diffs = Updates.all_repo_diffs(@settings)
+    puts "fail: added incoming: #{all_repo_diffs.inspect}" if all_repo_diffs !=
+      [{"name"=>"test out 0", "diffs"=>[{"path"=>"sample.txt", "source_type"=>"file", "target_type"=>nil, "contents"=>nil}]}]
+      
+    Updates.mark_reviewed(@settings, 'test out 0')
+    all_repo_diffs = Updates.all_repo_diffs(@settings)
+    puts "fail: all reviewed: #{all_repo_diffs.inspect}" if all_repo_diffs != []
+    
+    # now let's accept those changes into our own
+    File.open(File.join(repo_test0['my_loc'], 'sample.txt'), 'w') do |out|
+      out.write "gabba gabba hey\n"
+    end
+    all_out_diffs = Updates.all_outgoing_diffs(@settings)
+    puts "fail: must copy out: #{all_out_diffs.inspect}" if all_out_diffs !=
+      [{"name"=>"test out 0", "diffs"=>[{"path"=>"sample.txt", "source_type"=>"file", "target_type"=>nil, "contents"=>nil}]}]
+
+    Updates.copy_to_outgoing(@settings, 'test out 0')
+    all_out_diffs = Updates.all_outgoing_diffs(@settings)
+    puts "fail: all copied out: #{all_out_diffs.inspect}" if all_out_diffs != []
+    
+  end
+  
 end
 
 SettingsTest.new.run
 #SettingsTest.new.test_simple_json
 #SettingsTest.new.test_repo_creation
 #SettingsTest.new.test_repo_diffs
+#SettingsTest.new.test_repo_outgoing

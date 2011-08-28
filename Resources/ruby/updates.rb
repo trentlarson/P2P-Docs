@@ -50,6 +50,21 @@ class Updates
     end
   end
   
+  # return the diffs of my copies of files and outgoing files;
+  # format is an array of { 'name' => REPO_NAME, 'diffs' => RESULT_OF_DIFF_DIRS }
+  def self.all_outgoing_diffs(settings)
+    result = settings.properties['repositories']
+    if (result == nil) 
+      []
+    else
+      result = 
+        result.collect do |repo|
+        { 'name' => repo['name'], 'diffs' => diff_dirs(repo['my_loc'], repo['outgoing_loc']) }
+      end
+      result.select { |hash| hash['diffs'] != [] }
+    end
+  end
+  
   # subpath is assumed to be in one of them
   #
   # return an array of all different paths below dirs, like 'diff --brief'
@@ -147,10 +162,28 @@ class Updates
   end
 
   # marks the subpath in repo as reviewed
-  def self.mark_reviewed(settings, repo_name, subpath)
+  def self.mark_reviewed(settings, repo_name, subpath = nil)
     repo = settings.get_repo_by_name(repo_name)
-    source = File.join(repo['incoming_loc'], subpath)
-    target = File.join(settings.reviewed_dir(repo), subpath)
+    copy_all_contents(repo['incoming_loc'], settings.reviewed_dir(repo), subpath)
+  end
+
+  # marks the subpath in repo as reviewed
+  def self.copy_to_outgoing(settings, repo_name, subpath = nil)
+    repo = settings.get_repo_by_name(repo_name)
+    copy_all_contents(repo['my_loc'], repo['outgoing_loc'], subpath)
+  end
+
+
+  # copy everything from the source to the target, under a common subpath
+  # subpath may be nil
+  def self.copy_all_contents(source_loc, target_loc, subpath = nil)
+    if (subpath.nil?)
+      source = source_loc
+      target = target_loc
+    else
+      source = File.join(source_loc, subpath)
+      target = File.join(target_loc, subpath)
+    end
     if (FileTest.exist? source)
       FileUtils::mkpath(File.dirname(target))
       FileUtils::remove_entry_secure(target, true)
@@ -159,7 +192,7 @@ class Updates
       FileUtils.remove_entry_secure(target, true)
     end
   end
-
+  
 end
 
 #puts Updates.all_repo_diffs(Settings.new("build/test-data")).to_s
