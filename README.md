@@ -40,11 +40,11 @@ In priority order:
  * fix crashes on repeated clicks back-and-forth from main to configure
  * fix crashes on search, eg "Robert"
  * fix crashes on deleting a repo (though it works if you got to create screen first)
+ * when creating/editing repo: warn if outbound w/o home, no home under incoming, no out under home (small)
  * repository choices (hints for choosing P2P folders; small x) (medium)
  * make this a background service... with notification hooks? (medium)
  * make the configuration a menu (medium)
  * transitions between screens (small)
- * when creating/editing repo: warn if outbound w/o home, no home under incoming, no out under home (small)
  * documentation and/or help (medium)
  * search through repository files (not just Jean's file)
  * program auto-update (medium)
