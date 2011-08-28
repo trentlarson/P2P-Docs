@@ -114,10 +114,12 @@ settings: initial settings; if nil, @@settings will not be reset
       if (name.class.name == "RubyKObject") # for method results from Titanium
         name = name.toString()
       end
-      if (incoming_loc.class.name == "RubyKObject") # for method results from Titanium
+      if (incoming_loc != nil &&
+          incoming_loc.class.name == "RubyKObject") # for method results from Titanium
         incoming_loc = incoming_loc.toString()
       end
-      if (my_loc.class.name == "RubyKObject") # for method results from Titanium
+      if (my_loc != nil &&
+          my_loc.class.name == "RubyKObject") # for method results from Titanium
         my_loc = my_loc.toString()
       end
       fixed_name = fixed_repo_name(name)
@@ -166,7 +168,8 @@ settings: initial settings; if nil, @@settings will not be reset
     if (name.class.name == "RubyKObject") # for method results from Titanium
       name = name.toString()
     end
-    if (incoming_loc.class.name == "RubyKObject") # for method results from Titanium
+    if (incoming_loc != nil &&
+        incoming_loc.class.name == "RubyKObject") # for method results from Titanium
       incoming_loc = incoming_loc.toString()
     end
     get_repo_by_name(name)['incoming_loc'] = incoming_loc
@@ -176,7 +179,8 @@ settings: initial settings; if nil, @@settings will not be reset
     if (name.class.name == "RubyKObject") # for method results from Titanium
       name = name.toString()
     end
-    if (my_loc.class.name == "RubyKObject") # for method results from Titanium
+    if (my_loc != nil &&
+        my_loc.class.name == "RubyKObject") # for method results from Titanium
       my_loc = my_loc.toString()
     end
     get_repo_by_name(name)['my_loc'] = my_loc
