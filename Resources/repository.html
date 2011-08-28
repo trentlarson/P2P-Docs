@@ -1,0 +1,191 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<html>
+<head>
+
+<script type="text/javascript" src="js/jquery-1.5.1.min.js"></script>
+<script type="text/javascript" src="js/jquery-ui-1.8.13.custom.min.js"></script>
+<script type="text/javascript" src="js/jquery.flowplayer.org.tools.min.js"></script>
+<script type="text/javascript" src="js/knockout-1.2.1.js"></script>
+<script type="text/javascript" src="js/knockout-nonhtml.js"></script>
+
+<link type="text/css" href="css/smoothness/jquery-ui-1.8.13.custom.css" rel="stylesheet"/>
+
+<style type="text/css">
+.tooltip {
+  display:none;
+  background:transparent url(images/box_white.png);
+  font-size:12px;
+  width:160px;
+  height:60px;
+  padding:25px;
+  color:#000; 
+}
+</style>
+
+<script type="text/ruby" src="ruby/settings.rb"></script>
+<script type="text/ruby">
+  window.p2pdoc_settings = Settings.new(Titanium.App.Properties.getString("settings-dir"))
+</script>
+
+<script type="text/javascript"> 
+$(document).ready(function() {
+    $('#everything').show('slide', { direction: "down" }, 500);
+    
+    $('#cancel').bind('click', function() {
+      $('#everything').hide('slide', { direction: "down"}, 500, function() {
+        location.href = "repositories.html";
+      });
+      return false;
+    });
+
+    $('#save').bind('click', function() {
+      var new_name = $('#name')[0].value;
+      var new_dir_name = window.p2pdoc_settings.fixed_repo_name(new_name);
+      var incoming_dir = Titanium.Filesystem.getApplicationDataDirectory() + "/" + new_dir_name;
+      var my_dir = Titanium.Filesystem.getApplicationDataDirectory() + "/" + new_dir_name + "_mine";
+      
+      var added = window.p2pdoc_settings.add_repo(new_name, incoming_dir, my_dir);
+      if (added == null) {
+        alert("Sorry, that repo has a problem, such as a bad name (eg. already used for another repository, or blank).");
+      } else {
+        window.p2pdoc_settings.save();
+        $('#everything').hide('slide', { direction: "down"}, 500, function() {
+          location.href = "repositories.html";
+        });
+      }
+      return false;
+    });
+    
+    // bindings for new repository setup
+    
+    var viewModel = {
+      homeLoc: ko.observable(null),
+      incomingLoc: ko.observable(null),
+      outgoingLoc: ko.observable(null)
+    };
+  
+    viewModel.homePic = ko.dependentObservable(function() {
+      return (this.homeLoc() == null ? "images/home-grey.png" : "images/home.png");
+    }, viewModel);
+    viewModel.incomingPic = ko.dependentObservable(function() {
+      return (this.incomingLoc() == null ? "images/people-out-grey.png" : "images/people-out.png");
+    }, viewModel);
+    viewModel.outgoingPic = ko.dependentObservable(function() {
+      return (this.outgoingLoc() == null ? "images/people-in-grey.png" : "images/people-in.png");
+    }, viewModel);
+  
+    $("#homePic").hover(
+      function() { $(this).attr("src", "images/home.png"); },
+      function() { if (viewModel.homeLoc() == null) { $(this).attr("src", "images/home-grey.png"); } }
+    ).click(function() {
+      if (viewModel.homeLoc() == null) {
+        // turn it on
+        viewModel.homeLoc("");
+        $('#homeLocHolder').show('slide', { direction: "up" }, 500);
+      } else {
+        // turn it off
+        viewModel.homeLoc(null);
+        $('#homeLocHolder').hide(500);
+      }
+    });
+  
+    $("#incomingPic").hover(
+      function() { $(this).attr("src", "images/people-out.png"); },
+      function() { if (viewModel.incomingLoc() == null) { $(this).attr("src", "images/people-out-grey.png"); } }
+    ).click(function() {
+      if (viewModel.incomingLoc() == null) {
+        // turn it on
+        viewModel.incomingLoc("");
+        $('#incomingLocHolder').show('slide', { direction: "up" }, 500);
+      } else {
+        // turn it off
+        viewModel.incomingLoc(null);
+        $('#incomingLocHolder').hide(500);
+      }
+    });
+  
+    $("#outgoingPic").hover(
+      function() { $(this).attr("src", "images/people-in.png"); },
+      function() { if (viewModel.outgoingLoc() == null) { $(this).attr("src", "images/people-in-grey.png"); } }
+    ).click(function() {
+      if (viewModel.outgoingLoc() == null) {
+        // turn it on
+        if (viewModel.homeLoc() == null) {
+          viewModel.homeLoc("");
+          $('#homeLocHolder').show('slide', { direction: "up" }, 500);
+        }
+        viewModel.outgoingLoc("");
+        $('#outgoingLocHolder').show('slide', { direction: "up" }, 500);
+      } else {
+        // turn it off
+        viewModel.outgoingLoc(null);
+        $('#outgoingLocHolder').hide(500);
+      }
+    });
+  
+    $("#homePic[title]").tooltip({ position:"bottom center", offset:[10,0], effect:"slide", direction:"down" });
+    $("#incomingPic[title]").tooltip({ effect:"slide" });
+    $("#outgoingPic[title]").tooltip({ effect:"slide" });
+  
+    $('#homePic').dataBind({ attr: { src: 'homePic' } });
+    $('#incomingPic').dataBind({ attr: { src: 'incomingPic' } });
+    $('#outgoingPic').dataBind({ attr: { src: 'outgoingPic' } });
+    
+    $('#homeLoc').dataBind({text: 'homeLoc'});
+    $('#incomingLoc').dataBind({text: 'incomingLoc'});
+    $('#outgoingLoc').dataBind({text: 'outgoingLoc'});
+    
+    $('#homeLocInput').dataBind({value: 'homeLoc'});
+    $('#incomingLocInput').dataBind({value: 'incomingLoc'});
+    $('#outgoingLocInput').dataBind({value: 'outgoingLoc'});
+  
+    // activate knockout.js
+    ko.applyBindings(viewModel);
+    
+});
+</script>
+
+</head>
+<body>
+
+<div id="everything" style="display:none; text-align:center;">
+  <a id="save" href="#">Save</a>
+  <a id="cancel" href="#">Cancel</a>
+  <br/>
+  <br/>
+  <div style="text-align:center;">
+    <div>
+      Name <input type="text" id="name" size="15">
+    </div>
+    <br/>
+    <br/>
+    <br/>
+    <div style="float:center;">
+      <img id="homePic" src="images/home-grey.png" title="This is to keep your own copy of the data."/>
+      <br/>
+      <div id="homeLocHolder" style="display:none;">
+        <span id="homeLoc"></span><input type="text" id="homeLocInput">
+      </div>
+    </div>
+  </div>
+  <div style="width:450px; display:inline-block; float:center;">
+    <div style="float:left;">
+      <img id="incomingPic" src="images/people-out-grey.png" title="This is if you're receiving copies of this data from other people."/>
+      <br/>
+      <div id="incomingLocHolder" style="display:none;">
+        <span id="incomingLoc"></span><input type="text" id="incomingLocInput">
+      </div>
+    </div>
+    <div style="float:right;">
+      <img id="outgoingPic" src="images/people-in-grey.png" title="This is to send copies of your data to other people."/>
+      <br/>
+      <div id="outgoingLocHolder" style="display:none;">
+        <span id="outgoingLoc"></span><input type="text" id="outgoingLocInput">
+      </div>
+    </div>
+    <div style="clear:both;"></div>
+  </div>
+</div>
+
+</body>
+</html>
