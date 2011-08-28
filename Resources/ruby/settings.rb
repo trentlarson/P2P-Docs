@@ -51,11 +51,16 @@ settings: initial settings; if nil, @@settings will not be reset
     FileUtils.mkdir_p(reviewed_base_dir())
   end
 
+  def save()
+    File.open(settings_file(), 'w') do |out|
+      YAML.dump(@@settings, out)
+    end
+  end
+
+  # for testing
   def replace(new_settings_data)
     @@settings = new_settings_data
-    File.open(settings_file(), 'w') do |out|
-      YAML.dump(new_settings_data, out)
-    end
+    save()
   end
 
   def settings_file()
@@ -109,7 +114,7 @@ settings: initial settings; if nil, @@settings will not be reset
   end
 
   # return repo if the repo was added; otherwise, nil (eg. name blank or duplicate)
-  def add_repo(name, incoming_loc, my_loc = nil)
+  def add_repo(name, incoming_loc, my_loc = nil, outgoing_loc = nil)
     begin
       if (name.class.name == "RubyKObject") # for method results from Titanium
         name = name.toString()
@@ -121,6 +126,10 @@ settings: initial settings; if nil, @@settings will not be reset
       if (my_loc != nil &&
           my_loc.class.name == "RubyKObject") # for method results from Titanium
         my_loc = my_loc.toString()
+      end
+      if (outgoing_loc != nil &&
+          outgoing_loc.class.name == "RubyKObject") # for method results from Titanium
+        outgoing_loc = outgoing_loc.toString()
       end
       fixed_name = fixed_repo_name(name)
       if ((name.nil?) ||
@@ -134,7 +143,7 @@ settings: initial settings; if nil, @@settings will not be reset
       else
         max = maxRepo['id'] + 1
       end
-      new_repo = { 'id' => max, 'name' => name, 'incoming_loc' => incoming_loc, 'my_loc' => my_loc }
+      new_repo = { 'id' => max, 'name' => name, 'incoming_loc' => incoming_loc, 'my_loc' => my_loc, 'outgoing_loc' => outgoing_loc }
       Dir.mkdir reviewed_dir(new_repo)
     rescue
       return nil
@@ -184,12 +193,6 @@ settings: initial settings; if nil, @@settings will not be reset
       my_loc = my_loc.toString()
     end
     get_repo_by_name(name)['my_loc'] = my_loc
-  end
-
-  def save()
-    File.open(settings_file(), 'w') do |out|
-      YAML.dump(@@settings, out)
-    end
   end
 
 end

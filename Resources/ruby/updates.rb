@@ -33,7 +33,8 @@ class Updates
     end
   end
   
-  # return an array of { 'name' => REPO_NAME, 'diffs' => RESULT_OF_DIFF_DIRS }
+  # return the diffs of the incoming files and reviewed files;
+  # format is an array of { 'name' => REPO_NAME, 'diffs' => RESULT_OF_DIFF_DIRS }
   def self.all_repo_diffs(settings)
     result = settings.properties['repositories']
     if (result == nil) 
