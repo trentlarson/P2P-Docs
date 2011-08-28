@@ -38,12 +38,14 @@ In priority order:
  * fix crashes on repositories page with too many (21+) repos
  * fix crashes on repeated clicks back-and-forth from main to configure
  * fix crashes on search, eg "Robert"
- * repository choices (hints for choosing P2P folders; small x)
- * make this a background service... with notification hooks?
- * make the configuration a menu
- * documentation and/or help
+ * repository choices (hints for choosing P2P folders; small x) (medium)
+ * make this a background service... with notification hooks? (medium)
+ * make the configuration a menu (medium)
+ * transitions between screens (small)
+ * when creating/editing repo, warn if outbound w/o home (small)
+ * documentation and/or help (medium)
  * search through repository files (not just Jean's file)
- * program auto-update
+ * program auto-update (medium)
 
 
 Finished
