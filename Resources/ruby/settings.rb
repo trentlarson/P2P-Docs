@@ -109,7 +109,7 @@ settings: initial settings; if nil, @@settings will not be reset
   end
 
   # return repo if the repo was added; otherwise, nil (eg. name blank or duplicate)
-  def add_repo(name, incoming_loc, my_loc)
+  def add_repo(name, incoming_loc, my_loc = nil)
     begin
       if (name.class.name == "RubyKObject") # for method results from Titanium
         name = name.toString()
