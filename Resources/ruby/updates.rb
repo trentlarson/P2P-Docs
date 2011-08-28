@@ -98,6 +98,8 @@ class Updates
     elsif (File.file?(source_file) && File.file?(reviewed_file))
       if (File.size(source_file) != File.size(reviewed_file))
         [{'path' => subpath, 'source_type' => 'file', 'reviewed_type' => 'file', "contents" => nil }]
+      elsif (File.mtime(source_file) > File.mtime(reviewed_file))
+        [{'path' => subpath, 'source_type' => 'file', 'reviewed_type' => 'file', "contents" => nil }]
       else
         []
       end

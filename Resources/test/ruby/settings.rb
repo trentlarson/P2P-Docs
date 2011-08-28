@@ -185,18 +185,14 @@ class SettingsTest
 
     File.new(File.join(repo_test0['incoming_loc'], 'sample.txt'), 'w')
     all_repo_diffs = Updates.all_repo_diffs(@settings)
-    puts "fail: one empty file: #{all_repo_diffs.inspect}" if all_repo_diffs !=
+    puts "fail: not one empty file: #{all_repo_diffs.inspect}" if all_repo_diffs !=
       [{"name"=>"test 0", "diffs"=>[{"path"=>"sample.txt", "source_type"=>"file", "reviewed_type"=>nil, "contents"=>nil}]}]
 
 
 
-    sleep(1) # for testing modified time
     Updates.mark_reviewed(@settings, 'test 0', 'sample.txt')
     all_repo_diffs = Updates.all_repo_diffs(@settings)
     puts "fail: after review: #{all_repo_diffs.inspect}" if all_repo_diffs != []
-    source_mtime = File.mtime(File.join(repo_test0['incoming_loc'], "sample.txt"))
-    target_mtime = File.mtime(File.join(@settings.reviewed_dir(repo_test0), 'sample.txt'))
-    puts "fail: different times: #{source_mtime} #{target_mtime}" if source_mtime != target_mtime
 
 
 
@@ -204,14 +200,33 @@ class SettingsTest
       out.write "gabba gabba hey\n"
     end
     all_repo_diffs = Updates.all_repo_diffs(@settings)
-    puts "fail: one file with changed contents: #{all_repo_diffs.inspect}" if all_repo_diffs !=
+    puts "fail: one file with different content size: #{all_repo_diffs.inspect}" if all_repo_diffs !=
+      [{"name"=>"test 0", "diffs"=>[{"path"=>"sample.txt", "source_type"=>"file", "reviewed_type"=>"file", "contents"=>nil}]}]
+
+
+    Updates.mark_reviewed(@settings, 'test 0', 'sample.txt')
+    all_repo_diffs = Updates.all_repo_diffs(@settings)
+    puts "fail: different files: #{all_repo_diffs.inspect}" if all_repo_diffs != []
+
+
+
+    sleep(1) # for testing modified time
+    File.delete(File.join(repo_test0['incoming_loc'], 'sample.txt'))
+    File.open(File.join(repo_test0['incoming_loc'], 'sample.txt'), 'w') do |out|
+      out.write "gabba gabba hoo\n"
+    end
+    all_repo_diffs = Updates.all_repo_diffs(@settings)
+    puts "fail: one file with same size but different mtime: #{all_repo_diffs.inspect}" if all_repo_diffs !=
       [{"name"=>"test 0", "diffs"=>[{"path"=>"sample.txt", "source_type"=>"file", "reviewed_type"=>"file", "contents"=>nil}]}]
 
 
 
     Updates.mark_reviewed(@settings, 'test 0', 'sample.txt')
     all_repo_diffs = Updates.all_repo_diffs(@settings)
-    puts "fail: no changed files: #{all_repo_diffs.inspect}" if all_repo_diffs != []
+    puts "fail: different files: #{all_repo_diffs.inspect}" if all_repo_diffs != []
+    source_mtime = File.mtime(File.join(repo_test0['incoming_loc'], "sample.txt"))
+    target_mtime = File.mtime(File.join(@settings.reviewed_dir(repo_test0), 'sample.txt'))
+    puts "fail: different times after accept: #{source_mtime} #{target_mtime}" if source_mtime != target_mtime
 
 
 
@@ -233,7 +248,7 @@ class SettingsTest
     Updates.mark_reviewed(@settings, 'test 0', 'sample.txt')
     Updates.mark_reviewed(@settings, 'test 1', '1_sample.txt')
     all_repo_diffs = Updates.all_repo_diffs(@settings)
-    puts "fail: no changed files: #{all_repo_diffs.inspect}" if all_repo_diffs != []
+    puts "fail: no different files: #{all_repo_diffs.inspect}" if all_repo_diffs != []
 
 
 
