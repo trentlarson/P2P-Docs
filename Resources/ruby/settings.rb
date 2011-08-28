@@ -110,30 +110,34 @@ settings: initial settings; if nil, @@settings will not be reset
 
   # return repo if the repo was added; otherwise, nil (eg. name blank or duplicate)
   def add_repo(name, incoming_loc, my_loc)
-    if (name.class.name == "RubyKObject") # for method results from Titanium
-      name = name.toString()
-    end
-    if (incoming_loc.class.name == "RubyKObject") # for method results from Titanium
-      incoming_loc = incoming_loc.toString()
-    end
-    if (my_loc.class.name == "RubyKObject") # for method results from Titanium
-      my_loc = my_loc.toString()
-    end
-    fixed_name = fixed_repo_name(name)
-    if ((name.nil?) ||
-        (name == "") ||
-        (@@settings['repositories'].find{ |repo| repo['name'] == name || fixed_repo_name(repo['name']) == name || repo['name'] == fixed_name } != nil))
+    begin
+      if (name.class.name == "RubyKObject") # for method results from Titanium
+        name = name.toString()
+      end
+      if (incoming_loc.class.name == "RubyKObject") # for method results from Titanium
+        incoming_loc = incoming_loc.toString()
+      end
+      if (my_loc.class.name == "RubyKObject") # for method results from Titanium
+        my_loc = my_loc.toString()
+      end
+      fixed_name = fixed_repo_name(name)
+      if ((name.nil?) ||
+          (name == "") ||
+          (@@settings['repositories'].find{ |repo| repo['name'] == name || fixed_repo_name(repo['name']) == name || repo['name'] == fixed_name } != nil))
+        return nil
+      end
+      maxRepo = @@settings['repositories'].max { |repo1,repo2| repo1['id'] <=> repo2['id'] }
+      if (maxRepo == nil)
+        max = 0
+      else
+        max = maxRepo['id'] + 1
+      end
+      new_repo = { 'id' => max, 'name' => name, 'incoming_loc' => incoming_loc, 'my_loc' => my_loc }
+      Dir.mkdir reviewed_dir(new_repo)
+    rescue
       return nil
     end
-    maxRepo = @@settings['repositories'].max { |repo1,repo2| repo1['id'] <=> repo2['id'] }
-    if (maxRepo == nil)
-      max = 0
-    else
-      max = maxRepo['id'] + 1
-    end
-    new_repo = { 'id' => max, 'name' => name, 'incoming_loc' => incoming_loc, 'my_loc' => my_loc }
     @@settings['repositories'] << new_repo
-    Dir.mkdir reviewed_dir(new_repo)
     new_repo
   end
 
