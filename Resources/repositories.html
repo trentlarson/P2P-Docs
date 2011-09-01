@@ -64,7 +64,7 @@ var insertRepo = function(repo, showSlowly) {
   addedItem.find("#myLocFolderChooser_").attr("id", "myLocFolderChooser_" + dom_suffix).click(function() {
     Titanium.UI.getCurrentWindow().openFolderChooserDialog(function(selectionResponse) {
       if (selectionResponse.length > 0) {
-        window.p2pdoc_settings.change_repo_incoming(repo.name, selectionResponse[0]);
+        window.p2pdoc_settings.change_repo_my_loc(repo.name, selectionResponse[0]);
         window.p2pdoc_settings.save();
         $("#repoMyLocPath_" + dom_suffix).html(selectionResponse[0]);
       }
@@ -73,7 +73,7 @@ var insertRepo = function(repo, showSlowly) {
   addedItem.find("#outFolderChooser_").attr("id", "outFolderChooser_" + dom_suffix).click(function() {
     Titanium.UI.getCurrentWindow().openFolderChooserDialog(function(selectionResponse) {
       if (selectionResponse.length > 0) {
-        window.p2pdoc_settings.change_repo_incoming(repo.name, selectionResponse[0]);
+        window.p2pdoc_settings.change_repo_outgoing(repo.name, selectionResponse[0]);
         window.p2pdoc_settings.save();
         $("#repoOutPath_" + dom_suffix).html(selectionResponse[0]);
       }
