@@ -47,6 +47,7 @@ In priority order:
  * make the configuration a menu (medium)
  * transitions between screens (small)
  * documentation and/or help (medium)
+   * FAQ: on repo crashes, go to add a repo and cancel and then it works
  * search through repository files (not just Jean's file)
  * program auto-update (medium)
 
