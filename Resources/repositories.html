@@ -58,6 +58,7 @@ var insertRepo = function(repo, showSlowly) {
         window.p2pdoc_settings.change_repo_incoming(repo.name, selectionResponse[0]);
         window.p2pdoc_settings.save();
         $("#repoInPath_" + dom_suffix).html(selectionResponse[0]);
+        $("#inFolderRemover_" + dom_suffix).html("(remove)");
       }
     });
   });
@@ -67,6 +68,7 @@ var insertRepo = function(repo, showSlowly) {
         window.p2pdoc_settings.change_repo_my_loc(repo.name, selectionResponse[0]);
         window.p2pdoc_settings.save();
         $("#repoMyLocPath_" + dom_suffix).html(selectionResponse[0]);
+        $("#myLocFolderRemover_" + dom_suffix).html("(remove)");
       }
     });
   });
@@ -76,28 +78,38 @@ var insertRepo = function(repo, showSlowly) {
         window.p2pdoc_settings.change_repo_outgoing(repo.name, selectionResponse[0]);
         window.p2pdoc_settings.save();
         $("#repoOutPath_" + dom_suffix).html(selectionResponse[0]);
+        $("#outFolderRemover_" + dom_suffix).html("(remove)");
       }
     });
   });
-  addedItem.find("#inFolderRemover_").attr("id", "inFolderRemover_" + dom_suffix).click(function() {
+  addedItem.find("#inFolderRemover_").attr("id", "inFolderRemover_" + dom_suffix)
+  .html(repo.incoming_loc == null || repo.incoming_loc.length === 0 ? "" : "(remove)")
+  .click(function() {
     if (confirm("Are you sure you want to stop tracking incoming files?")) {
       window.p2pdoc_settings.change_repo_incoming(repo.name, null);
       window.p2pdoc_settings.save();
       $("#repoInPath_" + dom_suffix).html("");
+      $("#inFolderRemover_" + dom_suffix).html("");
     }
   });
-  addedItem.find("#myLocFolderRemover_").attr("id", "myLocFolderRemover_" + dom_suffix).click(function() {
+  addedItem.find("#myLocFolderRemover_").attr("id", "myLocFolderRemover_" + dom_suffix)
+  .html(repo.my_loc == null || repo.my_loc.length === 0 ? "" : "(remove)")
+  .click(function() {
     if (confirm("Are you sure you want to stop tracking where your copy is located?")) {
       window.p2pdoc_settings.change_repo_my_loc(repo.name, null);
       window.p2pdoc_settings.save();
       $("#repoMyLocPath_" + dom_suffix).html("");
+      $("#myLocFolderRemover_" + dom_suffix).html("");
     }
   });
-  addedItem.find("#outFolderRemover_").attr("id", "outFolderRemover_" + dom_suffix).click(function() {
+  addedItem.find("#outFolderRemover_").attr("id", "outFolderRemover_" + dom_suffix)
+  .html(repo.outgoing_loc == null || repo.outgoing_loc.length === 0 ? "" : "(remove)")
+  .click(function() {
     if (confirm("Are you sure you want to stop sending these files outward?")) {
       window.p2pdoc_settings.change_repo_outgoing(repo.name, null);
       window.p2pdoc_settings.save();
       $("#repoOutPath_" + dom_suffix).html("");
+      $("#outFolderRemover_" + dom_suffix).html("");
     }
   });
   
