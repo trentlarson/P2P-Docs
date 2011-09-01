@@ -195,6 +195,17 @@ settings: initial settings; if nil, @@settings will not be reset
     get_repo_by_name(name)['my_loc'] = my_loc
   end
 
+  def change_repo_outgoing(name, outgoing_loc)
+    if (name.class.name == "RubyKObject") # for method results from Titanium
+      name = name.toString()
+    end
+    if (outgoing_loc != nil &&
+        outgoing_loc.class.name == "RubyKObject") # for method results from Titanium
+      outgoing_loc = outgoing_loc.toString()
+    end
+    get_repo_by_name(name)['outgoing_loc'] = outgoing_loc
+  end
+
 end
 
 #puts Settings.new("/Users/tlarson/Library/Application Support/Titanium/appdata/info.familyhistories.searchlocal").properties.to_s

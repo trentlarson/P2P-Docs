@@ -51,11 +51,15 @@ var insertRepo = function(repo, showSlowly) {
   addedItem.find("#repoName_")  .attr("id", "repoName_"   + dom_suffix).find("span").html(repo.name);
   addedItem.find("#repoInPath_").attr("id", "repoInPath_" + dom_suffix).html(repo.incoming_loc);
   addedItem.find("#repoMyLocPath_") .attr("id", "repoMyLocPath_"  + dom_suffix).html(repo.my_loc);
+  addedItem.find("#repoOutPath_") .attr("id", "repoOutPath_"  + dom_suffix).html(repo.outgoing_loc);
   addedItem.find("#inFolderChooser_").attr("id", "inFolderChooser_" + dom_suffix).click(function() {
     chooseIncomingFolder(repo.name, "repoInPath_" + dom_suffix);
   });
   addedItem.find("#myLocFolderChooser_").attr("id", "myLocFolderChooser_" + dom_suffix).click(function() {
     chooseMyLocFolder(repo.name, "repoMyLocPath_" + dom_suffix);
+  });
+  addedItem.find("#outFolderChooser_").attr("id", "outFolderChooser_" + dom_suffix).click(function() {
+    chooseMyLocFolder(repo.name, "repoOutPath_" + dom_suffix);
   });
   addedItem.find("#inFolderRemover_").attr("id", "inFolderRemover_" + dom_suffix).click(function() {
     if (confirm("Are you sure you want to stop tracking incoming files?")) {
@@ -69,6 +73,13 @@ var insertRepo = function(repo, showSlowly) {
       window.p2pdoc_settings.change_repo_my_loc(repo.name, null);
       window.p2pdoc_settings.save();
       $("#repoMyLocPath_" + dom_suffix).html("");
+    }
+  });
+  addedItem.find("#outFolderRemover_").attr("id", "outFolderRemover_" + dom_suffix).click(function() {
+    if (confirm("Are you sure you want to stop sending these files outward?")) {
+      window.p2pdoc_settings.change_repo_outgoing(repo.name, null);
+      window.p2pdoc_settings.save();
+      $("#repoOutPath_" + dom_suffix).html("");
     }
   });
   
@@ -122,6 +133,22 @@ var chooseMyLocFolder = function(repoName, idForPath) {
        alert("You chose multiple folders, but I'll only take the first one.");
      }
      window.p2pdoc_settings.change_repo_my_loc(repoName, selectionResponse[0]);
+     window.p2pdoc_settings.save();
+     $("#" + idForPath).html(selectionResponse[0]);
+   }
+ });
+}
+
+var chooseOutFolder = function(repoName, idForPath) {
+ Titanium.UI.getCurrentWindow().openFolderChooserDialog(function(selectionResponse) {
+   // selectionResponse is an array of folder strings
+   if (selectionResponse.length === 0) {
+     // cancelled or none chosen, so leave things as-is
+   } else {
+     if (selectionResponse.length > 1) {
+       alert("You chose multiple folders, but I'll only take the first one.");
+     }
+     window.p2pdoc_settings.change_repo_outgoing(repoName, selectionResponse[0]);
      window.p2pdoc_settings.save();
      $("#" + idForPath).html(selectionResponse[0]);
    }
@@ -183,6 +210,14 @@ $(document).ready(function() {
           <span id="repoMyLocPath_" class="repoInfo"></span>
           <a href="#" id="myLocFolderChooser_" class="repoAct">(change)</a>
           <a href="#" id="myLocFolderRemover_" class="repoAct">(remove)</a>
+        </td>
+      </tr>
+      <tr>
+        <td><span class="repoInfo">Outgoing</span></td>
+        <td>
+          <span id="repoOutPath_" class="repoInfo"></span>
+          <a href="#" id="outFolderChooser_" class="repoAct">(change)</a>
+          <a href="#" id="outFolderRemover_" class="repoAct">(remove)</a>
         </td>
       </tr>
     </table>
