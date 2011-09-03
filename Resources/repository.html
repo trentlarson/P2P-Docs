@@ -34,6 +34,7 @@ function truncPathForDisplay(loc) {
 }
 
 $(document).ready(function() {
+    
     $('#everything').show('slide', { direction: "down" }, 500);
     
     $('#cancel').bind('click', function() {
@@ -170,7 +171,7 @@ $(document).ready(function() {
         if (selectionResponse.length > 0) { viewModel.outgoingLoc(selectionResponse[0]); }
       });
     });
-
+    
 });
 </script>
 
