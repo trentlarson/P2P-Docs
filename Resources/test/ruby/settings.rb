@@ -164,6 +164,13 @@ class SettingsTest
 
 
 
+    repo_test0 = {'id' => 0, 'name'=>'test 0', 'incoming_loc'=>nil}
+    @settings.replace({'repositories'=>[repo_test0]})
+    all_repo_diffs = Updates.all_repo_diffs(@settings)
+    puts "fail: diffs on repo w/o incoming: #{all_repo_diffs.inspect}" if all_repo_diffs != []
+
+
+
     repo_test0 = {'id' => 0, 'name'=>'test 0', 'incoming_loc'=>File.join(@test_data_dir, 'sources', 'hacked')}
     @settings.replace({'repositories'=>[repo_test0]})
     Dir.mkdir(repo_test0['incoming_loc'])
@@ -407,6 +414,30 @@ class SettingsTest
 
   def test_repo_outgoing()
     
+    setup_settings({'repositories'=>[]})
+    repo_test0 = @settings.add_repo('test out 0', File.join(@test_data_dir, 'sources', 'cracked'),
+      nil, nil)
+    all_out_diffs = Updates.all_outgoing_diffs(@settings)
+    puts "fail: diff with no source/outgoing isn't blank: #{all_out_diffs.inspect}" if all_out_diffs != []
+    
+    
+    
+    setup_settings({'repositories'=>[]})
+    repo_test0 = @settings.add_repo('test out 0', File.join(@test_data_dir, 'sources', 'cracked'),
+      File.join(@test_data_dir, 'my_copies', 'cracked'), nil)
+    all_out_diffs = Updates.all_outgoing_diffs(@settings)
+    puts "fail: diff with no outgoing isn't blank: #{all_out_diffs.inspect}" if all_out_diffs != []
+    
+    
+
+    setup_settings({'repositories'=>[]})
+    repo_test0 = @settings.add_repo('test out 0', File.join(@test_data_dir, 'sources', 'cracked'),
+      nil, File.join(@test_data_dir, 'my_copies', 'cracked'))
+    all_out_diffs = Updates.all_outgoing_diffs(@settings)
+    puts "fail: diff with no source isn't blank: #{all_out_diffs.inspect}" if all_out_diffs != []
+    
+    
+
     setup_settings({'repositories'=>[]})
     repo_test0 = @settings.add_repo('test out 0', File.join(@test_data_dir, 'sources', 'cracked'),
       File.join(@test_data_dir, 'my_copies', 'cracked'), File.join(@test_data_dir, 'targets', 'cracked'))

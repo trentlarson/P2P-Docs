@@ -76,6 +76,12 @@ class Updates
   # }
   def self.diff_dirs(source_dir, target_dir, subpath = "")
     
+    if ((source_dir.nil? || source_dir.empty?) ||
+        (target_dir.nil? || target_dir.empty?))
+      # we shouldn't even be here in this case, but we'll play nice
+      return []
+    end
+    
     if (subpath == "")
       source_file = source_dir
       target_file = target_dir
@@ -84,10 +90,7 @@ class Updates
       target_file = File.join(target_dir, subpath)
     end
     
-    if (source_file.nil? || target_file.nil?)
-      # we shouldn't even be here in this case, but we'll play nice
-      []
-    elsif (!File.exist?(source_file) && !File.exist?(target_file))
+    if (!File.exist?(source_file) && !File.exist?(target_file))
       # we shouldn't even be here in this case, but we'll play nice
       []
     elsif (! File.exist? target_file) # but source_file must exist
