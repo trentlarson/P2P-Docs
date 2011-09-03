@@ -36,7 +36,6 @@ Plans
 In priority order:
 
  * Doc Changes
- * fix crash when incoming/home locations are missing
  * fix unknown crashes on repositories page with too many (21+) repos
  * fix unknown crashes on repeated clicks back-and-forth from main to configure
  * fix unknown crashes on search, eg "Robert"

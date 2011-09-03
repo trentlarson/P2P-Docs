@@ -84,7 +84,10 @@ class Updates
       target_file = File.join(target_dir, subpath)
     end
     
-    if (!File.exist?(source_file) && !File.exist?(target_file))
+    if (source_file.nil? || target_file.nil?)
+      # we shouldn't even be here in this case, but we'll play nice
+      []
+    elsif (!File.exist?(source_file) && !File.exist?(target_file))
       # we shouldn't even be here in this case, but we'll play nice
       []
     elsif (! File.exist? target_file) # but source_file must exist
