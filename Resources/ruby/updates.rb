@@ -164,13 +164,20 @@ class Updates
     end
   end
 
-  # marks the subpath in repo as reviewed
+  # marks the subpath in repo['incoming_loc'] as reviewed
   def self.mark_reviewed(settings, repo_name, subpath = nil)
     repo = settings.get_repo_by_name(repo_name)
     copy_all_contents(repo['incoming_loc'], settings.reviewed_dir(repo), subpath)
   end
 
-  # marks the subpath in repo as reviewed
+
+  # copies all repos to outgoing
+  # diffs is the output from diff_dirs
+  def self.copy_all_to_outgoing(settings, repo_name, diffs)
+    diffs.each { |path_info| copy_to_outgoing(settings, repo_name, path_info['path']) }
+  end
+  
+  # copies the subpath in repo['my_loc'] to outgoing
   def self.copy_to_outgoing(settings, repo_name, subpath = nil)
     repo = settings.get_repo_by_name(repo_name)
     copy_all_contents(repo['my_loc'], repo['outgoing_loc'], subpath)

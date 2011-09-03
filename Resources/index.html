@@ -43,14 +43,16 @@
 <script type="text/javascript">
   // Initialize the basic setup.
   if (!Titanium.App.Properties.hasProperty('settings-dir')) {
-    // Titanium.App.Properties pulls from the application.properties file.  Note that lines beginning with # may disappear; I use // for commentary.
+    // Titanium.App.Properties pulls from the application.properties file.  Note that lines in it beginning with # may disappear; I use // for commentary.
     Titanium.App.Properties.setString('settings-dir', Titanium.Filesystem.getApplicationDataDirectory().toString());
   }
 </script>
 <script type="text/ruby">
   window.p2pdoc_settings = Settings.new(Titanium.App.Properties.getString("settings-dir"))
   window.p2pdoc_all_diffs_json = Updates.strings_arrays_hashes_json(Updates.all_repo_diffs(window.p2pdoc_settings))
-  window.p2pdoc_mark_reviewed = lambda {|repo, path| Updates.mark_reviewed(window.p2pdoc_settings, repo, path)}
+  window.p2pdoc_all_out_diffs_json = Updates.strings_arrays_hashes_json(Updates.all_outgoing_diffs(window.p2pdoc_settings))
+  window.p2pdoc_copy_to_outgoing = lambda { |all_diffs| all_diffs.each { |name_diff| Updates.copy_all_to_outgoing(window.p2pdoc_settings, name_diff['name'], name_diff['diffs']) } }
+  window.p2pdoc_mark_reviewed = lambda { |repo_name, path| Updates.mark_reviewed(window.p2pdoc_settings, repo_name, path) }
 </script>
 
 <script type="text/javascript">
@@ -125,6 +127,14 @@ $(document).ready(function() {
     
     if (window.p2pdoc_settings.properties().repositories.length > 0) {
       $('#noRepos').hide();
+      
+      var all_out_diffs = JSON.parse(window.p2pdoc_all_out_diffs_json);
+      if (all_out_diffs.length > 0) {
+        $('#outChanges').show().click(function() {
+          window.p2pdoc_copy_to_outgoing();
+          this.hide(500);
+        });
+      }
       
       var all_diffs = JSON.parse(window.p2pdoc_all_diffs_json);
       if (all_diffs.length == 0) {
@@ -246,6 +256,10 @@ $(document).ready(function() {
 
 <h2 id="noRepos" class="ui-widget">Your first task is to find your incoming files.<br/>Click 'Configure' to tell me where they are.</h2>
 <h2 id="noDiffs" class="ui-widget" style="display:none;">You've seen it all, so you can go play with another toy.<br/>Y'all come back now, ya hear?</h2>
+
+<br/>
+<br/>
+<h3><a href="#"><span id="outChanges" class="ui-widget" style="display:none">Export unshared changes to the outgoing folders.</span></a></h3>
 
 <div id="fullContent">
   <div id="repoList" class="ui-widget">
