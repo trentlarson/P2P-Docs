@@ -174,12 +174,6 @@ class Updates
   end
 
 
-  # copies all repos to outgoing
-  # diffs is the output from diff_dirs
-  def self.copy_all_to_outgoing(settings, repo_name, diffs)
-    diffs.each { |path_info| copy_to_outgoing(settings, repo_name, path_info['path']) }
-  end
-  
   # copies the subpath in repo['my_loc'] to outgoing
   def self.copy_to_outgoing(settings, repo_name, subpath = nil)
     repo = settings.get_repo_by_name(repo_name)

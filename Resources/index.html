@@ -9,7 +9,7 @@
 <link type="text/css" href="css/smoothness/jquery-ui-1.8.13.custom.css" rel="stylesheet"/>
 
 <style>
-#fullContent {
+#inChanges {
   position: relative;
 }
 
@@ -51,6 +51,13 @@
   window.p2pdoc_settings = Settings.new(Titanium.App.Properties.getString("settings-dir"))
   window.p2pdoc_all_diffs_json = Updates.strings_arrays_hashes_json(Updates.all_repo_diffs(window.p2pdoc_settings))
   window.p2pdoc_all_out_diffs_json = Updates.strings_arrays_hashes_json(Updates.all_outgoing_diffs(window.p2pdoc_settings))
+  def copy_to_outgoing(out_diffs)
+    out_diffs.each { |name_diff|
+      name_diff.diffs.each { |diff|
+        Updates.copy_to_outgoing(window.p2pdoc_settings, name_diff.name, diff.path)
+      }
+    }
+  end
   window.p2pdoc_copy_to_outgoing = lambda { |all_diffs| all_diffs.each { |name_diff| Updates.copy_all_to_outgoing(window.p2pdoc_settings, name_diff['name'], name_diff['diffs']) } }
   window.p2pdoc_mark_reviewed = lambda { |repo_name, path| Updates.mark_reviewed(window.p2pdoc_settings, repo_name, path) }
 </script>
@@ -86,7 +93,7 @@ function markAccepted() {
           repoDiv.hide(500, function() {
             repoDiv.remove();
             // now revert to default display if that was the last repo
-            if ($('#repoList').children().length == 1) {
+            if ($('#inChanges #repoList').children().length == 1) {
               $('#sideActionWrapper').hide(500);
               $('#noDiffs').show(500);
             }
@@ -128,14 +135,16 @@ $(document).ready(function() {
     if (window.p2pdoc_settings.properties().repositories.length > 0) {
       $('#noRepos').hide();
       
-      var all_out_diffs = JSON.parse(window.p2pdoc_all_out_diffs_json);
-      if (all_out_diffs.length > 0) {
+      // show the copy-to-outgoing action
+      var allOutDiffs = JSON.parse(window.p2pdoc_all_out_diffs_json);
+      if (allOutDiffs.length > 0) {
         $('#outChanges').show().click(function() {
-          window.p2pdoc_copy_to_outgoing();
-          this.hide(500);
+            copy_to_outgoing(allOutDiffs);
+            $(this).hide(500);
         });
       }
       
+      // show the incoming-review action
       var all_diffs = JSON.parse(window.p2pdoc_all_diffs_json);
       if (all_diffs.length == 0) {
         $('#noDiffs').show();
@@ -144,14 +153,14 @@ $(document).ready(function() {
         $('#sideActionWrapper').show();
   
         // declare the repo variables for data and DOM elements
-        var repoCount, oneRepoDiffs, repoData, repoName, repoDiffList, repoDiffCount;
-        var repoTemplate, addedRepo, numChanges;
+        var repoCount, repoTemplate, oneRepoDiffs, repoName, repoDiffList, repoDiffCount, addedRepo;
+        var repoData, numChanges;
         // declare the diff variables for data and DOM elements
         var diffSet;
         var diffTemplate, addedDiff, numFiles;
         
         repoCount = all_diffs.length;
-        repoTemplate = $('#repoList #repo_');
+        repoTemplate = $('#inChanges #repoList #repo_');
         
         for (var repoNum = 0; repoNum < repoCount; repoNum++) {
           oneRepoDiffs = all_diffs[repoNum];
@@ -259,9 +268,11 @@ $(document).ready(function() {
 
 <br/>
 <br/>
-<h3><a href="#"><span id="outChanges" class="ui-widget" style="display:none">Export unshared changes to the outgoing folders.</span></a></h3>
+<div id="outChanges" style="display:none">
+  <h3><a href="#"><span class="ui-widget">Export unshared changes to the outgoing folders.</span></a></h3>
+</div>
 
-<div id="fullContent">
+<div id="inChanges">
   <div id="repoList" class="ui-widget">
     <div id="repo_" style="display:none;">
       <h3 class="panelHeader">
