@@ -5,7 +5,7 @@ base_repo_dir = File.expand_path(File.join("build", "sample-repos"))
 settings = Settings.new(base_repo_dir)
 
 # make a bunch of repositories
-(0..100).each do |num|
+(0..50).each do |num|
   repo_name = "test #{num}"
   repo_dir_name = File.join(base_repo_dir, settings.fixed_repo_name(repo_name))
   settings.add_repo(repo_name, repo_dir_name)

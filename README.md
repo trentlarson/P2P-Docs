@@ -36,7 +36,8 @@ Plans
 In priority order:
 
  * Doc Changes
- * fix unknown crashes on repositories page with too many (21+) repos
+ * fix unknown crashes on repositories page when accepting a change too many (100) repos
+   ... though it just stops on javascript at mark_reviewed on index.html if you go to repo create screen first)
  * fix unknown crashes on repeated clicks back-and-forth from main to configure
  * fix unknown crashes on search, eg "Robert"
  * fix unknown crashes on deleting a repo (though it works if you got to create screen first)
