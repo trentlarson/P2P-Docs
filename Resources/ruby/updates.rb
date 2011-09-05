@@ -73,28 +73,37 @@ class Updates
   end
   
   # diff_dirs_result is the output from diff_dirs
-  # return a list of MatchData results for any paths that have a versioned suffix
+  # return a list of array-pairs: the element from diff_dirs, followed by the MatchData results for paths that have a versioned suffix or nil for paths without
   def self.versioned_filenames(diff_dirs_result)
+    diff_dirs_result.collect { |diff| [diff, match_numeric_suffix(diff['path'])] }
+  end
+
+=begin
+  # This approach isn't currently used.
+  # diff_dirs_result is the output from diff_dirs
+  # return a list of MatchData results for any paths that have a versioned suffix
+  def self.versioned_filenames_old(diff_dirs_result)
     # gather all paths
     paths = diff_dirs_result.map{ |diff| diff['path'] }.sort
-    # group them by their prefix
-    paths_wo_version = paths.group_by { |x| m = match_numeric_suffix(x); m == nil ? nil : "#{m[1]}#{m[4]}" }
+    # group them by their path base file name
+    paths_wo_version = paths.group_by { |path| m = match_numeric_suffix(path); m == nil ? nil : "#{m[1]}#{m[4]}" }
     # for each that may be versioned, search for a previous version
     paths_wo_version.collect { |key, value|
       if (key.nil?)
-        # ignore those that have no version suffixes
+        # it has no version suffixes
         nil
       else
-         # (yes, I match them all a second time, so sue me)
+         # (yes, I match them all a second time... I should fix the group_by to use MatchData... so go ahead and sue me)
         if (value.length == 1)
           match_numeric_suffix(value[0])
         else
           # grab the one with the highest version number
-          x = value.collect{|file| m = match_numeric_suffix(file); [m[3].to_i, m]}.sort.last[1]
+          value.collect{|file| m = match_numeric_suffix(file); [m[3].to_i, m]}.sort.last[1]
         end
       end
     }.reject { |x| x.nil? }
   end
+=end  
   
   # This detects a suffix of "_" + a number, after the file name and before the file extension(s).
   # filename is any file name (possibly include a path prefix)

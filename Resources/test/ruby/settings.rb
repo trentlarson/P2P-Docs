@@ -149,15 +149,23 @@ class SettingsTest
     # not doing this because it's not important (and the code doesn't work on it :-)
     #file = "dir1/dir2/file_1.4.txt"
 
-    result = Updates.versioned_filenames(
+=begin
+    # This approach isn't currently used
+    result = Updates.versioned_filenames_old(
     [
+      {'path'=>'dir1/file.txt', 'source_type'=>'file', 'target_type'=>'file', 'contents'=>nil},
+      {'path'=>'dir1/file2.txt', 'source_type'=>'file', 'target_type'=>'file', 'contents'=>nil},
+      {'path'=>'dir1/file_22.txt', 'source_type'=>'file', 'target_type'=>'file', 'contents'=>nil},
+      {'path'=>'dir1/file_2.txt', 'source_type'=>'file', 'target_type'=>'file', 'contents'=>nil},
       {'path'=>'dir1/dir2/file.txt', 'source_type'=>'file', 'target_type'=>'file', 'contents'=>nil},
       {'path'=>'dir1/dir2/file2.txt', 'source_type'=>'file', 'target_type'=>'file', 'contents'=>nil},
       {'path'=>'dir1/dir2/file_2.txt', 'source_type'=>'file', 'target_type'=>'file', 'contents'=>nil},
       {'path'=>'dir1/dir2/file_4.txt', 'source_type'=>'file', 'target_type'=>'file', 'contents'=>nil},
       {'path'=>'dir1/dir2/file_3.txt', 'source_type'=>'file', 'target_type'=>'file', 'contents'=>nil}
     ])
-    puts "fail: versioned diffs: #{result}" if result != [Updates.match_numeric_suffix("dir1/dir2/file_4.txt")]
+    puts "fail: versioned diffs: #{result}" if result != 
+      [Updates.match_numeric_suffix("dir1/dir2/file_4.txt"), Updates.match_numeric_suffix("dir1/file_22.txt")]
+=end
     
   end
 
@@ -496,6 +504,19 @@ class SettingsTest
     Updates.copy_to_outgoing(@settings, 'test out 0')
     all_out_diffs = Updates.all_outgoing_diffs(@settings)
     puts "fail: all copied out: #{all_out_diffs.inspect}" if all_out_diffs != []
+    
+    
+    
+    # now let's update it with a transport that doesn't support file changes
+    FileUtils.mv File.join(repo_test0['incoming_loc'], 'sample.txt'), File.join(repo_test0['incoming_loc'], 'sample-2.txt')
+    File.open(File.join(repo_test0['incoming_loc'], 'sample-2.txt'), 'a') do |out|
+      out.write "you're a cheater face\n"
+    end
+    all_repo_diffs = Updates.all_repo_diffs(@settings)
+    puts "fail: version import: #{all_repo_diffs.inspect}" if all_repo_diffs !=
+      [{"name"=>"test out 0", "diffs"=>
+        [{"path"=>"sample-2.txt", "source_type"=>"file", "target_type"=>nil, "contents"=>nil},
+         {"path"=>"sample.txt", "source_type"=>nil, "target_type"=>"file", "contents"=>nil}]}]
     
   end
     
