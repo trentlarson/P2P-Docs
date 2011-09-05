@@ -135,7 +135,35 @@ class SettingsTest
     
   end
 
-  def test_repo_diffs()
+  def test_versioned_diffs
+    
+    file = "dir1/dir2/file_abc.txt"
+    match = Updates.match_numeric_suffix(file)
+    puts "fail: bad match: #{file} => #{match}" if match != nil
+    file = "dir1/dir2/file_2.rss.xml"
+    match = Updates.match_numeric_suffix(file)
+    puts "fail: bad match: #{file} => #{match}" if match[3] != "2"
+    file = "dir1/dir_2.out/file_2.is.mine_345.rss.txt"
+    match = Updates.match_numeric_suffix(file)
+    puts "fail: bad match: #{file} => #{match}" if match[3] != "345"
+    # not doing this because it's not important (and the code doesn't work on it :-)
+    #file = "dir1/dir2/file_1.4.txt"
+
+    result = Updates.versioned_filenames(
+    [
+      {'path'=>'dir1/dir2/file.txt', 'source_type'=>'file', 'target_type'=>'file', 'contents'=>nil},
+      {'path'=>'dir1/dir2/file2.txt', 'source_type'=>'file', 'target_type'=>'file', 'contents'=>nil},
+      {'path'=>'dir1/dir2/file_2.txt', 'source_type'=>'file', 'target_type'=>'file', 'contents'=>nil},
+      {'path'=>'dir1/dir2/file_4.txt', 'source_type'=>'file', 'target_type'=>'file', 'contents'=>nil},
+      {'path'=>'dir1/dir2/file_3.txt', 'source_type'=>'file', 'target_type'=>'file', 'contents'=>nil}
+    ])
+    puts "fail: versioned diffs: #{result}" if result != [Updates.match_numeric_suffix("dir1/dir2/file_4.txt")]
+    
+  end
+
+
+
+  def test_basic_diffs()
 
     setup_settings({'repositories'=>[]})
     all_repo_diffs = Updates.all_repo_diffs(@settings)
@@ -409,11 +437,10 @@ class SettingsTest
     Updates.mark_reviewed(@settings, 'test 1', '1_sub_dir')
     all_repo_diffs = Updates.all_repo_diffs(@settings)
     puts "fail: reviewed dir replaced file: #{all_repo_diffs.inspect}" if all_repo_diffs != []
-
-  end
-
-  def test_repo_outgoing()
     
+    
+    
+    # outgoing
     setup_settings({'repositories'=>[]})
     repo_test0 = @settings.add_repo('test out 0', File.join(@test_data_dir, 'sources', 'cracked'),
       nil, nil)
@@ -436,8 +463,10 @@ class SettingsTest
     all_out_diffs = Updates.all_outgoing_diffs(@settings)
     puts "fail: diff with no source isn't blank: #{all_out_diffs.inspect}" if all_out_diffs != []
     
-    
+  end
 
+  def test_full_workflow
+    
     setup_settings({'repositories'=>[]})
     repo_test0 = @settings.add_repo('test out 0', File.join(@test_data_dir, 'sources', 'cracked'),
       File.join(@test_data_dir, 'my_copies', 'cracked'), File.join(@test_data_dir, 'targets', 'cracked'))
@@ -469,11 +498,12 @@ class SettingsTest
     puts "fail: all copied out: #{all_out_diffs.inspect}" if all_out_diffs != []
     
   end
-  
+    
 end
 
-SettingsTest.new.run
+SettingsTest.new.run # run all test_* methods
 #SettingsTest.new.test_simple_json
+#SettingsTest.new.test_versioned_diffs
 #SettingsTest.new.test_repo_creation
-#SettingsTest.new.test_repo_diffs
-#SettingsTest.new.test_repo_outgoing
+#SettingsTest.new.test_basic_diffs
+#SettingsTest.new.test_full_workflow

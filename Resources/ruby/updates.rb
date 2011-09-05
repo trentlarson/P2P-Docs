@@ -65,14 +65,57 @@ class Updates
     end
   end
   
-  # subpath is assumed to be in one of them
+  # return results of diff_dirs augmented with:
+  # {
+  #   'previous_version' => the name of the previously reviewed version (for setups with versions that come in via different file names)
+  # }
+  def self.versioned_diffs(settings, diff_dirs_result)
+  end
+  
+  # diff_dirs_result is the output from diff_dirs
+  # return a list of MatchData results for any paths that have a versioned suffix
+  def self.versioned_filenames(diff_dirs_result)
+    # gather all paths
+    paths = diff_dirs_result.map{ |diff| diff['path'] }.sort
+    # group them by their prefix
+    paths_wo_version = paths.group_by { |x| m = match_numeric_suffix(x); m == nil ? nil : "#{m[1]}#{m[4]}" }
+    # for each that may be versioned, search for a previous version
+    paths_wo_version.collect { |key, value|
+      if (key.nil?)
+        # ignore those that have no version suffixes
+        nil
+      else
+         # (yes, I match them all a second time, so sue me)
+        if (value.length == 1)
+          match_numeric_suffix(value[0])
+        else
+          # grab the one with the highest version number
+          x = value.collect{|file| m = match_numeric_suffix(file); [m[3].to_i, m]}.sort.last[1]
+        end
+      end
+    }.reject { |x| x.nil? }
+  end
+  
+  # This detects a suffix of "_" + a number, after the file name and before the file extension(s).
+  # filename is any file name (possibly include a path prefix)
+  # returns the MatchData (or nil) of matching the pattern, where:
+  #  [0] = full text
+  #  [1] = prefix / basic file name
+  #  [2] = "_"
+  #  [3] = numeric suffix
+  #  [4] = "." + extension(s)
+  def self.match_numeric_suffix(filename)
+    /^(.+)(_)([0-9]+)(\..*)?$/.match(filename)
+  end
+  
+  # subpath is assumed to be in either source_dir or target_dir
   #
-  # return an array of all different paths below dirs, like 'diff --brief'
+  # return an array of all different paths below dirs, like the Unix 'diff --brief'
   # return an array of:
   # { 'path' => path, being the name of the file or directory (never nil, but may be an empty string),
   #   'source_type' => 'file', 'directory', or ftype if exists in source dir tree (otherwise nil),
   #   'target_type' => 'file', 'directory', or ftype if exists in reviewed dir tree (otherwise nil),
-  #   'contents' => for directories that only exist in one, the recursive list of non-directories (otherwise nil)
+  #   'contents' => the recursive list of non-directories if a directory that only exists in one (otherwise nil)
   # }
   def self.diff_dirs(source_dir, target_dir, subpath = "")
     
@@ -191,12 +234,10 @@ class Updates
       source = File.join(source_loc, subpath)
       target = File.join(target_loc, subpath)
     end
+    FileUtils::remove_entry_secure(target, true)
     if (FileTest.exist? source)
       FileUtils::mkpath(File.dirname(target))
-      FileUtils::remove_entry_secure(target, true)
       FileUtils::cp_r(source, target, :preserve => true)
-    else
-      FileUtils.remove_entry_secure(target, true)
     end
   end
   
