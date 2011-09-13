@@ -41,6 +41,10 @@ In priority order:
  * fix unknown crashes on repeated clicks back-and-forth from main to configure
  * fix unknown crashes on search, eg "Robert"
  * fix unknown crashes on deleting a repo (though it works if you got to create screen first)
+ * default to versioned files, but allow to overwrite (both incoming and outgoing)
+ * default to keep old incoming versions, but allow deletion 
+ * default to keep old outgoing versions, but allow deletion 
+ * allow to make outgoing same location as incoming
  * when creating/editing repo: warn if outbound w/o home, no home under incoming, no out under home (small)
  * repository choices (hints for choosing P2P folders; small x) (medium)
  * make this a background service... with notification hooks? (medium)
@@ -50,6 +54,9 @@ In priority order:
    * FAQ: on repo crashes, go to add a repo and cancel and then it works
  * search through repository files (not just Jean's file)
  * program auto-update (medium)
+ * rework graphics with repo pic
+   * http://www.clker.com/clipart-vertical-file-cabinet.html
+   * http://search.coolclips.com/media/?D=busi1110
 
 
 Finished
