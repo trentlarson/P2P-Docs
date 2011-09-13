@@ -67,44 +67,26 @@ class Updates
   
   # return results of diff_dirs augmented with:
   # {
-  #   'previous_version' => the name of the previously reviewed version (for setups with versions that come in via different file names)
+  #   'target_path_prev_version' => the name of the previously reviewed version (for setups with versions that come in via different file names)
   # }
   def self.versioned_diffs(settings, diff_dirs_result)
   end
   
   # diff_dirs_result is the output from diff_dirs
-  # return a list of array-pairs: the element from diff_dirs, followed by the MatchData results for paths that have a versioned suffix or nil for paths without
+  # return a list of array-pairs: the basic file name (and number) and a hash with the 'diff' result of diff_dirs and the 'match' of MatchData results for versioned names
   def self.versioned_filenames(diff_dirs_result)
-    diff_dirs_result.collect { |diff| [diff, match_numeric_suffix(diff['path'])] }
+    diff_matches = diff_dirs_result.collect { |diff| {"diff"=>diff, "match"=>match_numeric_suffix(diff['path'])} }
+    diffs_grouped = diff_matches.group_by { |diff_match| m = diff_match["match"]; m == nil ? nil : "#{m[1]}#{m[4]}" }
+    diffs_grouped.collect { |base, diff_matches|
+      if (base.nil?)
+        # these have no version suffixes
+        diff_matches.collect { |diff_match| [[diff_match['diff']['path']], diff_match] }
+      else
+        diff_matches.collect { |diff_match| [[base, diff_match['match'][3].to_i], diff_match] }
+      end
+    }.flatten(1).sort
   end
 
-=begin
-  # This approach isn't currently used.
-  # diff_dirs_result is the output from diff_dirs
-  # return a list of MatchData results for any paths that have a versioned suffix
-  def self.versioned_filenames_old(diff_dirs_result)
-    # gather all paths
-    paths = diff_dirs_result.map{ |diff| diff['path'] }.sort
-    # group them by their path base file name
-    paths_wo_version = paths.group_by { |path| m = match_numeric_suffix(path); m == nil ? nil : "#{m[1]}#{m[4]}" }
-    # for each that may be versioned, search for a previous version
-    paths_wo_version.collect { |key, value|
-      if (key.nil?)
-        # it has no version suffixes
-        nil
-      else
-         # (yes, I match them all a second time... I should fix the group_by to use MatchData... so go ahead and sue me)
-        if (value.length == 1)
-          match_numeric_suffix(value[0])
-        else
-          # grab the one with the highest version number
-          value.collect{|file| m = match_numeric_suffix(file); [m[3].to_i, m]}.sort.last[1]
-        end
-      end
-    }.reject { |x| x.nil? }
-  end
-=end  
-  
   # This detects a suffix of "_" + a number, after the file name and before the file extension(s).
   # filename is any file name (possibly include a path prefix)
   # returns the MatchData (or nil) of matching the pattern, where:

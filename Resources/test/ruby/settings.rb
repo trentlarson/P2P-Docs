@@ -149,23 +149,22 @@ class SettingsTest
     # not doing this because it's not important (and the code doesn't work on it :-)
     #file = "dir1/dir2/file_1.4.txt"
 
-=begin
-    # This approach isn't currently used
-    result = Updates.versioned_filenames_old(
-    [
+    result = Updates.versioned_filenames [
       {'path'=>'dir1/file.txt', 'source_type'=>'file', 'target_type'=>'file', 'contents'=>nil},
       {'path'=>'dir1/file2.txt', 'source_type'=>'file', 'target_type'=>'file', 'contents'=>nil},
-      {'path'=>'dir1/file_22.txt', 'source_type'=>'file', 'target_type'=>'file', 'contents'=>nil},
+      {'path'=>'dir1/file_12.txt', 'source_type'=>'file', 'target_type'=>'file', 'contents'=>nil},
       {'path'=>'dir1/file_2.txt', 'source_type'=>'file', 'target_type'=>'file', 'contents'=>nil},
       {'path'=>'dir1/dir2/file.txt', 'source_type'=>'file', 'target_type'=>'file', 'contents'=>nil},
       {'path'=>'dir1/dir2/file2.txt', 'source_type'=>'file', 'target_type'=>'file', 'contents'=>nil},
       {'path'=>'dir1/dir2/file_2.txt', 'source_type'=>'file', 'target_type'=>'file', 'contents'=>nil},
       {'path'=>'dir1/dir2/file_4.txt', 'source_type'=>'file', 'target_type'=>'file', 'contents'=>nil},
       {'path'=>'dir1/dir2/file_3.txt', 'source_type'=>'file', 'target_type'=>'file', 'contents'=>nil}
-    ])
+    ]
+    # This helps visualize the sorting.
+    #puts (result.collect { |inresult| inresult.inspect + "\n" })
+    #puts "\n"
     puts "fail: versioned diffs: #{result}" if result != 
       [Updates.match_numeric_suffix("dir1/dir2/file_4.txt"), Updates.match_numeric_suffix("dir1/file_22.txt")]
-=end
     
   end
 
@@ -448,28 +447,26 @@ class SettingsTest
     
     
     
-    # outgoing
-    setup_settings({'repositories'=>[]})
-    repo_test0 = @settings.add_repo('test out 0', File.join(@test_data_dir, 'sources', 'cracked'),
-      nil, nil)
-    all_out_diffs = Updates.all_outgoing_diffs(@settings)
-    puts "fail: diff with no source/outgoing isn't blank: #{all_out_diffs.inspect}" if all_out_diffs != []
-    
-    
-    
-    setup_settings({'repositories'=>[]})
-    repo_test0 = @settings.add_repo('test out 0', File.join(@test_data_dir, 'sources', 'cracked'),
-      File.join(@test_data_dir, 'my_copies', 'cracked'), nil)
-    all_out_diffs = Updates.all_outgoing_diffs(@settings)
-    puts "fail: diff with no outgoing isn't blank: #{all_out_diffs.inspect}" if all_out_diffs != []
-    
-    
-
+    # check that there's no outgoing diffs if there's no outgoing
     setup_settings({'repositories'=>[]})
     repo_test0 = @settings.add_repo('test out 0', File.join(@test_data_dir, 'sources', 'cracked'),
       nil, File.join(@test_data_dir, 'my_copies', 'cracked'))
     all_out_diffs = Updates.all_outgoing_diffs(@settings)
     puts "fail: diff with no source isn't blank: #{all_out_diffs.inspect}" if all_out_diffs != []
+    
+    # ... or no my_loc
+    setup_settings({'repositories'=>[]})
+    repo_test0 = @settings.add_repo('test out 0', File.join(@test_data_dir, 'sources', 'cracked'),
+      File.join(@test_data_dir, 'my_copies', 'cracked'), nil)
+    all_out_diffs = Updates.all_outgoing_diffs(@settings)
+    puts "fail: diff with no outgoing isn't blank: #{all_out_diffs.inspect}" if all_out_diffs != []
+
+    # ... or neither
+    setup_settings({'repositories'=>[]})
+    repo_test0 = @settings.add_repo('test out 0', File.join(@test_data_dir, 'sources', 'cracked'),
+      nil, nil)
+    all_out_diffs = Updates.all_outgoing_diffs(@settings)
+    puts "fail: diff with no source/outgoing isn't blank: #{all_out_diffs.inspect}" if all_out_diffs != []
     
   end
 
@@ -507,16 +504,63 @@ class SettingsTest
     
     
     
-    # now let's update it with a transport that doesn't support file changes
-    FileUtils.mv File.join(repo_test0['incoming_loc'], 'sample.txt'), File.join(repo_test0['incoming_loc'], 'sample-2.txt')
-    File.open(File.join(repo_test0['incoming_loc'], 'sample-2.txt'), 'a') do |out|
+    # now let's update it with a transport that uses versioned files
+    FileUtils.mv File.join(repo_test0['incoming_loc'], 'sample.txt'), File.join(repo_test0['incoming_loc'], 'sample_2.txt')
+    File.open(File.join(repo_test0['incoming_loc'], 'sample_2.txt'), 'a') do |out|
       out.write "you're a cheater face\n"
     end
     all_repo_diffs = Updates.all_repo_diffs(@settings)
-    puts "fail: version import: #{all_repo_diffs.inspect}" if all_repo_diffs !=
+    puts "fail: versioned incoming: #{all_repo_diffs.inspect}" if all_repo_diffs !=
       [{"name"=>"test out 0", "diffs"=>
-        [{"path"=>"sample-2.txt", "source_type"=>"file", "target_type"=>nil, "contents"=>nil},
-         {"path"=>"sample.txt", "source_type"=>nil, "target_type"=>"file", "contents"=>nil}]}]
+        [{"path"=>"sample_2.txt", "target_path_prev_version"=>"sample.txt", "source_type"=>"file", "target_type"=>"file", "contents"=>nil}]}]
+    
+    
+    
+    # ... and another version
+    FileUtils.mv File.join(repo_test0['incoming_loc'], 'sample_2.txt'), File.join(repo_test0['incoming_loc'], 'sample_3.txt')
+    File.open(File.join(repo_test0['incoming_loc'], 'sample_3.txt'), 'a') do |out|
+      out.write "like to shoot, not play\n"
+    end
+    all_repo_diffs = Updates.all_repo_diffs(@settings)
+    puts "fail: versioned incoming: #{all_repo_diffs.inspect}" if all_repo_diffs !=
+      [{"name"=>"test out 0", "diffs"=>
+        [{"path"=>"sample_3.txt", "target_path_prev_version"=>"sample_2.txt", "source_type"=>"file", "target_type"=>"file", "contents"=>nil}]}]
+    
+    
+    
+    # ... and one last version
+    FileUtils.mv File.join(repo_test0['incoming_loc'], 'sample_3.txt'), File.join(repo_test0['incoming_loc'], 'sample_16.txt')
+    File.open(File.join(repo_test0['incoming_loc'], 'sample_16.txt'), 'a') do |out|
+      out.write "fly your leisure pace\n"
+    end
+    all_repo_diffs = Updates.all_repo_diffs(@settings)
+    puts "fail: versioned incoming: #{all_repo_diffs.inspect}" if all_repo_diffs !=
+      [{"name"=>"test out 0", "diffs"=>
+        [{"path"=>"sample_16.txt", "target_path_prev_version"=>"sample_3.txt", "source_type"=>"file", "target_type"=>"file", "contents"=>nil}]}]
+    
+    
+    
+    puts "mark reviewed, check for empty set"
+    #puts "put multiple incoming, check for different acceptance"
+    
+    
+    
+    # do the same for outgoing files
+#    FileUtils.cp_r File.join(repo_test0['incoming_loc'], 'sample_2.txt'), File.join(repo_test0['my_loc'], 'my_sample.txt')
+#    all_repo_diffs = Updates.all_outgoing_diffs(@settings)
+#    puts "fail: versioned outgoing: #{all_repo_diffs.inspect}" if all_repo_diffs !=
+      [{"name"=>"test out 0", "diffs"=>
+        [{"path"=>"my_sample.txt", "target_path_prev_version"=>"sample.txt", "target_path_next_version"=>"sample_3.txt", "source_type"=>"file", "target_type"=>"file", "contents"=>nil}]}]
+    
+    
+    puts "when there's a change in my copy (whether or not to the same output) and I publish"
+    puts "  if outgoing is marked as number-versioned"
+    puts "    w/o all versions accepted, check for no addition to version"
+    puts "    w/ all versions accepted, check for new version of outgoing file"
+    puts "      ... and if output is same as input, ensure it's marked as reviewed"
+    puts "  else outgoing not number-versioned"
+    puts "    so check for new outgoing version (always)"
+    #puts "put multiple outgoing, check for correct outgoing"
     
   end
     
