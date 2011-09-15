@@ -42,7 +42,10 @@ class Updates
     else
       result = 
         result.collect do |repo|
-        { 'name' => repo['name'], 'diffs' => diff_dirs(repo['incoming_loc'], settings.reviewed_dir(repo['name'])) }
+        { 'name' => repo['name'], 
+          'diffs' => versioned_diffs(diff_dirs(repo['incoming_loc'], 
+                                     settings.reviewed_dir(repo['name'])))
+        }
       end
       junk = result.select { |hash| hash['diffs'] != [] }
 #puts "My whole diff: " + junk.inspect
@@ -67,13 +70,43 @@ class Updates
   
   # return results of diff_dirs augmented with:
   # {
-  #   'target_path_prev_version' => the name of the previously reviewed version (for setups with versions that come in via different file names)
+  #   'target_path_previous_version' => the name of the base, reviewed version of this file (for setups with versions that come in via different file names)
   # }
-  def self.versioned_diffs(settings, diff_dirs_result)
+  # ... but without the entries where source version is gone (ie. source_type==nil) if a new version exists
+  def self.versioned_diffs(diff_dirs_result)
+    versioned_info = versioned_filenames(diff_dirs_result)
+    # gather all the base names along with their versions (which may include the base version, ie. the one without any version number at the end)
+    all_bases_and_versions = versioned_info.collect { |base_info, diff_match|
+      base_info
+    }.group_by { |base_and_version| base_and_version[0] }
+    versioned_info.collect { |base_info, diff_match|
+      {
+        'path' => diff_match['diff']['path'],
+        'target_path_previous_version' => base_info[0],
+        'source_type' => diff_match['diff']['source_type'],
+        'target_type' => diff_match['diff']['target_type'],
+        'contents' => diff_match['diff']['contents']
+      }
+    }
+=begin This worked when we put the reviewed file into the base version.  (When saving versions, we have to look on the file system.)  It's probably obsolete now.
+    # remove all the ones where the source version is gone but there's a new version
+    all_base_paths = all_bases_and_versions.keys
+    result.delete_if { |result_info|
+      # check that the source is gone
+      result_info['source_type'] == nil &&
+      result_info['target_type'] == 'file' &&
+      # ... where our reviewed target is our the base version
+      all_base_paths.include?(result_info['target_path']) &&
+      # ... and there's at least one new version (besides the base version)
+      all_bases_and_versions[result_info['target_path']].length >= 2
+    }
+=end
   end
   
   # diff_dirs_result is the output from diff_dirs
-  # return a list of array-pairs: the basic file name (and number) and a hash with the 'diff' result of diff_dirs and the 'match' of MatchData results for versioned names
+  # return an array of pairs (ie. arrays of 2):
+  # 1) an array of two: the basic file name and number
+  # 2) a hash with the 'diff' result of diff_dirs and the 'match' of MatchData results for versioned names
   def self.versioned_filenames(diff_dirs_result)
     diff_matches = diff_dirs_result.collect { |diff| {"diff"=>diff, "match"=>match_numeric_suffix(diff['path'])} }
     diffs_grouped = diff_matches.group_by { |diff_match| m = diff_match["match"]; m == nil ? nil : "#{m[1]}#{m[4]}" }
