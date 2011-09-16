@@ -76,10 +76,10 @@ class Updates
   def self.versioned_diffs(diff_dirs_result)
     versioned_info = versioned_filenames(diff_dirs_result)
     # gather all the base names along with their versions (which may include the base version, ie. the one without any version number at the end)
-    all_bases_and_versions = versioned_info.collect { |base_info, diff_match|
+    all_bases_and_versions = versioned_info.map { |base_info, diff_match|
       base_info
     }.group_by { |base_and_version| base_and_version[0] }
-    versioned_info.collect { |base_info, diff_match|
+    versioned_info.map { |base_info, diff_match|
       {
         'path' => diff_match['diff']['path'],
         'source_type' => diff_match['diff']['source_type'],
@@ -108,9 +108,9 @@ class Updates
   # 1) an array of two: the basic file name and number
   # 2) a hash with the 'diff' result of diff_dirs and the 'match' of MatchData results for versioned names
   def self.versioned_filenames(diff_dirs_result)
-    diff_matches = diff_dirs_result.collect { |diff| {"diff"=>diff, "match"=>match_numeric_suffix(diff['path'])} }
+    diff_matches = diff_dirs_result.map { |diff| {"diff"=>diff, "match"=>match_of_versioned_file(diff)} }
     diffs_grouped = diff_matches.group_by { |diff_match| m = diff_match["match"]; m == nil ? nil : "#{m[1]}#{m[4]}" }
-    diffs_grouped.collect { |base, diff_matches|
+    diffs_grouped.map { |base, diff_matches|
       if (base.nil?)
         # these have no version suffixes
         diff_matches.collect { |diff_match| [[diff_match['diff']['path']], diff_match] }
@@ -118,6 +118,15 @@ class Updates
         diff_matches.collect { |diff_match| [[base, diff_match['match'][3].to_i], diff_match] }
       end
     }.flatten(1).sort
+  end
+
+  def self.match_of_versioned_file(diff)
+    if ((diff['source_type'] != nil && diff['source_type'] != 'file') ||
+        (diff['target_type'] != nil && diff['target_type'] != 'file'))
+      return nil
+    else
+      return match_numeric_suffix(diff['path'])
+    end
   end
 
   # This detects a suffix of "_" + a number, after the file name and before the file extension(s).

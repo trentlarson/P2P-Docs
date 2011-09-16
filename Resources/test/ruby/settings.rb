@@ -154,6 +154,7 @@ class SettingsTest
       {'path'=>'afile.txt', 'source_type'=>'file', 'target_type'=>nil, 'contents'=>nil},
       {'path'=>'bfile.txt', 'source_type'=>nil, 'target_type'=>'file', 'contents'=>nil},
       {'path'=>'dir', 'source_type'=>'directory', 'target_type'=>nil, 'contents'=>['a_sample.txt','b_sample.txt']},
+      {'path'=>'dir_5.xyz', 'source_type'=>nil, 'target_type'=>'directory', 'contents'=>[]},
       # ensure correct sorting with versions
       {'path'=>'dir1/file.txt', 'source_type'=>'file', 'target_type'=>'file', 'contents'=>nil},
       {'path'=>'dir1/file2.txt', 'source_type'=>'file', 'target_type'=>'file', 'contents'=>nil},
@@ -182,7 +183,10 @@ class SettingsTest
       [["dir1/file.txt", 2], {"diff"=>{"path"=>"dir1/file_2.txt", "source_type"=>"file", "target_type"=>"file", "contents"=>nil}, "match"=>Updates.match_numeric_suffix("dir1/file_2.txt")}],
       [["dir1/file.txt", 12], {"diff"=>{"path"=>"dir1/file_12.txt", "source_type"=>"file", "target_type"=>"file", "contents"=>nil}, "match"=>Updates.match_numeric_suffix("dir1/file_12.txt")}],
       [["dir1/file2.txt"], {"diff"=>{"path"=>"dir1/file2.txt", "source_type"=>"file", "target_type"=>"file", "contents"=>nil}, "match"=>nil}],
+      [["dir_5.xyz"], {"diff"=>{"path"=>"dir_5.xyz", "source_type"=>nil, "target_type"=>"directory", "contents"=>[]}, "match"=>nil}]
     ]
+    
+    puts ("do the versioned diffs for that set of files")
     
     # ensure correct report of versions partially reconciled
     diff_results = [
@@ -203,12 +207,14 @@ class SettingsTest
       # we have reviewed up to v33
       {'path'=>'file3_12.txt', 'source_type'=>'file', 'target_type'=>nil, 'contents'=>nil},
       {'path'=>'file3_21.txt', 'source_type'=>'file', 'target_type'=>nil, 'contents'=>nil},
-      {'path'=>'file3_33.txt', 'source_type'=>'file', 'target_type'=>'file', 'contents'=>nil}
+      {'path'=>'file3_33.txt', 'source_type'=>'file', 'target_type'=>'file', 'contents'=>nil},
+      # we have reviewed everything
+      {'path'=>'file4_8.txt', 'source_type'=>nil, 'target_type'=>'file', 'contents'=>nil}
     ]
     versioned_files = Updates.versioned_filenames diff_results
     # This helps visualize the sorting.
     #versioned_files.each { |inresult| puts inresult.to_s + "\n" }
-    puts "fail: advanced versioned file diffs: #{versioned_files}" if versioned_files !=
+    puts "fail: advanced versioned file diffs (which is an intermediate function that can go away if the rest works): #{versioned_files}" if versioned_files !=
     [
       [["file.txt"], {"diff"=>{"path"=>"file.txt", "source_type"=>"file", "target_type"=>nil, "contents"=>nil}, "match"=>nil}],
       [["file.txt", 1], {"diff"=>{"path"=>"file_1.txt", "source_type"=>"file", "target_type"=>nil, "contents"=>nil}, "match"=>Updates.match_numeric_suffix("file_1.txt")}],
@@ -231,20 +237,13 @@ class SettingsTest
     #versioned_diffs.each { |inresult| puts inresult.to_s + "\n" }
     puts "fail: is this versioned diffs helpful?: #{versioned_diffs}" if versioned_diffs !=
     [
-      {"path"=>"file.txt", "source_type"=>"file", "target_type"=>nil, "target_path_previous_version"=>"file.txt", "contents"=>nil},
-      {"path"=>"file_1.txt", "source_type"=>"file", "target_type"=>nil, "target_path_previous_version"=>"file.txt", "contents"=>nil},
-      {"path"=>"file1.txt", "source_type"=>"file", "target_type"=>"file", "target_path_previous_version"=>"file1.txt", "contents"=>nil},
+      {"path"=>"file.txt", "source_type"=>"file", "target_type"=>nil, "target_path_previous_version"=>nil, "contents"=>nil},
+      {"path"=>"file_1.txt", "source_type"=>"file", "target_type"=>nil, "target_path_previous_version"=>nil, "contents"=>nil},
       {"path"=>"file1_1.txt", "source_type"=>"file", "target_type"=>nil, "target_path_previous_version"=>"file1.txt", "contents"=>nil},
       {"path"=>"file1_2.txt", "source_type"=>"file", "target_type"=>nil, "target_path_previous_version"=>"file1.txt", "contents"=>nil},
       {"path"=>"file1_3.txt", "source_type"=>"file", "target_type"=>nil, "target_path_previous_version"=>"file1.txt", "contents"=>nil},
-      {"path"=>"file2.txt", "source_type"=>nil, "target_type"=>"file", "target_path_previous_version"=>"file2.txt", "contents"=>nil},
-      {"path"=>"file2_1.txt", "source_type"=>"file", "target_type"=>"file", "target_path_previous_version"=>"file2.txt", "contents"=>nil},
-      {"path"=>"file2_2.txt", "source_type"=>"file", "target_type"=>"file", "target_path_previous_version"=>"file2.txt", "contents"=>nil},
-      {"path"=>"file2_3.txt", "source_type"=>"file", "target_type"=>nil, "target_path_previous_version"=>"file2.txt", "contents"=>nil},
-      {"path"=>"file2_4.txt", "source_type"=>"file", "target_type"=>nil, "target_path_previous_version"=>"file2.txt", "contents"=>nil},
-      {"path"=>"file3_12.txt", "source_type"=>"file", "target_type"=>nil, "target_path_previous_version"=>"file3.txt", "contents"=>nil},
-      {"path"=>"file3_21.txt", "source_type"=>"file", "target_type"=>nil, "target_path_previous_version"=>"file3.txt", "contents"=>nil},
-      {"path"=>"file3_33.txt", "source_type"=>"file", "target_type"=>"file", "target_path_previous_version"=>"file3.txt", "contents"=>nil}
+      {"path"=>"file2_3.txt", "source_type"=>"file", "target_type"=>nil, "target_path_previous_version"=>"file2_2.txt", "contents"=>nil},
+      {"path"=>"file2_4.txt", "source_type"=>"file", "target_type"=>nil, "target_path_previous_version"=>"file2_2.txt", "contents"=>nil}
     ]
   end
 
