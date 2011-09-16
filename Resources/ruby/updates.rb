@@ -76,8 +76,8 @@ class Updates
   def self.versioned_diffs(diff_dirs_result)
     versioned_info = versioned_filenames(diff_dirs_result)
     # gather all the base names along with their versions (which may include the base version, ie. the one without any version number at the end)
-    all_bases_and_versions = versioned_info.map { |base_info, diff_match| base_info }
-      .group_by { |base_and_version| base_and_version[0] }
+    all_bases_version_diff_matches = versioned_info
+      .group_by { |v_dm| v_dm['version'][0] }
     versioned_info.map { |v_dm|
       diff_match = v_dm['diff_match']
       {
@@ -103,21 +103,39 @@ class Updates
 =end
   end
   
+  # return all existing files that match_numeric_suffix (which obviously excludes the base file)
+  def self.all_target_file_versions(dir, base, ext)
+    files = Dir.glob(File.join(dir, base) + "_*" + ext)
+    files.map { |name| match_numeric_suffix(name) }.delete_if { |match| match.nil? }
+  end
+  
+  def self.filter_for_versions_above(base, version_diff_matches, all_target_files)
+    version_diff_matches.map { |elem| elem['diff_match'] }
+  end
+  
   # diff_dirs_result is the output from diff_dirs
   # return an array of pairs (ie. arrays of 2):
   # 1) an array of two: the basic file name and number
   # 2) a hash with the 'diff' result of diff_dirs and the 'match' of MatchData results for versioned names
   def self.versioned_filenames(diff_dirs_result)
     diff_matches = diff_dirs_result.map { |diff| {"diff"=>diff, "match"=>match_of_versioned_file(diff)} }
-    diffs_grouped = diff_matches.group_by { |diff_match| m = diff_match["match"]; m == nil ? nil : "#{m[1]}#{m[4]}" }
+    diffs_grouped = diff_matches.group_by { |diff_match| m = diff_match["match"]; m == nil ? nil : [m[1], m[4]] }
     diffs_grouped.map { |base, diff_matches|
       if (base.nil?)
         # these have no version suffixes
         diff_matches.collect { |diff_match| {'version'=>[diff_match['diff']['path']], 'diff_match'=>diff_match} }
       else
-        diff_matches.collect { |diff_match| {'version'=>[base, diff_match['match'][3].to_i], 'diff_match'=>diff_match} }
+        diff_matches.collect { |diff_match| {'version'=>[base[0], base[1], diff_match['match'][3].to_i], 'diff_match'=>diff_match} }
       end
-    }.flatten(1).sort_by { |version_diff_match| version_diff_match['version'] }
+    }.flatten(1).sort_by { |version_diff_match|
+      # because we want the basic file to come before the others
+      version = version_diff_match['version']
+      if (version.length == 1)
+        [version[0], -1]
+      else
+        [version[0] + version[1], version[2]]
+      end 
+    }
   end
 
   def self.match_of_versioned_file(diff)
