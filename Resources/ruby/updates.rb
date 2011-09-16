@@ -77,7 +77,7 @@ class Updates
     versioned_info = versioned_filenames(diff_dirs_result)
     # gather all the base names along with their versions (which may include the base version, ie. the one without any version number at the end)
     all_bases_version_diff_matches = versioned_info
-      .group_by { |v_dm| v_dm['version'][0] }
+      .group_by { |v_dm| vers = v_dm['version']; vers[0] + (vers.at(1).nil? ? "" : vers.at(1)) }
     versioned_info.map { |v_dm|
       diff_match = v_dm['diff_match']
       {
@@ -103,10 +103,20 @@ class Updates
 =end
   end
   
-  # return all existing files that match_numeric_suffix (which obviously excludes the base file)
-  def self.all_target_file_versions(dir, base, ext)
-    files = Dir.glob(File.join(dir, base) + "_*" + ext)
-    files.map { |name| match_numeric_suffix(name) }.delete_if { |match| match.nil? }
+  # return all existing files that match_numeric_suffix, including the base+ext file if any
+  def self.all_target_file_versions(base, ext)
+    
+    orig_file_array = Dir.glob(base + ext)
+      
+    more_files = Dir.glob(base + "_*" + ext)
+    more_matches = more_files.map { |name| match_numeric_suffix(name) }.compact
+    result_arrays = more_matches.map { |m| [m[1], m[4], m[3].to_i] }
+    
+    if (orig_file_array.empty?)
+      result_arrays
+    else
+      [orig_file_array] + result_arrays
+    end
   end
   
   def self.filter_for_versions_above(base, version_diff_matches, all_target_files)

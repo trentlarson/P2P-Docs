@@ -162,12 +162,27 @@ class SettingsTest
     File.new(File.join(v_dir, "something_3.txt"), 'w').write("junk\n")
     Dir.mkdir(File.join(v_dir, "some"))
     Dir.mkdir(File.join(v_dir, "some_3"))
-    filenames = Updates.all_target_file_versions(v_dir, "some4", ".txt")
+    
+    filenames = Updates.all_target_file_versions(File.join(v_dir, "sum"), ".txt")
+    expected = []
+    #puts "Expected:"; expected.each { |inresult| puts inresult.to_s + "\n" }
+    #puts "... and got:"; filenames.each { |inresult| puts inresult.to_s + "\n" }
+    puts "fail: versioned files exist: #{filenames}" if expected != filenames
+    
+    filenames = Updates.all_target_file_versions(File.join(v_dir, "some"), ".txt")
+    expected = [[File.join(v_dir, 'some.txt')]]
+    #puts "Expected:"; expected.each { |inresult| puts inresult.to_s + "\n" }
+    #puts "... and got:"; filenames.each { |inresult| puts inresult.to_s + "\n" }
+    puts "fail: base file doesn't match: #{filenames}" if expected != filenames
+    
+    filenames = Updates.all_target_file_versions(File.join(v_dir, "some4"), ".txt")
     expected = [
+      [File.join(v_dir, 'some4.txt')]
+    ] + [
       File.join(v_dir, 'some4_11.txt'),
       File.join(v_dir, 'some4_2.txt'),
       File.join(v_dir, 'some4_3.txt')
-    ].map { |elem| Updates.match_numeric_suffix(elem) }
+    ].map { |elem| m = Updates.match_numeric_suffix(elem); [m[1], m[4], m[3].to_i] }
     #puts "Expected:"; expected.each { |inresult| puts inresult.to_s + "\n" }
     #puts "... and got:"; filenames.each { |inresult| puts inresult.to_s + "\n" }
     puts "fail: versioned files don't match: #{filenames}" if expected != filenames
@@ -179,6 +194,7 @@ class SettingsTest
       {'path'=>'some3.txt', 'source_type'=>nil, 'target_type'=>'file', 'contents'=>nil},
       {'path'=>'some4_2.txt', 'source_type'=>'file', 'target_type'=>'file', 'contents'=>nil},
       {'path'=>'some4_2.txt', 'source_type'=>nil, 'target_type'=>'file', 'contents'=>nil},
+      some4.txt_5
     ]
     expected = [
       {'path'=>'some1.txt', 'source_type'=>'file', 'target_type'=>'file', 'contents'=>nil},
