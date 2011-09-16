@@ -82,9 +82,9 @@ class Updates
     versioned_info.collect { |base_info, diff_match|
       {
         'path' => diff_match['diff']['path'],
-        'target_path_previous_version' => base_info[0],
         'source_type' => diff_match['diff']['source_type'],
         'target_type' => diff_match['diff']['target_type'],
+        'target_path_previous_version' => base_info[0],
         'contents' => diff_match['diff']['contents']
       }
     }
