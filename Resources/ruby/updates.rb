@@ -76,15 +76,15 @@ class Updates
   def self.versioned_diffs(diff_dirs_result)
     versioned_info = versioned_filenames(diff_dirs_result)
     # gather all the base names along with their versions (which may include the base version, ie. the one without any version number at the end)
-    all_bases_and_versions = versioned_info.map { |base_info, diff_match|
-      base_info
-    }.group_by { |base_and_version| base_and_version[0] }
-    versioned_info.map { |base_info, diff_match|
+    all_bases_and_versions = versioned_info.map { |base_info, diff_match| base_info }
+      .group_by { |base_and_version| base_and_version[0] }
+    versioned_info.map { |v_dm|
+      diff_match = v_dm['diff_match']
       {
         'path' => diff_match['diff']['path'],
         'source_type' => diff_match['diff']['source_type'],
         'target_type' => diff_match['diff']['target_type'],
-        'target_path_previous_version' => base_info[0],
+        'target_path_previous_version' => v_dm['version'][0],
         'contents' => diff_match['diff']['contents']
       }
     }
@@ -113,11 +113,11 @@ class Updates
     diffs_grouped.map { |base, diff_matches|
       if (base.nil?)
         # these have no version suffixes
-        diff_matches.collect { |diff_match| [[diff_match['diff']['path']], diff_match] }
+        diff_matches.collect { |diff_match| {'version'=>[diff_match['diff']['path']], 'diff_match'=>diff_match} }
       else
-        diff_matches.collect { |diff_match| [[base, diff_match['match'][3].to_i], diff_match] }
+        diff_matches.collect { |diff_match| {'version'=>[base, diff_match['match'][3].to_i], 'diff_match'=>diff_match} }
       end
-    }.flatten(1).sort
+    }.flatten(1).sort_by { |version_diff_match| version_diff_match['version'] }
   end
 
   def self.match_of_versioned_file(diff)

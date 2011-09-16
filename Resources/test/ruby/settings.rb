@@ -167,24 +167,28 @@ class SettingsTest
       {'path'=>'dir1/dir2/file_3.txt', 'source_type'=>'file', 'target_type'=>'file', 'contents'=>nil}
     ]
     versioned_files = Updates.versioned_filenames diff_results
-    # This helps visualize the sorting.
-    #versioned_files.each { |inresult| puts inresult.to_s + "\n" }
-    puts "fail: basic versioned file diffs: #{versioned_files}" if versioned_files !=
+    expected = 
     [
-      [["afile.txt"], {"diff"=>{"path"=>"afile.txt", "source_type"=>"file", "target_type"=>nil, "contents"=>nil}, "match"=>nil}],
-      [["bfile.txt"], {"diff"=>{"path"=>"bfile.txt", "source_type"=>nil, "target_type"=>"file", "contents"=>nil}, "match"=>nil}],
-      [["dir"], {"diff"=>{"path"=>"dir", "source_type"=>"directory", "target_type"=>nil, "contents"=>["a_sample.txt", "b_sample.txt"]}, "match"=>nil}],
-      [["dir1/dir2/file.txt"], {"diff"=>{"path"=>"dir1/dir2/file.txt", "source_type"=>"file", "target_type"=>"file", "contents"=>nil}, "match"=>nil}],
-      [["dir1/dir2/file.txt", 2], {"diff"=>{"path"=>"dir1/dir2/file_2.txt", "source_type"=>"file", "target_type"=>"file", "contents"=>nil}, "match"=>Updates.match_numeric_suffix("dir1/dir2/file_2.txt")}], 
-      [["dir1/dir2/file.txt", 3], {"diff"=>{"path"=>"dir1/dir2/file_3.txt", "source_type"=>"file", "target_type"=>"file", "contents"=>nil}, "match"=>Updates.match_numeric_suffix("dir1/dir2/file_3.txt")}],
-      [["dir1/dir2/file.txt", 4], {"diff"=>{"path"=>"dir1/dir2/file_4.txt", "source_type"=>"file", "target_type"=>"file", "contents"=>nil}, "match"=>Updates.match_numeric_suffix("dir1/dir2/file_4.txt")}],
-      [["dir1/dir2/file2.txt"], {"diff"=>{"path"=>"dir1/dir2/file2.txt", "source_type"=>"file", "target_type"=>"file", "contents"=>nil}, "match"=>nil}],
-      [["dir1/file.txt"], {"diff"=>{"path"=>"dir1/file.txt", "source_type"=>"file", "target_type"=>"file", "contents"=>nil}, "match"=>nil}],
-      [["dir1/file.txt", 2], {"diff"=>{"path"=>"dir1/file_2.txt", "source_type"=>"file", "target_type"=>"file", "contents"=>nil}, "match"=>Updates.match_numeric_suffix("dir1/file_2.txt")}],
-      [["dir1/file.txt", 12], {"diff"=>{"path"=>"dir1/file_12.txt", "source_type"=>"file", "target_type"=>"file", "contents"=>nil}, "match"=>Updates.match_numeric_suffix("dir1/file_12.txt")}],
-      [["dir1/file2.txt"], {"diff"=>{"path"=>"dir1/file2.txt", "source_type"=>"file", "target_type"=>"file", "contents"=>nil}, "match"=>nil}],
-      [["dir_5.xyz"], {"diff"=>{"path"=>"dir_5.xyz", "source_type"=>nil, "target_type"=>"directory", "contents"=>[]}, "match"=>nil}]
+      {'version'=>["afile.txt"], 'diff_match'=>{"diff"=>{"path"=>"afile.txt", "source_type"=>"file", "target_type"=>nil, "contents"=>nil}, "match"=>nil}},
+      {'version'=>["bfile.txt"], 'diff_match'=>{"diff"=>{"path"=>"bfile.txt", "source_type"=>nil, "target_type"=>"file", "contents"=>nil}, "match"=>nil}},
+      {'version'=>["dir"], 'diff_match'=>{"diff"=>{"path"=>"dir", "source_type"=>"directory", "target_type"=>nil, "contents"=>["a_sample.txt", "b_sample.txt"]}, "match"=>nil}},
+      {'version'=>["dir1/dir2/file.txt"], 'diff_match'=>{"diff"=>{"path"=>"dir1/dir2/file.txt", "source_type"=>"file", "target_type"=>"file", "contents"=>nil}, "match"=>nil}},
+      {'version'=>["dir1/dir2/file.txt", 2], 'diff_match'=>{"diff"=>{"path"=>"dir1/dir2/file_2.txt", "source_type"=>"file", "target_type"=>"file", "contents"=>nil}, "match"=>Updates.match_numeric_suffix("dir1/dir2/file_2.txt")}},
+      {'version'=>["dir1/dir2/file.txt", 3], 'diff_match'=>{"diff"=>{"path"=>"dir1/dir2/file_3.txt", "source_type"=>"file", "target_type"=>"file", "contents"=>nil}, "match"=>Updates.match_numeric_suffix("dir1/dir2/file_3.txt")}},
+      {'version'=>["dir1/dir2/file.txt", 4], 'diff_match'=>{"diff"=>{"path"=>"dir1/dir2/file_4.txt", "source_type"=>"file", "target_type"=>"file", "contents"=>nil}, "match"=>Updates.match_numeric_suffix("dir1/dir2/file_4.txt")}},
+      {'version'=>["dir1/dir2/file2.txt"], 'diff_match'=>{"diff"=>{"path"=>"dir1/dir2/file2.txt", "source_type"=>"file", "target_type"=>"file", "contents"=>nil}, "match"=>nil}},
+      {'version'=>["dir1/file.txt"], 'diff_match'=>{"diff"=>{"path"=>"dir1/file.txt", "source_type"=>"file", "target_type"=>"file", "contents"=>nil}, "match"=>nil}},
+      {'version'=>["dir1/file.txt", 2], 'diff_match'=>{"diff"=>{"path"=>"dir1/file_2.txt", "source_type"=>"file", "target_type"=>"file", "contents"=>nil}, "match"=>Updates.match_numeric_suffix("dir1/file_2.txt")}},
+      {'version'=>["dir1/file.txt", 12], 'diff_match'=>{"diff"=>{"path"=>"dir1/file_12.txt", "source_type"=>"file", "target_type"=>"file", "contents"=>nil}, "match"=>Updates.match_numeric_suffix("dir1/file_12.txt")}},
+      {'version'=>["dir1/file2.txt"], 'diff_match'=>{"diff"=>{"path"=>"dir1/file2.txt", "source_type"=>"file", "target_type"=>"file", "contents"=>nil}, "match"=>nil}},
+      {'version'=>["dir_5.xyz"], 'diff_match'=>{"diff"=>{"path"=>"dir_5.xyz", "source_type"=>nil, "target_type"=>"directory", "contents"=>[]}, "match"=>nil}}
     ]
+    # This helps visualize the sorting.
+    #puts "Expected:"
+    #expected.each { |inresult| puts inresult.to_s + "\n" }
+    #puts "... and got:"
+    #versioned_files.each { |inresult| puts inresult.to_s + "\n" }
+    puts "fail: basic versioned file diffs: #{versioned_files}" if versioned_files != expected
     
     puts ("do the versioned diffs for that set of files")
     
