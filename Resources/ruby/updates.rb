@@ -76,7 +76,7 @@ class Updates
   # ... but without the entries where source version is gone (ie. source_type==nil) if a new version exists
   def self.versioned_diffs(diff_dirs_result, target_dir)
     versioned_info = versioned_filenames(diff_dirs_result)
-    final_versions(versioned_info, target_dir)
+    latest_versions(versioned_info, target_dir)
     
 =begin This is probably all obsolete.
     # gather all the initial names along with their versions (which may include the initial version, ie. the one without any version number at the end)
@@ -106,7 +106,8 @@ class Updates
   end
   
   # using the versioned_filenames, look into the target directory and grab the most recent version of each
-  def self.final_versions(versioned_filenames_result, target_dir)
+  # return hash of 'initial' with initial file name and 'last_version' of the last version in the target_dir
+  def self.latest_versions(versioned_filenames_result, target_dir)
     
     bases_exts = versioned_filenames_result.map { |v_dm| 
       vers = v_dm['version']; 
@@ -119,11 +120,11 @@ class Updates
     }.group_by { |base_ext, file_versions| base_ext }
     
     # now combine all those with the same initial filename
+    result = Hash.new
     initial_with_all_versions_at_target.map { |base_ext, base_ext_versions_list|
-      {'initial' => base_ext,
-       'last_version' => base_ext_versions_list.map { |base_ext, versions| versions }.flatten(1).uniq.sort.last
-       }
+      result[base_ext] = base_ext_versions_list.map { |base_ext, versions| versions }.flatten(1).uniq.sort.last
     }
+    result
     
 =begin This worked when we put the reviewed file into the base version.  (When saving versions, we have to look on the file system.)  It's probably obsolete now.
     # remove all the ones where the source version is gone but there's a new version

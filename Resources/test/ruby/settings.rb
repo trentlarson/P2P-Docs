@@ -209,32 +209,25 @@ class SettingsTest
     diff_results = [
       {'path'=>'some.txt', 'source_type'=>'file', 'target_type'=>'file', 'contents'=>nil}
     ]
-    result = Updates.final_versions(Updates.versioned_filenames(diff_results), v_dir)
-    expected = [
-      {"initial"=>"some.txt", "last_version"=>["build/test-data/versioned_filenames/some.txt"]}
-      #{'path'=>'some.txt', 'source_type'=>'file', 'target_type'=>'file', 'target_path_previous_version'=>'some.txt', 'contents'=>nil}
-    ]
+    result = Updates.latest_versions(Updates.versioned_filenames(diff_results), v_dir)
+    expected = {"some.txt"=>["build/test-data/versioned_filenames/some.txt"]}
+    #puts "Expected:"; expected.each { |inresult| puts inresult.to_s + "\n" }
+    #puts "... and got:"; result.each { |inresult| puts inresult.to_s + "\n" }
     puts "fail: versioned diff single 1: #{result}" if expected != result
     
     diff_results = [
       {'path'=>'some.txt', 'source_type'=>nil, 'target_type'=>file, 'contents'=>nil},
       {'path'=>'some_1.txt', 'source_type'=>'file', 'target_type'=>nil, 'contents'=>nil}
     ]
-    result = Updates.final_versions(Updates.versioned_filenames(diff_results), v_dir)
-    expected = [
-      {"initial"=>"some.txt", "last_version"=>["build/test-data/versioned_filenames/some.txt"]}
-      #{'path'=>'some_1.txt', 'source_type'=>'file', 'target_type'=>nil, 'target_path_previous_version'=>'some.txt', 'contents'=>nil}
-    ]
+    result = Updates.latest_versions(Updates.versioned_filenames(diff_results), v_dir)
+    expected = {"some.txt"=>["build/test-data/versioned_filenames/some.txt"]}
     puts "fail: versioned diff single 2: #{result}" if expected != result
     
     diff_results = [
       {'path'=>'some_1.txt', 'source_type'=>'file', 'target_type'=>nil, 'contents'=>nil}
     ]
-    result = Updates.final_versions(Updates.versioned_filenames(diff_results), v_dir)
-    expected = [
-      {"initial"=>"some.txt", "last_version"=>["build/test-data/versioned_filenames/some.txt"]}
-      #{'path'=>'some_1.txt', 'source_type'=>'file', 'target_type'=>nil, 'target_path_previous_version'=>'some.txt', 'contents'=>nil}
-    ]
+    result = Updates.latest_versions(Updates.versioned_filenames(diff_results), v_dir)
+    expected = {"some.txt"=>["build/test-data/versioned_filenames/some.txt"]}
     puts "fail: versioned diff single 3: #{result}" if expected != result
     
     # eg. some3_12.txt is reviewed (and some3.txt is gone)
@@ -242,12 +235,8 @@ class SettingsTest
       {'path'=>'some3_13.txt', 'source_type'=>'file', 'target_type'=>nil, 'contents'=>nil},
       {'path'=>'some3_14.txt', 'source_type'=>'file', 'target_type'=>nil, 'contents'=>nil}
     ]
-    result = Updates.final_versions(Updates.versioned_filenames(diff_results), v_dir)
-    expected = [
-      {"initial"=>"some3.txt", "last_version"=>["build/test-data/versioned_filenames/some3", ".txt", 12]}
-      #{'path'=>'some3_13.txt', 'source_type'=>'file', 'target_type'=>nil, 'target_path_previous_version'=>'some3_12.txt', 'contents'=>nil},
-      #{'path'=>'some3_14.txt', 'source_type'=>'file', 'target_type'=>nil, 'target_path_previous_version'=>'some3_12.txt', 'contents'=>nil}
-    ]
+    result = Updates.latest_versions(Updates.versioned_filenames(diff_results), v_dir)
+    expected = {"some3.txt"=>["build/test-data/versioned_filenames/some3", ".txt", 12]}
     puts "fail: versioned diff for third: #{result}" if expected != result
     
     
@@ -786,9 +775,9 @@ class SettingsTest
     
 end
 
-SettingsTest.new.run # run all test_* methods
+#SettingsTest.new.run # run all test_* methods
 #SettingsTest.new.test_simple_json
-#SettingsTest.new.test_versioned_diffs
+SettingsTest.new.test_versioned_diffs
 #SettingsTest.new.test_repo_creation
 #SettingsTest.new.test_basic_diffs
 #SettingsTest.new.test_full_workflow
