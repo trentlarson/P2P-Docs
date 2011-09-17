@@ -151,8 +151,10 @@ class SettingsTest
     
     v_dir = File.join(@test_data_dir, "versioned_filenames")
     Dir.mkdir v_dir
-    File.open(File.join(v_dir, "some.txt"), 'w').write("junk\n")
+    File.new(File.join(v_dir, "some.txt"), 'w').write("junk\n")
     File.new(File.join(v_dir, "some1.txt"), 'w').write("junk\n")
+    File.new(File.join(v_dir, "some3_12.txt"), 'w').write("junk\n")
+    File.new(File.join(v_dir, "some3_2.txt"), 'w').write("junk\n")
     File.new(File.join(v_dir, "some4.txt"), 'w').write("junk\n")
     File.new(File.join(v_dir, "some4_2.txt"), 'w').write("junk\n")
     File.new(File.join(v_dir, "some4_3.txt"), 'w').write("junk\n")
@@ -163,19 +165,34 @@ class SettingsTest
     Dir.mkdir(File.join(v_dir, "some"))
     Dir.mkdir(File.join(v_dir, "some_3"))
     
-    filenames = Updates.all_target_file_versions(File.join(v_dir, "sum"), ".txt")
+    filenames = Updates.all_target_file_versions(v_dir, "sum", ".txt")
     expected = []
     #puts "Expected:"; expected.each { |inresult| puts inresult.to_s + "\n" }
     #puts "... and got:"; filenames.each { |inresult| puts inresult.to_s + "\n" }
     puts "fail: versioned files exist: #{filenames}" if expected != filenames
     
-    filenames = Updates.all_target_file_versions(File.join(v_dir, "some"), ".txt")
+    filenames = Updates.all_target_file_versions(v_dir, "some", ".txt")
     expected = [[File.join(v_dir, 'some.txt')]]
     #puts "Expected:"; expected.each { |inresult| puts inresult.to_s + "\n" }
     #puts "... and got:"; filenames.each { |inresult| puts inresult.to_s + "\n" }
-    puts "fail: base file doesn't match: #{filenames}" if expected != filenames
+    puts "fail: initial file doesn't match: #{filenames}" if expected != filenames
     
-    filenames = Updates.all_target_file_versions(File.join(v_dir, "some4"), ".txt")
+    filenames = Updates.all_target_file_versions(v_dir, "some.txt", "")
+    expected = [[File.join(v_dir, 'some.txt')]]
+    #puts "Expected:"; expected.each { |inresult| puts inresult.to_s + "\n" }
+    #puts "... and got:"; filenames.each { |inresult| puts inresult.to_s + "\n" }
+    puts "fail: initial file altogether doesn't match: #{filenames}" if expected != filenames
+    
+    filenames = Updates.all_target_file_versions(v_dir, "some3", ".txt")
+    expected = [
+      File.join(v_dir, 'some3_12.txt'),
+      File.join(v_dir, 'some3_2.txt')
+    ].map { |elem| m = Updates.match_numeric_suffix(elem); [m[1], m[4], m[3].to_i] }
+    #puts "Expected:"; expected.each { |inresult| puts inresult.to_s + "\n" }
+    #puts "... and got:"; filenames.each { |inresult| puts inresult.to_s + "\n" }
+    puts "fail: versioned files don't match: #{filenames}" if expected != filenames
+    
+    filenames = Updates.all_target_file_versions(v_dir, "some4", ".txt")
     expected = [
       [File.join(v_dir, 'some4.txt')]
     ] + [
@@ -185,7 +202,58 @@ class SettingsTest
     ].map { |elem| m = Updates.match_numeric_suffix(elem); [m[1], m[4], m[3].to_i] }
     #puts "Expected:"; expected.each { |inresult| puts inresult.to_s + "\n" }
     #puts "... and got:"; filenames.each { |inresult| puts inresult.to_s + "\n" }
-    puts "fail: versioned files don't match: #{filenames}" if expected != filenames
+    puts "fail: initial and versioned files don't match: #{filenames}" if expected != filenames
+    
+    
+    
+    diff_results = [
+      {'path'=>'some.txt', 'source_type'=>'file', 'target_type'=>'file', 'contents'=>nil}
+    ]
+    result = Updates.final_versions(Updates.versioned_filenames(diff_results), v_dir)
+    expected = [
+      {"initial"=>"some.txt", "last_version"=>["build/test-data/versioned_filenames/some.txt"]}
+      #{'path'=>'some.txt', 'source_type'=>'file', 'target_type'=>'file', 'target_path_previous_version'=>'some.txt', 'contents'=>nil}
+    ]
+    puts "fail: versioned diff single 1: #{result}" if expected != result
+    
+    diff_results = [
+      {'path'=>'some.txt', 'source_type'=>nil, 'target_type'=>file, 'contents'=>nil},
+      {'path'=>'some_1.txt', 'source_type'=>'file', 'target_type'=>nil, 'contents'=>nil}
+    ]
+    result = Updates.final_versions(Updates.versioned_filenames(diff_results), v_dir)
+    expected = [
+      {"initial"=>"some.txt", "last_version"=>["build/test-data/versioned_filenames/some.txt"]}
+      #{'path'=>'some_1.txt', 'source_type'=>'file', 'target_type'=>nil, 'target_path_previous_version'=>'some.txt', 'contents'=>nil}
+    ]
+    puts "fail: versioned diff single 2: #{result}" if expected != result
+    
+    diff_results = [
+      {'path'=>'some_1.txt', 'source_type'=>'file', 'target_type'=>nil, 'contents'=>nil}
+    ]
+    result = Updates.final_versions(Updates.versioned_filenames(diff_results), v_dir)
+    expected = [
+      {"initial"=>"some.txt", "last_version"=>["build/test-data/versioned_filenames/some.txt"]}
+      #{'path'=>'some_1.txt', 'source_type'=>'file', 'target_type'=>nil, 'target_path_previous_version'=>'some.txt', 'contents'=>nil}
+    ]
+    puts "fail: versioned diff single 3: #{result}" if expected != result
+    
+    # eg. some3_12.txt is reviewed (and some3.txt is gone)
+    diff_results = [
+      {'path'=>'some3_13.txt', 'source_type'=>'file', 'target_type'=>nil, 'contents'=>nil},
+      {'path'=>'some3_14.txt', 'source_type'=>'file', 'target_type'=>nil, 'contents'=>nil}
+    ]
+    result = Updates.final_versions(Updates.versioned_filenames(diff_results), v_dir)
+    expected = [
+      {"initial"=>"some3.txt", "last_version"=>["build/test-data/versioned_filenames/some3", ".txt", 12]}
+      #{'path'=>'some3_13.txt', 'source_type'=>'file', 'target_type'=>nil, 'target_path_previous_version'=>'some3_12.txt', 'contents'=>nil},
+      #{'path'=>'some3_14.txt', 'source_type'=>'file', 'target_type'=>nil, 'target_path_previous_version'=>'some3_12.txt', 'contents'=>nil}
+    ]
+    puts "fail: versioned diff for third: #{result}" if expected != result
+    
+    
+    
+    
+    
     
 =begin these might be useful in file-matching stuff
     diff_results = [
@@ -241,8 +309,10 @@ class SettingsTest
     #puts "... and got:"; versioned_files.each { |inresult| puts inresult.to_s + "\n" }
     puts "fail: basic versioned file diffs: #{versioned_files}" if versioned_files != expected
     
-    puts ("do the versioned diffs for that set of files")
+    puts "do the versioned diffs for that set of files"
+    puts "must handle case where initial file exists at source, and versioned file exists at source & target"
     
+=begin
     # ensure correct report of versions partially reconciled
     diff_results = [
       # we have not reviewed any
@@ -269,25 +339,25 @@ class SettingsTest
     versioned_files = Updates.versioned_filenames diff_results
     expected = [
      {'version'=>["file.txt"], 'diff_match'=>{"diff"=>{"path"=>"file.txt", "source_type"=>"file", "target_type"=>nil, "contents"=>nil}, "match"=>nil}},
-     {'version'=>["file.txt", 1], 'diff_match'=>{"diff"=>{"path"=>"file_1.txt", "source_type"=>"file", "target_type"=>nil, "contents"=>nil}, "match"=>Updates.match_numeric_suffix("file_1.txt")}},
+     {'version'=>["file", ".txt", 1], 'diff_match'=>{"diff"=>{"path"=>"file_1.txt", "source_type"=>"file", "target_type"=>nil, "contents"=>nil}, "match"=>Updates.match_numeric_suffix("file_1.txt")}},
      {'version'=>["file1.txt"], 'diff_match'=>{"diff"=>{"path"=>"file1.txt", "source_type"=>"file", "target_type"=>"file", "contents"=>nil}, "match"=>nil}},
-     {'version'=>["file1.txt", 1], 'diff_match'=>{"diff"=>{"path"=>"file1_1.txt", "source_type"=>"file", "target_type"=>nil, "contents"=>nil}, "match"=>Updates.match_numeric_suffix("file1_1.txt")}},
-     {'version'=>["file1.txt", 2], 'diff_match'=>{"diff"=>{"path"=>"file1_2.txt", "source_type"=>"file", "target_type"=>nil, "contents"=>nil}, "match"=>Updates.match_numeric_suffix("file1_2.txt")}},
-     {'version'=>["file1.txt", 3], 'diff_match'=>{"diff"=>{"path"=>"file1_3.txt", "source_type"=>"file", "target_type"=>nil, "contents"=>nil}, "match"=>Updates.match_numeric_suffix("file1_3.txt")}},
+     {'version'=>["file1", ".txt", 1], 'diff_match'=>{"diff"=>{"path"=>"file1_1.txt", "source_type"=>"file", "target_type"=>nil, "contents"=>nil}, "match"=>Updates.match_numeric_suffix("file1_1.txt")}},
+     {'version'=>["file1", ".txt", 2], 'diff_match'=>{"diff"=>{"path"=>"file1_2.txt", "source_type"=>"file", "target_type"=>nil, "contents"=>nil}, "match"=>Updates.match_numeric_suffix("file1_2.txt")}},
+     {'version'=>["file1", ".txt", 3], 'diff_match'=>{"diff"=>{"path"=>"file1_3.txt", "source_type"=>"file", "target_type"=>nil, "contents"=>nil}, "match"=>Updates.match_numeric_suffix("file1_3.txt")}},
      {'version'=>["file2.txt"], 'diff_match'=>{"diff"=>{"path"=>"file2.txt", "source_type"=>nil, "target_type"=>"file", "contents"=>nil}, "match"=>nil}},
-     {'version'=>["file2.txt", 1], 'diff_match'=>{"diff"=>{"path"=>"file2_1.txt", "source_type"=>"file", "target_type"=>"file", "contents"=>nil}, "match"=>Updates.match_numeric_suffix("file2_1.txt")}},
-     {'version'=>["file2.txt", 2], 'diff_match'=>{"diff"=>{"path"=>"file2_2.txt", "source_type"=>"file", "target_type"=>"file", "contents"=>nil}, "match"=>Updates.match_numeric_suffix("file2_2.txt")}},
-     {'version'=>["file2.txt", 3], 'diff_match'=>{"diff"=>{"path"=>"file2_3.txt", "source_type"=>"file", "target_type"=>nil, "contents"=>nil}, "match"=>Updates.match_numeric_suffix("file2_3.txt")}},
-     {'version'=>["file2.txt", 4], 'diff_match'=>{"diff"=>{"path"=>"file2_4.txt", "source_type"=>"file", "target_type"=>nil, "contents"=>nil}, "match"=>Updates.match_numeric_suffix("file2_4.txt")}},
-     {'version'=>["file3.txt", 12], 'diff_match'=>{"diff"=>{"path"=>"file3_12.txt", "source_type"=>"file", "target_type"=>nil, "contents"=>nil}, "match"=>Updates.match_numeric_suffix("file3_12.txt")}},
-     {'version'=>["file3.txt", 21], 'diff_match'=>{"diff"=>{"path"=>"file3_21.txt", "source_type"=>"file", "target_type"=>nil, "contents"=>nil}, "match"=>Updates.match_numeric_suffix("file3_21.txt")}},
-     {'version'=>["file3.txt", 33], 'diff_match'=>{"diff"=>{"path"=>"file3_33.txt", "source_type"=>"file", "target_type"=>"file", "contents"=>nil}, "match"=>Updates.match_numeric_suffix("file3_33.txt")}}
+     {'version'=>["file2", ".txt", 1], 'diff_match'=>{"diff"=>{"path"=>"file2_1.txt", "source_type"=>"file", "target_type"=>"file", "contents"=>nil}, "match"=>Updates.match_numeric_suffix("file2_1.txt")}},
+     {'version'=>["file2", ".txt", 2], 'diff_match'=>{"diff"=>{"path"=>"file2_2.txt", "source_type"=>"file", "target_type"=>"file", "contents"=>nil}, "match"=>Updates.match_numeric_suffix("file2_2.txt")}},
+     {'version'=>["file2", ".txt", 3], 'diff_match'=>{"diff"=>{"path"=>"file2_3.txt", "source_type"=>"file", "target_type"=>nil, "contents"=>nil}, "match"=>Updates.match_numeric_suffix("file2_3.txt")}},
+     {'version'=>["file2", ".txt", 4], 'diff_match'=>{"diff"=>{"path"=>"file2_4.txt", "source_type"=>"file", "target_type"=>nil, "contents"=>nil}, "match"=>Updates.match_numeric_suffix("file2_4.txt")}},
+     {'version'=>["file3", ".txt", 12], 'diff_match'=>{"diff"=>{"path"=>"file3_12.txt", "source_type"=>"file", "target_type"=>nil, "contents"=>nil}, "match"=>Updates.match_numeric_suffix("file3_12.txt")}},
+     {'version'=>["file3", ".txt", 21], 'diff_match'=>{"diff"=>{"path"=>"file3_21.txt", "source_type"=>"file", "target_type"=>nil, "contents"=>nil}, "match"=>Updates.match_numeric_suffix("file3_21.txt")}},
+     {'version'=>["file3", ".txt", 33], 'diff_match'=>{"diff"=>{"path"=>"file3_33.txt", "source_type"=>"file", "target_type"=>"file", "contents"=>nil}, "match"=>Updates.match_numeric_suffix("file3_33.txt")}}
     ]
     #puts "Expected:"; expected.each { |inresult| puts inresult.to_s + "\n" }
     #puts "... and got:"; versioned_files.each { |inresult| puts inresult.to_s + "\n" }
     puts "fail: advanced versioned file diffs (which is an intermediate function that can go away if the rest works): #{versioned_files}" if versioned_files != expected
     
-    versioned_diffs = Updates.versioned_diffs diff_results
+    versioned_diffs = Updates.versioned_diffs diff_results, v_dir
     expected = [
       {"path"=>"file.txt", "source_type"=>"file", "target_type"=>nil, "target_path_previous_version"=>nil, "contents"=>nil},
       {"path"=>"file_1.txt", "source_type"=>"file", "target_type"=>nil, "target_path_previous_version"=>nil, "contents"=>nil},
@@ -300,6 +370,7 @@ class SettingsTest
     #puts "Expected:"; expected.each { |inresult| puts inresult.to_s + "\n" }
     #puts "... and got:"; versioned_diffs.each { |inresult| puts inresult.to_s + "\n" }
     puts "fail: is this versioned diffs helpful?: #{versioned_diffs}" if versioned_diffs != expected
+=end
     
   end
 
