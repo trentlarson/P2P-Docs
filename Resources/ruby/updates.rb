@@ -76,33 +76,32 @@ class Updates
   # ... but without the entries where source version is gone (ie. source_type==nil) if a new version exists
   def self.versioned_diffs(diff_dirs_result, target_dir)
     versioned_info = versioned_filenames(diff_dirs_result)
-    latest_versions(versioned_info, target_dir)
+    latest_target_versions = latest_versions(versioned_info, target_dir)
     
-=begin This is probably all obsolete.
-    # gather all the initial names along with their versions (which may include the initial version, ie. the one without any version number at the end)
-    all_bases_version_diff_matches = versioned_info
-      .group_by { |v_dm| vers = v_dm['version']; vers[0] + (vers.length==1 ? "" : vers.at(1)) }
-
-    all_bases_version_diff_matches.map do |initial, vdms|
-      base = vdms[0]['version'].at(0)
-      ext = vdms[0]['version'].at(1)
-      { 'initial' => initial,
-        'version_diff_matches' => vdms,
-        'target_files' => vdms['version'].length == 1 ? [] : all_target_file_versions()
-      }
-    end
-=end
-
     versioned_info.map { |v_dm|
-      diff_match = v_dm['diff_match']
-      {
-        'path' => diff_match['diff']['path'],
-        'source_type' => diff_match['diff']['source_type'],
-        'target_type' => diff_match['diff']['target_type'],
-        'target_path_previous_version' => v_dm['version'][0],
-        'contents' => diff_match['diff']['contents']
-      }
-    }
+      version = v_dm['version']
+      diff = v_dm['diff_match']['diff']
+      diff_version_num = version.length == 1 ? -1 : version[2]
+      latest_target_version = latest_target_versions[initial]
+      target_version_num = latest_target_version == nil ? -1 : 
+        latest_target_version.length == 1 ? -1 : latest_target_version[2]
+      if (diff_version_num < target_version_num &&
+          diff['source_type'] == 'file' &&
+          diff['target_type'] == 'file')
+        nil
+      else
+        latest_target = latest_target_version == nil ? nil :
+          latest_target_version.length == 1 ? latest_target_version[0] :
+          latest_target_version[0] + "_" + latest_target_version[2] + latest_target_version[1]
+        {
+          'path' => diff['path'],
+          'source_type' => diff['source_type'],
+          'target_type' => diff['target_type'],
+          'target_path_previous_version' => latest_target,
+          'contents' => diff['contents']
+        }
+      end
+    }.compact
   end
   
   # using the versioned_filenames, look into the target directory and grab the most recent version of each
@@ -127,7 +126,7 @@ class Updates
     result
     
 =begin This worked when we put the reviewed file into the base version.  (When saving versions, we have to look on the file system.)  It's probably obsolete now.
-    # remove all the ones where the source version is gone but there's a new version
+    # remove all the ones where the source version is gone and there's a later version
     all_base_paths = all_bases_and_versions.keys
     result.delete_if { |result_info|
       # check that the source is gone
