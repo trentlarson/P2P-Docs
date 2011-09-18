@@ -69,6 +69,14 @@ class Updates
     end
   end
   
+  
+  
+  # version is a version array (see versioned_filenames)
+  # return initial file name
+  def self.version_initial(version)
+    version[0] + version.at(1).to_s
+  end
+  
   # return results of diff_dirs augmented with:
   # {
   #   'target_path_previous_version' => the name of the previously reviewed version of this file (for setups with versions that come in via different file names)
@@ -77,22 +85,25 @@ class Updates
   def self.versioned_diffs(diff_dirs_result, target_dir)
     versioned_info = versioned_filenames(diff_dirs_result)
     latest_target_versions = latest_versions(versioned_info, target_dir)
-    
+    only_new_revisions(versioned_info, latest_target_versions)
+  end
+  
+  def self.only_new_revisions(versioned_info, latest_target_versions)
     versioned_info.map { |v_dm|
       version = v_dm['version']
       diff = v_dm['diff_match']['diff']
       diff_version_num = version.length == 1 ? -1 : version[2]
-      latest_target_version = latest_target_versions[initial]
+      latest_target_version = latest_target_versions[version_initial(version)]
       target_version_num = latest_target_version == nil ? -1 : 
         latest_target_version.length == 1 ? -1 : latest_target_version[2]
       if (diff_version_num < target_version_num &&
           diff['source_type'] == 'file' &&
-          diff['target_type'] == 'file')
+          (diff['target_type'] == nil || diff['target_type'] == 'file'))
         nil
       else
         latest_target = latest_target_version == nil ? nil :
           latest_target_version.length == 1 ? latest_target_version[0] :
-          latest_target_version[0] + "_" + latest_target_version[2] + latest_target_version[1]
+          latest_target_version[0] + "_" + latest_target_version[2].to_s + latest_target_version[1]
         {
           'path' => diff['path'],
           'source_type' => diff['source_type'],
@@ -105,16 +116,23 @@ class Updates
   end
   
   # using the versioned_filenames, look into the target directory and grab the most recent version of each
-  # return hash of 'initial' with initial file name and 'last_version' of the last version in the target_dir
+  # return hash of 'initial' with initial file name and 'last_version' of the last version in the target_dir (may be nil)
   def self.latest_versions(versioned_filenames_result, target_dir)
     
-    bases_exts = versioned_filenames_result.map { |v_dm| 
-      vers = v_dm['version']; 
-      [vers[0], vers.length==1 ? "" : vers[1]] 
+    bases_exts = versioned_filenames_result.map { |v_dm|
+      vers = v_dm['version'];
+      [vers[0], vers.at(1).to_s]
     }.uniq
+    non_versioned_bases = versioned_filenames_result.map { |v_dm| 
+      v_dm['version'].length == 1 ? v_dm['version'][0] : nil
+    }.compact
+    possible_versions = non_versioned_bases.map { |initial_file|
+      possible_version_exts(initial_file)
+    }.flatten(1).compact
+    any_bases_exts = bases_exts + possible_versions
     
     # get matching files in the target directory, and group by initial filename
-    initial_with_all_versions_at_target = bases_exts.map { |base, ext|
+    initial_with_all_versions_at_target = any_bases_exts.map { |base, ext|
       [base + ext, all_target_file_versions(target_dir, base, ext)]
     }.group_by { |base_ext, file_versions| base_ext }
     
@@ -124,53 +142,55 @@ class Updates
       result[base_ext] = base_ext_versions_list.map { |base_ext, versions| versions }.flatten(1).uniq.sort.last
     }
     result
-    
-=begin This worked when we put the reviewed file into the base version.  (When saving versions, we have to look on the file system.)  It's probably obsolete now.
-    # remove all the ones where the source version is gone and there's a later version
-    all_base_paths = all_bases_and_versions.keys
-    result.delete_if { |result_info|
-      # check that the source is gone
-      result_info['source_type'] == nil &&
-      result_info['target_type'] == 'file' &&
-      # ... where our reviewed target is our the base version
-      all_base_paths.include?(result_info['target_path']) &&
-      # ... and there's at least one new version (besides the base version)
-      all_bases_and_versions[result_info['target_path']].length >= 2
-    }
-=end
+  end
+  
+  # return array of base-ext pairs for each possible cut position for versioning, or nil if there are no candidate positions
+  def self.possible_version_exts(path)
+    path_file = File.split(path)
+    segments = path_file[1].split(".")
+    # add the '.' back to each but the first
+    if (segments.length == 1)
+      nil
+    else
+      dot_segs = [segments[0]] + (segments[1..segments.length].map{|seg| "." + seg})
+      result = []
+      for i in 0 .. dot_segs.length-2
+        prefix = dot_segs.first(i+1).join
+        if (path_file[0] != ".")
+          prefix = File.join(path_file[0], dot_segs.first(i+1).join)
+        end
+        result << [prefix, dot_segs.last(dot_segs.length-i-1).join]
+      end
+      result
+    end
   end
   
   # base is the base name of the file
-  # ext is the file extension, which can be "" or optional if you're just looking for the existence of the initial file
+  # ext is the file extension, which is optional if you're just looking for the existence of the initial file
   # return an array of:
   # the initial file of [dir+base+ext], if it exists,
   # plus all files that match_numeric_suffix, as [dir+base, ext, version]
-  def self.all_target_file_versions(dir, base, ext = "")
+  def self.all_target_file_versions(dir, base, extension = nil)
     
-    initial_file_array = Dir.glob(File.join(dir, base + ext)).empty? ? [] : [[File.join(dir, base + ext)]]
+    ext = extension.to_s
+    initial_file_array = Dir.glob(File.join(dir, base + ext)).empty? ? [] : [[base + ext]]
     
     more_files = ext.nil? ? [] : Dir.glob(File.join(dir, base + "_*" + ext))
     more_matches = more_files.map { |name| match_numeric_suffix(name) }.compact
-    more_arrays = more_matches.map { |m| [m[1], m[4], m[3].to_i] }
+    more_arrays = more_matches.map { |m| [File.split(m[1])[1], m[4].to_s, m[3].to_i] }
     
     initial_file_array + more_arrays
   end
   
   
   
-  def self.filter_for_versions_above(base, version_diff_matches, all_target_files)
-    version_diff_matches.map { |elem| elem['diff_match'] }
-  end
-  
-  
-  
   # diff_dirs_result is the output from diff_dirs
   # return a hash of:
-  # 'version' => an array of either a) the full initial file name or b) the base name, the extension, and the version
+  # 'version' => an array of either a) the full initial file name or b) the base name, the extension or "", and the version
   # 'diff_match' => a hash of { 'diff' => result of diff_dirs, 'match' of MatchData results for versioned names }
   def self.versioned_filenames(diff_dirs_result)
     diff_matches = diff_dirs_result.map { |diff| {"diff"=>diff, "match"=>match_of_versioned_file(diff)} }
-    diffs_grouped = diff_matches.group_by { |diff_match| m = diff_match["match"]; m == nil ? nil : [m[1], m[4]] }
+    diffs_grouped = diff_matches.group_by { |diff_match| m = diff_match["match"]; m == nil ? nil : [m[1], m[4].to_s] }
     diffs_grouped.map { |base_ext, diff_matches|
       if (base_ext.nil?)
         # these have no version suffixes
@@ -205,7 +225,7 @@ class Updates
   #  [1] = prefix / basic file name
   #  [2] = "_"
   #  [3] = numeric suffix
-  #  [4] = "." + extension(s)
+  #  [4] = "." + extension(s), which may be nil since it's optional
   def self.match_numeric_suffix(filename)
     /^(.+)(_)([0-9]+)(\..*)?$/.match(filename)
   end

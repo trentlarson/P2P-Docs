@@ -137,17 +137,39 @@ class SettingsTest
 
   def test_versioned_diffs
     
-    file = "dir1/dir2/file_abc.txt"
+    file = "file_abc.txt"
     match = Updates.match_numeric_suffix(file)
     puts "fail: bad match: #{file} => #{match}" if match != nil
+    combos = Updates.possible_version_exts(file)
+    puts "fail: bad combo #{file} => #{combos}" if combos != [["file_abc", ".txt"]]
+    
+    file = "dir1/dir2/file_abc.txt_2"
+    match = Updates.match_numeric_suffix(file)
+    puts "fail: bad match: #{file} => #{match}" if match[3] != "2" && match[4] != nil?
+    combos = Updates.possible_version_exts(file)
+    puts "fail: bad combo #{file} => #{combos}" if combos != [["dir1/dir2/file_abc", ".txt_2"]]
+    
     file = "dir1/dir2/file_2.rss.xml"
     match = Updates.match_numeric_suffix(file)
-    puts "fail: bad match: #{file} => #{match}" if match[3] != "2"
+    puts "fail: bad match: #{file} => #{match}" if match[3] != "2" && match[4] != '.rss.xml'
+    combos = Updates.possible_version_exts(file)
+    puts "fail: bad combo #{file} => #{combos}" if combos != [["dir1/dir2/file_2", ".rss.xml"], ["dir1/dir2/file_2.rss", ".xml"]]
+    
     file = "dir1/dir_2.out/file_2.is.mine_345.rss.txt"
     match = Updates.match_numeric_suffix(file)
-    puts "fail: bad match: #{file} => #{match}" if match[3] != "345"
+    puts "fail: bad match: #{file} => #{match}" if match[3] != "345" && match[4] != '.rss.xtxt'
+    combos = Updates.possible_version_exts(file)
+    puts "fail: bad combo #{file} => #{combos}" if combos != [
+      ["dir1/dir_2.out/file_2", ".is.mine_345.rss.txt"],
+      ["dir1/dir_2.out/file_2.is", ".mine_345.rss.txt"],
+      ["dir1/dir_2.out/file_2.is.mine_345", ".rss.txt"],
+      ["dir1/dir_2.out/file_2.is.mine_345.rss", ".txt"]
+    ]
+    
     # not doing this because it's not important (and the code doesn't work on it :-)
     #file = "dir1/dir2/file_1.4.txt"
+    
+    
     
     v_dir = File.join(@test_data_dir, "versioned_filenames")
     Dir.mkdir v_dir
@@ -165,6 +187,59 @@ class SettingsTest
     Dir.mkdir(File.join(v_dir, "some"))
     Dir.mkdir(File.join(v_dir, "some_3"))
     
+    
+    diff_results = [
+      {'path'=>'sum.txt', 'source_type'=>'file', 'target_type'=>nil, 'contents'=>nil},
+      {'path'=>'some.txt', 'source_type'=>nil, 'target_type'=>'file', 'contents'=>nil},
+      {'path'=>'some1.txt', 'source_type'=>'file', 'target_type'=>'file', 'contents'=>nil}
+    ]
+    result = Updates.versioned_diffs(diff_results, v_dir)
+    expected = [
+      {'path'=>'some.txt', 'source_type'=>nil, 'target_type'=>'file', 'target_path_previous_version'=>"some.txt", 'contents'=>nil},
+      {'path'=>'some1.txt', 'source_type'=>'file', 'target_type'=>'file', 'target_path_previous_version'=>"some1.txt", 'contents'=>nil},
+      {'path'=>'sum.txt', 'source_type'=>'file', 'target_type'=>nil, 'target_path_previous_version'=>nil, 'contents'=>nil}
+    ]
+    #puts "Expected:"; expected.each { |inresult| puts inresult.to_s + "\n" }
+    #puts "... and got:"; result.each { |inresult| puts inresult.to_s + "\n" }
+    puts "fail: versioned results w/o versions: #{result}" if result != expected
+    
+    
+=begin This currently fails: we don't correctly recognize when there's the initial version at the source and a versioned one at the target.
+    diff_results = [
+      {'path'=>'some3.txt', 'source_type'=>'file', 'target_type'=>nil, 'contents'=>nil}
+    ]
+    result = Updates.versioned_diffs(diff_results, v_dir)
+    #versioned_info = Updates.versioned_filenames(diff_results)
+    #latest_target_versions = Updates.latest_versions(versioned_info, v_dir)
+    #result = Updates.only_new_revisions(versioned_info, latest_target_versions)
+    expected = {}
+    puts "fail: versioned diff for initial file: #{result}" if expected != result
+=end
+    
+    
+    diff_results = [
+      {'path'=>'some3.txt', 'source_type'=>'file', 'target_type'=>nil, 'contents'=>nil},
+      {'path'=>'some3_2.txt', 'source_type'=>'file', 'target_type'=>'file', 'contents'=>nil},
+      {'path'=>'some3_3.txt', 'source_type'=>'file', 'target_type'=>nil, 'contents'=>nil}
+#      {'path'=>'some4_1.txt', 'source_type'=>'file', 'target_type'=>'file', 'contents'=>nil},
+#      {'path'=>'some4_2.txt', 'source_type'=>nil, 'target_type'=>'file', 'contents'=>nil},
+#      {'path'=>'some4.txt_5', 'source_type'=>'file', 'target_type'=>nil, 'contents'=>nil},
+    ]
+    versioned_info = Updates.versioned_filenames(diff_results)
+    latest_target_versions = Updates.latest_versions(versioned_info, v_dir)
+    result = Updates.only_new_revisions(versioned_info, latest_target_versions)
+    result = Updates.versioned_diffs(diff_results, v_dir)
+    expected = [
+#      {'path'=>'some4_2.txt', 'source_type'=>'file', 'target_type'=>'file', 'contents'=>nil},
+#      {'path'=>'some4_3.txt', 'source_type'=>nil, 'target_type'=>'file', 'contents'=>nil},
+    ]
+    #puts "Expected:"; expected.each { |inresult| puts inresult.to_s + "\n" }
+    #puts "... and got:"; result.each { |inresult| puts inresult.to_s + "\n" }
+    puts "fail: versioned results: #{result}" if result != expected
+    
+    
+    #### BEGIN tests for intermediate functions; helpful for internal testing, but not real user stories.
+    
     filenames = Updates.all_target_file_versions(v_dir, "sum", ".txt")
     expected = []
     #puts "Expected:"; expected.each { |inresult| puts inresult.to_s + "\n" }
@@ -172,34 +247,28 @@ class SettingsTest
     puts "fail: versioned files exist: #{filenames}" if expected != filenames
     
     filenames = Updates.all_target_file_versions(v_dir, "some", ".txt")
-    expected = [[File.join(v_dir, 'some.txt')]]
+    expected = [['some.txt']]
     #puts "Expected:"; expected.each { |inresult| puts inresult.to_s + "\n" }
     #puts "... and got:"; filenames.each { |inresult| puts inresult.to_s + "\n" }
     puts "fail: initial file doesn't match: #{filenames}" if expected != filenames
     
     filenames = Updates.all_target_file_versions(v_dir, "some.txt", "")
-    expected = [[File.join(v_dir, 'some.txt')]]
+    expected = [['some.txt']]
     #puts "Expected:"; expected.each { |inresult| puts inresult.to_s + "\n" }
     #puts "... and got:"; filenames.each { |inresult| puts inresult.to_s + "\n" }
     puts "fail: initial file altogether doesn't match: #{filenames}" if expected != filenames
     
     filenames = Updates.all_target_file_versions(v_dir, "some3", ".txt")
-    expected = [
-      File.join(v_dir, 'some3_12.txt'),
-      File.join(v_dir, 'some3_2.txt')
-    ].map { |elem| m = Updates.match_numeric_suffix(elem); [m[1], m[4], m[3].to_i] }
+    expected = ['some3_12.txt', 'some3_2.txt']
+      .map { |elem| m = Updates.match_numeric_suffix(elem); [m[1], m[4], m[3].to_i] }
     #puts "Expected:"; expected.each { |inresult| puts inresult.to_s + "\n" }
     #puts "... and got:"; filenames.each { |inresult| puts inresult.to_s + "\n" }
     puts "fail: versioned files don't match: #{filenames}" if expected != filenames
     
     filenames = Updates.all_target_file_versions(v_dir, "some4", ".txt")
-    expected = [
-      [File.join(v_dir, 'some4.txt')]
-    ] + [
-      File.join(v_dir, 'some4_11.txt'),
-      File.join(v_dir, 'some4_2.txt'),
-      File.join(v_dir, 'some4_3.txt')
-    ].map { |elem| m = Updates.match_numeric_suffix(elem); [m[1], m[4], m[3].to_i] }
+    expected = [['some4.txt']] +
+      ['some4_11.txt', 'some4_2.txt', 'some4_3.txt']
+      .map { |elem| m = Updates.match_numeric_suffix(elem); [m[1], m[4], m[3].to_i] }
     #puts "Expected:"; expected.each { |inresult| puts inresult.to_s + "\n" }
     #puts "... and got:"; filenames.each { |inresult| puts inresult.to_s + "\n" }
     puts "fail: initial and versioned files don't match: #{filenames}" if expected != filenames
@@ -210,7 +279,7 @@ class SettingsTest
       {'path'=>'some.txt', 'source_type'=>'file', 'target_type'=>'file', 'contents'=>nil}
     ]
     result = Updates.latest_versions(Updates.versioned_filenames(diff_results), v_dir)
-    expected = {"some.txt"=>["build/test-data/versioned_filenames/some.txt"]}
+    expected = {"some.txt"=>["some.txt"]}
     #puts "Expected:"; expected.each { |inresult| puts inresult.to_s + "\n" }
     #puts "... and got:"; result.each { |inresult| puts inresult.to_s + "\n" }
     puts "fail: versioned diff single 1: #{result}" if expected != result
@@ -220,15 +289,25 @@ class SettingsTest
       {'path'=>'some_1.txt', 'source_type'=>'file', 'target_type'=>nil, 'contents'=>nil}
     ]
     result = Updates.latest_versions(Updates.versioned_filenames(diff_results), v_dir)
-    expected = {"some.txt"=>["build/test-data/versioned_filenames/some.txt"]}
+    expected = {"some.txt"=>["some.txt"]}
     puts "fail: versioned diff single 2: #{result}" if expected != result
     
     diff_results = [
       {'path'=>'some_1.txt', 'source_type'=>'file', 'target_type'=>nil, 'contents'=>nil}
     ]
     result = Updates.latest_versions(Updates.versioned_filenames(diff_results), v_dir)
-    expected = {"some.txt"=>["build/test-data/versioned_filenames/some.txt"]}
+    expected = {"some.txt"=>["some.txt"]}
     puts "fail: versioned diff single 3: #{result}" if expected != result
+    
+=begin This currently fails: we don't correctly recognize when there's the initial version at the source and a versioned one at the target.
+    # some old versions are hanging around in the incoming
+    diff_results = [
+      {'path'=>'some3.txt', 'source_type'=>'file', 'target_type'=>nil, 'contents'=>nil}
+    ]
+    result = Updates.latest_versions(Updates.versioned_filenames(diff_results), v_dir)
+    expected = {"some3.txt"=>["some3", ".txt", 12]}
+    puts "fail: latest version for initial file: #{result}" if expected != result
+=end
     
     # eg. some3_12.txt is reviewed (and some3.txt is gone)
     diff_results = [
@@ -236,29 +315,15 @@ class SettingsTest
       {'path'=>'some3_14.txt', 'source_type'=>'file', 'target_type'=>nil, 'contents'=>nil}
     ]
     result = Updates.latest_versions(Updates.versioned_filenames(diff_results), v_dir)
-    expected = {"some3.txt"=>["build/test-data/versioned_filenames/some3", ".txt", 12]}
-    puts "fail: versioned diff for third: #{result}" if expected != result
+    expected = {"some3.txt"=>["some3", ".txt", 12]}
+    puts "fail: versioned diff for multiple new ones: #{result}" if expected != result
+    
+    
+    #### END tests for intermediate functions; helpful for internal testing, but not real user stories.
     
     
     
     
-    
-    
-=begin these might be useful in file-matching stuff
-    diff_results = [
-      {'path'=>'some1.txt', 'source_type'=>'file', 'target_type'=>'file', 'contents'=>nil},
-      {'path'=>'some2.txt', 'source_type'=>'file', 'target_type'=>nil, 'contents'=>nil},
-      {'path'=>'some3.txt', 'source_type'=>nil, 'target_type'=>'file', 'contents'=>nil},
-      {'path'=>'some4_2.txt', 'source_type'=>'file', 'target_type'=>'file', 'contents'=>nil},
-      {'path'=>'some4_2.txt', 'source_type'=>nil, 'target_type'=>'file', 'contents'=>nil},
-      some4.txt_5
-    ]
-    expected = [
-      {'path'=>'some1.txt', 'source_type'=>'file', 'target_type'=>'file', 'contents'=>nil},
-      {'path'=>'some4_2.txt', 'source_type'=>'file', 'target_type'=>'file', 'contents'=>nil},
-      {'path'=>'some4_3.txt', 'source_type'=>nil, 'target_type'=>'file', 'contents'=>nil},
-    ]
-=end
     
     diff_results = [
       # base cases, without versions
@@ -423,7 +488,7 @@ class SettingsTest
     File.new(File.join(repo_test0['incoming_loc'], 'sample.txt'), 'w')
     all_repo_diffs = Updates.all_repo_diffs(@settings)
     puts "fail: not one empty file: #{all_repo_diffs.inspect}" if all_repo_diffs !=
-      [{"name"=>"test 0", "diffs"=>[{"path"=>"sample.txt", "source_type"=>"file", "target_type"=>nil, "target_path_previous_version"=>"sample.txt", "contents"=>nil}]}]
+      [{"name"=>"test 0", "diffs"=>[{"path"=>"sample.txt", "source_type"=>"file", "target_type"=>nil, "target_path_previous_version"=>nil, "contents"=>nil}]}]
 
     Updates.mark_reviewed(@settings, 'test 0', 'sample.txt')
     all_repo_diffs = Updates.all_repo_diffs(@settings)
@@ -497,7 +562,7 @@ class SettingsTest
       [{"name"=>"test 0",
         "diffs" =>
          [{"path"=>"a_sub_dir", "source_type"=>"directory", "target_type"=>nil,
-            "target_path_previous_version"=>"a_sub_dir", "contents"=>['a_sample.txt']}]}]
+            "target_path_previous_version"=>nil, "contents"=>['a_sample.txt']}]}]
 
     Updates.mark_reviewed(@settings, 'test 0', a_filename)
     all_repo_diffs = Updates.all_repo_diffs(@settings)
@@ -522,8 +587,8 @@ class SettingsTest
     puts "fail: new files in deep sources: #{all_repo_diffs.inspect}" if all_repo_diffs !=
       [{"name"=>"test 1",
          "diffs"=>
-         [{"path"=>File.join("1_sub_dir"), "source_type"=>"directory", "target_type"=>nil,
-            "target_path_previous_version"=>File.join("1_sub_dir"),
+         [{"path"=>File.join("1_sub_dir"), "source_type"=>"directory",
+            "target_type"=>nil, "target_path_previous_version"=>nil,
             "contents"=>[File.join("11_sub_dir", "111_sub_dir", '1_sample.txt'),
                          File.join("11_sub_dir", "111_sub_dir", '1_sample2.txt'),
                          File.join("11_sub_dir", "112_sub_dir", '1121_sub_dir', '1_sample3.txt')]}]}]
@@ -535,8 +600,8 @@ class SettingsTest
       [{"name"=>"test 1",
          "diffs"=>
          [{"path"=>File.join("1_sub_dir", "11_sub_dir", "112_sub_dir"),
-            "source_type"=>"directory", "target_type"=>nil,
-            "target_path_previous_version"=>File.join("1_sub_dir", "11_sub_dir", "112_sub_dir"),
+            "source_type"=>"directory", 
+            "target_type"=>nil, "target_path_previous_version"=>nil,
             "contents"=>[File.join('1121_sub_dir', '1_sample3.txt')]}]}]
 
 
@@ -549,7 +614,7 @@ class SettingsTest
          [{"path"=>File.join("1_sub_dir", "11_sub_dir", "112_sub_dir"),
             "source_type"=>"directory",
             "target_type"=>nil,
-            "target_path_previous_version"=>File.join("1_sub_dir", "11_sub_dir", "112_sub_dir"),
+            "target_path_previous_version"=>nil,
             "contents"=>[File.join('1121_sub_dir', '1_sample3.txt')]},
           {"path"=>File.join("1_sub_dir", "11_sub_dir", "sample.txt"),
             "source_type"=>nil,
@@ -690,7 +755,7 @@ class SettingsTest
     end
     all_repo_diffs = Updates.all_repo_diffs(@settings)
     puts "fail: added incoming: #{all_repo_diffs.inspect}" if all_repo_diffs !=
-      [{"name"=>"test out 0", "diffs"=>[{"path"=>"sample.txt", "source_type"=>"file", "target_type"=>nil, "target_path_previous_version"=>"sample.txt", "contents"=>nil}]}]
+      [{"name"=>"test out 0", "diffs"=>[{"path"=>"sample.txt", "source_type"=>"file", "target_type"=>nil, "target_path_previous_version"=>nil, "contents"=>nil}]}]
       
     Updates.mark_reviewed(@settings, 'test out 0')
     all_repo_diffs = Updates.all_repo_diffs(@settings)
@@ -703,7 +768,7 @@ class SettingsTest
     end
     all_out_diffs = Updates.all_outgoing_diffs(@settings)
     puts "fail: must copy out: #{all_out_diffs.inspect}" if all_out_diffs !=
-      [{"name"=>"test out 0", "diffs"=>[{"path"=>"sample.txt", "source_type"=>"file", "target_type"=>nil, "target_path_previous_version"=>"sample.txt", "contents"=>nil}]}]
+      [{"name"=>"test out 0", "diffs"=>[{"path"=>"sample.txt", "source_type"=>"file", "target_type"=>nil, "target_path_previous_version"=>nil, "contents"=>nil}]}]
 
     Updates.copy_to_outgoing(@settings, 'test out 0')
     all_out_diffs = Updates.all_outgoing_diffs(@settings)
@@ -775,9 +840,9 @@ class SettingsTest
     
 end
 
-#SettingsTest.new.run # run all test_* methods
+SettingsTest.new.run # run all test_* methods
 #SettingsTest.new.test_simple_json
-SettingsTest.new.test_versioned_diffs
+#SettingsTest.new.test_versioned_diffs
 #SettingsTest.new.test_repo_creation
 #SettingsTest.new.test_basic_diffs
 #SettingsTest.new.test_full_workflow
