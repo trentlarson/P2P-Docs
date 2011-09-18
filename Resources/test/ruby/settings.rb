@@ -231,9 +231,13 @@ class SettingsTest
     
     
     diff_results = [
+      {'path'=>'some4.txt', 'source_type'=>'file', 'target_type'=>nil, 'contents'=>nil},
       {'path'=>'some4_1.txt', 'source_type'=>'file', 'target_type'=>nil, 'contents'=>nil},
       {'path'=>'some4_2.txt', 'source_type'=>nil, 'target_type'=>'file', 'contents'=>nil},
       {'path'=>'some4_3.txt', 'source_type'=>'file', 'target_type'=>'file', 'contents'=>nil},
+      # This shouldn't happen: it would mean the originator is changing the file AND using versioned files.
+      {'path'=>'some4_11.txt', 'source_type'=>'file', 'target_type'=>'file', 'contents'=>nil},
+      # These shouldn't happen: it would mean they've got alternative version branches (or the originator versioning system is different).
       {'path'=>'some4.txt_5', 'source_type'=>'file', 'target_type'=>nil, 'contents'=>nil},
       {'path'=>'some4.txt_12', 'source_type'=>'file', 'target_type'=>nil, 'contents'=>nil}
     ]
@@ -242,6 +246,7 @@ class SettingsTest
     latest_target_versions = Updates.latest_versions(versioned_info, v_dir)
     result = Updates.only_new_revisions(versioned_info, latest_target_versions)
     expected = [
+      {'path'=>'some4_11.txt', 'source_type'=>'file', 'target_type'=>'file', 'target_path_previous_version'=>'some4_11.txt', 'contents'=>nil},
       # this may not be a good thing, but I'm not going to try and handle it right now
       {'path'=>'some4.txt_12', 'source_type'=>'file', 'target_type'=>nil, 'target_path_previous_version'=>'some4_11.txt', 'contents'=>nil}
     ]
@@ -374,8 +379,6 @@ class SettingsTest
     #puts "... and got:"; versioned_files.each { |inresult| puts inresult.to_s + "\n" }
     puts "fail: basic versioned file diffs: #{versioned_files}" if versioned_files != expected
     
-    puts "do the versioned diffs for that set of files"
-    puts "must handle case where initial file exists at source, and versioned file exists at source & target"
     
 =begin
     # ensure correct report of versions partially reconciled

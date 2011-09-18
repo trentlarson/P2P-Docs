@@ -99,7 +99,7 @@ class Updates
       if (diff_version_num < target_version_num &&
           # cases:
           # - both are 'file' (so files differ): who cares, since it's old
-          # - it's nil (gone) in source: let's not remove it, and leave that up to cleanup later
+          # - it's nil (gone) in source: let's not remove it, and leave that up this user's settings
           # - it's nil (gone) in target: that's OK, no need to copy the old version 
           (diff['source_type'] == nil || diff['source_type']== 'file') &&
           (diff['target_type'] == nil || diff['target_type'] == 'file'))
