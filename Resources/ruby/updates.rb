@@ -97,7 +97,11 @@ class Updates
       target_version_num = latest_target_version == nil ? -1 : 
         latest_target_version.length == 1 ? -1 : latest_target_version[2]
       if (diff_version_num < target_version_num &&
-          diff['source_type'] == 'file' &&
+          # cases:
+          # - both are 'file' (so files differ): who cares, since it's old
+          # - it's nil (gone) in source: let's not remove it, and leave that up to cleanup later
+          # - it's nil (gone) in target: that's OK, no need to copy the old version 
+          (diff['source_type'] == nil || diff['source_type']== 'file') &&
           (diff['target_type'] == nil || diff['target_type'] == 'file'))
         nil
       else
@@ -132,16 +136,23 @@ class Updates
     any_bases_exts = bases_exts + possible_versions
     
     # get matching files in the target directory, and group by initial filename
-    initial_with_all_versions_at_target = any_bases_exts.map { |base, ext|
-      [base + ext, all_target_file_versions(target_dir, base, ext)]
-    }.group_by { |base_ext, file_versions| base_ext }
-    
-    # now combine all those with the same initial filename
-    result = Hash.new
-    initial_with_all_versions_at_target.map { |base_ext, base_ext_versions_list|
-      result[base_ext] = base_ext_versions_list.map { |base_ext, versions| versions }.flatten(1).uniq.sort.last
+    initial_with_max_version_at_target = {}
+    any_bases_exts.each { |base, ext|
+      more_versions = all_target_file_versions(target_dir, base, ext)
+      max_already = initial_with_max_version_at_target[base + ext]
+      if (max_already != nil)
+        more_versions << max_already
+      end
+      new_maxes = more_versions.sort_by { |version|
+        if (version.length == 1)
+          [version[0], -1]
+        else
+          [version[0] + version[1], version[2]]
+        end 
+      }
+      initial_with_max_version_at_target[base + ext] = new_maxes.last
     }
-    result
+    initial_with_max_version_at_target
   end
   
   # return array of base-ext pairs for each possible cut position for versioning, or nil if there are no candidate positions

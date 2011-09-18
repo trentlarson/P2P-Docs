@@ -187,7 +187,7 @@ class SettingsTest
     Dir.mkdir(File.join(v_dir, "some"))
     Dir.mkdir(File.join(v_dir, "some_3"))
     
-    
+    # Remember: the diff_results are differences of source with target directories.
     diff_results = [
       {'path'=>'sum.txt', 'source_type'=>'file', 'target_type'=>nil, 'contents'=>nil},
       {'path'=>'some.txt', 'source_type'=>nil, 'target_type'=>'file', 'contents'=>nil},
@@ -219,21 +219,36 @@ class SettingsTest
       {'path'=>'some3.txt', 'source_type'=>'file', 'target_type'=>nil, 'contents'=>nil},
       {'path'=>'some3_2.txt', 'source_type'=>'file', 'target_type'=>'file', 'contents'=>nil},
       {'path'=>'some3_3.txt', 'source_type'=>'file', 'target_type'=>nil, 'contents'=>nil}
-#      {'path'=>'some4_1.txt', 'source_type'=>'file', 'target_type'=>'file', 'contents'=>nil},
-#      {'path'=>'some4_2.txt', 'source_type'=>nil, 'target_type'=>'file', 'contents'=>nil},
-#      {'path'=>'some4.txt_5', 'source_type'=>'file', 'target_type'=>nil, 'contents'=>nil},
     ]
     result = Updates.versioned_diffs(diff_results, v_dir)
     #versioned_info = Updates.versioned_filenames(diff_results)
     #latest_target_versions = Updates.latest_versions(versioned_info, v_dir)
     #result = Updates.only_new_revisions(versioned_info, latest_target_versions)
+    expected = []
+    #puts "Expected:"; expected.each { |inresult| puts inresult.to_s + "\n" }
+    #puts "... and got:"; result.each { |inresult| puts inresult.to_s + "\n" }
+    puts "fail: old versioned results: #{result}" if result != expected
+    
+    
+    diff_results = [
+      {'path'=>'some4_1.txt', 'source_type'=>'file', 'target_type'=>nil, 'contents'=>nil},
+      {'path'=>'some4_2.txt', 'source_type'=>nil, 'target_type'=>'file', 'contents'=>nil},
+      {'path'=>'some4_3.txt', 'source_type'=>'file', 'target_type'=>'file', 'contents'=>nil},
+      {'path'=>'some4.txt_5', 'source_type'=>'file', 'target_type'=>nil, 'contents'=>nil},
+      {'path'=>'some4.txt_12', 'source_type'=>'file', 'target_type'=>nil, 'contents'=>nil}
+    ]
+    #result = Updates.versioned_diffs(diff_results, v_dir)
+    versioned_info = Updates.versioned_filenames(diff_results)
+    latest_target_versions = Updates.latest_versions(versioned_info, v_dir)
+    result = Updates.only_new_revisions(versioned_info, latest_target_versions)
     expected = [
-#      {'path'=>'some4_2.txt', 'source_type'=>'file', 'target_type'=>'file', 'contents'=>nil},
-#      {'path'=>'some4_3.txt', 'source_type'=>nil, 'target_type'=>'file', 'contents'=>nil},
+      # this may not be a good thing, but I'm not going to try and handle it right now
+      {'path'=>'some4.txt_12', 'source_type'=>'file', 'target_type'=>nil, 'target_path_previous_version'=>'some4_11.txt', 'contents'=>nil}
     ]
     #puts "Expected:"; expected.each { |inresult| puts inresult.to_s + "\n" }
     #puts "... and got:"; result.each { |inresult| puts inresult.to_s + "\n" }
-    puts "fail: versioned results: #{result}" if result != expected
+    puts "fail: old versioned results for 4: #{result}" if result != expected
+    
     
     
     #### BEGIN tests for intermediate functions; helpful for internal testing, but not real user stories.
