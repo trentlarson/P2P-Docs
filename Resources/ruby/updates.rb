@@ -48,9 +48,7 @@ class Updates
                                      settings.reviewed_dir(repo['name']))
         }
       end
-      junk = result.select { |hash| hash['diffs'] != [] }
-#puts "My whole diff: " + junk.inspect
-      junk
+      result.select { |hash| hash['diffs'] != [] }
     end
   end
   
@@ -84,6 +82,16 @@ class Updates
   # ... but without the entries where source version is gone (ie. source_type==nil) if a new version exists
   def self.versioned_diffs(diff_dirs_result, target_dir)
     versioned_info = versioned_filenames(diff_dirs_result)
+    versions = versioned_info.map { |v_dm| v_dm['version'] }
+    latest_target_versions = latest_versions(versions, target_dir)
+    only_new_revisions(versioned_info, latest_target_versions)
+  end
+  
+  def self.versioned_diffs_out(diff_dirs_result, target_dir)
+    # gather all the paths, except those which are versioned, put them in the version format
+    versioned_info = diff_dirs_result.map { |diff|
+      match_numeric_suffix(diff['path']) == nil ? [diff['path']] : nil
+    }.compact
     latest_target_versions = latest_versions(versioned_info, target_dir)
     only_new_revisions(versioned_info, latest_target_versions)
   end
@@ -119,16 +127,16 @@ class Updates
     }.compact
   end
   
-  # using the versioned_filenames, look into the target directory and grab the most recent version of each
+  # using the version info, look into the target directory and grab the most recent version of each
+  # versioned_result is some array of hashes each containing a 'version' key
   # return hash of 'initial' with initial file name and 'last_version' of the last version in the target_dir (may be nil)
-  def self.latest_versions(versioned_filenames_result, target_dir)
+  def self.latest_versions(versioned_result, target_dir)
     
-    bases_exts = versioned_filenames_result.map { |v_dm|
-      vers = v_dm['version'];
+    bases_exts = versioned_result.map { |vers|
       [vers[0], vers.at(1).to_s]
     }.uniq
-    non_versioned_bases = versioned_filenames_result.map { |v_dm| 
-      v_dm['version'].length == 1 ? v_dm['version'][0] : nil
+    non_versioned_bases = versioned_result.map { |vers| 
+      vers.length == 1 ? vers[0] : nil
     }.compact
     possible_versions = non_versioned_bases.map { |initial_file|
       possible_version_exts(initial_file)
@@ -197,7 +205,7 @@ class Updates
   
   # diff_dirs_result is the output from diff_dirs
   # return a hash of:
-  # 'version' => an array of either a) the full initial file name or b) the base name, the extension or "", and the version
+  # 'version' => an array of either a) the full initial file name or b) the base name, the extension or "", and the version (this should be a Class of it's own)
   # 'diff_match' => a hash of { 'diff' => result of diff_dirs, 'match' of MatchData results for versioned names }
   def self.versioned_filenames(diff_dirs_result)
     diff_matches = diff_dirs_result.map { |diff| {"diff"=>diff, "match"=>match_of_versioned_file(diff)} }

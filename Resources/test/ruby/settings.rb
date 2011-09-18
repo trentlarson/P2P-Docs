@@ -187,6 +187,7 @@ class SettingsTest
     Dir.mkdir(File.join(v_dir, "some"))
     Dir.mkdir(File.join(v_dir, "some_3"))
     
+    
     # Remember: the diff_results are differences of source with target directories.
     diff_results = [
       {'path'=>'sum.txt', 'source_type'=>'file', 'target_type'=>nil, 'contents'=>nil},
@@ -243,7 +244,7 @@ class SettingsTest
     ]
     #result = Updates.versioned_diffs(diff_results, v_dir)
     versioned_info = Updates.versioned_filenames(diff_results)
-    latest_target_versions = Updates.latest_versions(versioned_info, v_dir)
+    latest_target_versions = Updates.latest_versions(versioned_info.map { |v_dm| v_dm['version'] }, v_dir)
     result = Updates.only_new_revisions(versioned_info, latest_target_versions)
     expected = [
       {'path'=>'some4_11.txt', 'source_type'=>'file', 'target_type'=>'file', 'target_path_previous_version'=>'some4_11.txt', 'contents'=>nil},
@@ -296,7 +297,7 @@ class SettingsTest
     diff_results = [
       {'path'=>'some.txt', 'source_type'=>'file', 'target_type'=>'file', 'contents'=>nil}
     ]
-    result = Updates.latest_versions(Updates.versioned_filenames(diff_results), v_dir)
+    result = Updates.latest_versions(Updates.versioned_filenames(diff_results).map { |v_dm| v_dm['version'] }, v_dir)
     expected = {"some.txt"=>["some.txt"]}
     #puts "Expected:"; expected.each { |inresult| puts inresult.to_s + "\n" }
     #puts "... and got:"; result.each { |inresult| puts inresult.to_s + "\n" }
@@ -306,14 +307,14 @@ class SettingsTest
       {'path'=>'some.txt', 'source_type'=>nil, 'target_type'=>file, 'contents'=>nil},
       {'path'=>'some_1.txt', 'source_type'=>'file', 'target_type'=>nil, 'contents'=>nil}
     ]
-    result = Updates.latest_versions(Updates.versioned_filenames(diff_results), v_dir)
+    result = Updates.latest_versions(Updates.versioned_filenames(diff_results).map { |v_dm| v_dm['version'] }, v_dir)
     expected = {"some.txt"=>["some.txt"]}
     puts "fail: versioned diff single 2: #{result}" if expected != result
     
     diff_results = [
       {'path'=>'some_1.txt', 'source_type'=>'file', 'target_type'=>nil, 'contents'=>nil}
     ]
-    result = Updates.latest_versions(Updates.versioned_filenames(diff_results), v_dir)
+    result = Updates.latest_versions(Updates.versioned_filenames(diff_results).map { |v_dm| v_dm['version'] }, v_dir)
     expected = {"some.txt"=>["some.txt"]}
     puts "fail: versioned diff single 3: #{result}" if expected != result
     
@@ -321,7 +322,7 @@ class SettingsTest
     diff_results = [
       {'path'=>'some3.txt', 'source_type'=>'file', 'target_type'=>nil, 'contents'=>nil}
     ]
-    result = Updates.latest_versions(Updates.versioned_filenames(diff_results), v_dir)
+    result = Updates.latest_versions(Updates.versioned_filenames(diff_results).map { |v_dm| v_dm['version'] }, v_dir)
     expected = {"some3.txt"=>["some3", ".txt", 12]}
     puts "fail: latest version for initial file: #{result}" if expected != result
     
@@ -330,7 +331,7 @@ class SettingsTest
       {'path'=>'some3_13.txt', 'source_type'=>'file', 'target_type'=>nil, 'contents'=>nil},
       {'path'=>'some3_14.txt', 'source_type'=>'file', 'target_type'=>nil, 'contents'=>nil}
     ]
-    result = Updates.latest_versions(Updates.versioned_filenames(diff_results), v_dir)
+    result = Updates.latest_versions(Updates.versioned_filenames(diff_results).map { |v_dm| v_dm['version'] }, v_dir)
     expected = {"some3.txt"=>["some3", ".txt", 12]}
     puts "fail: versioned diff for multiple new ones: #{result}" if expected != result
     
@@ -378,6 +379,7 @@ class SettingsTest
     #puts "Expected:"; expected.each { |inresult| puts inresult.to_s + "\n" }
     #puts "... and got:"; versioned_files.each { |inresult| puts inresult.to_s + "\n" }
     puts "fail: basic versioned file diffs: #{versioned_files}" if versioned_files != expected
+    
     
     
 =begin
