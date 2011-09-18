@@ -204,7 +204,6 @@ class SettingsTest
     puts "fail: versioned results w/o versions: #{result}" if result != expected
     
     
-=begin This currently fails: we don't correctly recognize when there's the initial version at the source and a versioned one at the target.
     diff_results = [
       {'path'=>'some3.txt', 'source_type'=>'file', 'target_type'=>nil, 'contents'=>nil}
     ]
@@ -212,9 +211,8 @@ class SettingsTest
     #versioned_info = Updates.versioned_filenames(diff_results)
     #latest_target_versions = Updates.latest_versions(versioned_info, v_dir)
     #result = Updates.only_new_revisions(versioned_info, latest_target_versions)
-    expected = {}
+    expected = []
     puts "fail: versioned diff for initial file: #{result}" if expected != result
-=end
     
     
     diff_results = [
@@ -225,10 +223,10 @@ class SettingsTest
 #      {'path'=>'some4_2.txt', 'source_type'=>nil, 'target_type'=>'file', 'contents'=>nil},
 #      {'path'=>'some4.txt_5', 'source_type'=>'file', 'target_type'=>nil, 'contents'=>nil},
     ]
-    versioned_info = Updates.versioned_filenames(diff_results)
-    latest_target_versions = Updates.latest_versions(versioned_info, v_dir)
-    result = Updates.only_new_revisions(versioned_info, latest_target_versions)
     result = Updates.versioned_diffs(diff_results, v_dir)
+    #versioned_info = Updates.versioned_filenames(diff_results)
+    #latest_target_versions = Updates.latest_versions(versioned_info, v_dir)
+    #result = Updates.only_new_revisions(versioned_info, latest_target_versions)
     expected = [
 #      {'path'=>'some4_2.txt', 'source_type'=>'file', 'target_type'=>'file', 'contents'=>nil},
 #      {'path'=>'some4_3.txt', 'source_type'=>nil, 'target_type'=>'file', 'contents'=>nil},
@@ -299,7 +297,6 @@ class SettingsTest
     expected = {"some.txt"=>["some.txt"]}
     puts "fail: versioned diff single 3: #{result}" if expected != result
     
-=begin This currently fails: we don't correctly recognize when there's the initial version at the source and a versioned one at the target.
     # some old versions are hanging around in the incoming
     diff_results = [
       {'path'=>'some3.txt', 'source_type'=>'file', 'target_type'=>nil, 'contents'=>nil}
@@ -307,7 +304,6 @@ class SettingsTest
     result = Updates.latest_versions(Updates.versioned_filenames(diff_results), v_dir)
     expected = {"some3.txt"=>["some3", ".txt", 12]}
     puts "fail: latest version for initial file: #{result}" if expected != result
-=end
     
     # eg. some3_12.txt is reviewed (and some3.txt is gone)
     diff_results = [
