@@ -75,11 +75,7 @@ class Updates
     version[0] + version.at(1).to_s
   end
   
-  # return results of diff_dirs augmented with:
-  # {
-  #   'target_path_previous_version' => the name of the previously reviewed version of this file (for setups with versions that come in via different file names)
-  # }
-  # ... but without the entries where source version is gone (ie. source_type==nil) if a new version exists
+  # see only_new_revisions
   def self.versioned_diffs(diff_dirs_result, target_dir)
     versioned_info = versioned_filenames(diff_dirs_result)
     versions = versioned_info.map { |v_dm| v_dm['version'] }
@@ -89,13 +85,19 @@ class Updates
   
   def self.versioned_diffs_out(diff_dirs_result, target_dir)
     # gather all the paths, except those which are versioned, put them in the version format
-    versioned_info = diff_dirs_result.map { |diff|
+    versions = diff_dirs_result.map { |diff|
       match_numeric_suffix(diff['path']) == nil ? [diff['path']] : nil
     }.compact
-    latest_target_versions = latest_versions(versioned_info, target_dir)
-    only_new_revisions(versioned_info, latest_target_versions)
+    latest_target_versions = latest_versions(versions, target_dir)
+    # now output the files with incremented target versions
+    #versions_paths = 
   end
   
+  # return results of diff_dirs augmented with:
+  # {
+  #   'target_path_previous_version' => the name of the previously reviewed version of this file (for setups with versions that come in via different file names)
+  # }
+  # ... but without the entries where source version is gone (ie. source_type==nil) if a new version exists
   def self.only_new_revisions(versioned_info, latest_target_versions)
     versioned_info.map { |v_dm|
       version = v_dm['version']
@@ -109,7 +111,7 @@ class Updates
           # - both are 'file' (so files differ): who cares, since it's old
           # - it's nil (gone) in source: let's not remove it, and leave that up this user's settings
           # - it's nil (gone) in target: that's OK, no need to copy the old version 
-          (diff['source_type'] == nil || diff['source_type']== 'file') &&
+          (diff['source_type'] == nil || diff['source_type'] == 'file') &&
           (diff['target_type'] == nil || diff['target_type'] == 'file'))
         nil
       else
@@ -130,12 +132,12 @@ class Updates
   # using the version info, look into the target directory and grab the most recent version of each
   # versioned_result is some array of hashes each containing a 'version' key
   # return hash of 'initial' with initial file name and 'last_version' of the last version in the target_dir (may be nil)
-  def self.latest_versions(versioned_result, target_dir)
+  def self.latest_versions(versions, target_dir)
     
-    bases_exts = versioned_result.map { |vers|
+    bases_exts = versions.map { |vers|
       [vers[0], vers.at(1).to_s]
     }.uniq
-    non_versioned_bases = versioned_result.map { |vers| 
+    non_versioned_bases = versions.map { |vers| 
       vers.length == 1 ? vers[0] : nil
     }.compact
     possible_versions = non_versioned_bases.map { |initial_file|
@@ -204,9 +206,9 @@ class Updates
   
   
   # diff_dirs_result is the output from diff_dirs
-  # return a hash of:
+  # return an array of hashes of:
   # 'version' => an array of either a) the full initial file name or b) the base name, the extension or "", and the version (this should be a Class of it's own)
-  # 'diff_match' => a hash of { 'diff' => result of diff_dirs, 'match' of MatchData results for versioned names }
+  # 'diff_match' => a hash of { 'diff' => result of one diff_dirs element, 'match' of MatchData results for versioned names }
   def self.versioned_filenames(diff_dirs_result)
     diff_matches = diff_dirs_result.map { |diff| {"diff"=>diff, "match"=>match_of_versioned_file(diff)} }
     diffs_grouped = diff_matches.group_by { |diff_match| m = diff_match["match"]; m == nil ? nil : [m[1], m[4].to_s] }
@@ -229,11 +231,11 @@ class Updates
   end
 
   def self.match_of_versioned_file(diff)
-    if ((diff['source_type'] != nil && diff['source_type'] != 'file') ||
-        (diff['target_type'] != nil && diff['target_type'] != 'file'))
-      return nil
-    else
+    if ((diff['source_type'] == nil || diff['source_type'] == 'file') &&
+        (diff['target_type'] == nil || diff['target_type'] == 'file'))
       return match_numeric_suffix(diff['path'])
+    else
+      return nil
     end
   end
 
