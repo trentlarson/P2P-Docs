@@ -207,18 +207,13 @@ class Updates
   
   # diff_dirs_result is the output from diff_dirs
   # return an array of hashes of:
-  # 'version' => an array of either a) the full initial file name or b) the base name, the extension or "", and the version (this should be a Class of it's own)
+  # 'version' => see version_of
   # 'diff_match' => a hash of { 'diff' => result of one diff_dirs element, 'match' of MatchData results for versioned names }
   def self.versioned_filenames(diff_dirs_result)
     diff_matches = diff_dirs_result.map { |diff| {"diff"=>diff, "match"=>match_of_versioned_file(diff)} }
     diffs_grouped = diff_matches.group_by { |diff_match| m = diff_match["match"]; m == nil ? nil : [m[1], m[4].to_s] }
     diffs_grouped.map { |base_ext, diff_matches|
-      if (base_ext.nil?)
-        # these have no version suffixes
-        diff_matches.collect { |diff_match| {'version'=>[diff_match['diff']['path']], 'diff_match'=>diff_match} }
-      else
-        diff_matches.collect { |diff_match| {'version'=>[base_ext[0], base_ext[1], diff_match['match'][3].to_i], 'diff_match'=>diff_match} }
-      end
+      diff_matches.map { |diff_match| {'version'=>version_of(diff_match['diff']), 'diff_match'=>diff_match} }
     }.flatten(1).sort_by { |version_diff_match|
       # because we want the basic file to come before the others
       version = version_diff_match['version']
@@ -229,7 +224,16 @@ class Updates
       end 
     }
   end
+  
+  # diff is one element from diff_dirs
+  # return an array of either a) the full initial file name or b) the base name, the extension or "", and the version (this should be a Class of it's own)
+  def self.version_of(diff)
+    match = match_of_versioned_file(diff)
+    match == nil ? [diff['path']] : [match[1], match[4].to_s, match[3].to_i]
+  end
 
+  # diff is an element in the result of diff_dirs
+  # return MatchData of match_numeric_suffix if the 'path' types are file or nil, otherwise nil
   def self.match_of_versioned_file(diff)
     if ((diff['source_type'] == nil || diff['source_type'] == 'file') &&
         (diff['target_type'] == nil || diff['target_type'] == 'file'))
