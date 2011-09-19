@@ -43,9 +43,7 @@ class Updates
       result = 
         result.collect do |repo|
         { 'name' => repo['name'], 
-          'diffs' => versioned_diffs(diff_dirs(repo['incoming_loc'], 
-                                               settings.reviewed_dir(repo['name'])),
-                                     settings.reviewed_dir(repo['name']))
+          'diffs' => versioned_diffs(repo['incoming_loc'], settings.reviewed_dir(repo['name']))
         }
       end
       result.select { |hash| hash['diffs'] != [] }
@@ -61,7 +59,9 @@ class Updates
     else
       result = 
         result.collect do |repo|
-        { 'name' => repo['name'], 'diffs' => diff_dirs(repo['my_loc'], repo['outgoing_loc']) }
+        { 'name' => repo['name'],
+          'diffs' => versioned_diffs_out(repo['my_loc'], repo['outgoing_loc'])
+        }
       end
       result.select { |hash| hash['diffs'] != [] }
     end
@@ -69,21 +69,38 @@ class Updates
   
   
   
+  # diff is one element from diff_dirs
+  # return an array of either a) the full initial file name or b) the base name, the extension or "", and the version (this should be a Class of it's own)
+  def self.version_of(diff)
+    match = match_of_versioned_file(diff)
+    match == nil ? [diff['path']] : [match[1], match[4].to_s, match[3].to_i]
+  end
+  
   # version is a version array (see versioned_filenames)
   # return initial file name
   def self.version_initial(version)
     version[0] + version.at(1).to_s
   end
   
+  
+  
+  
   # see only_new_revisions
-  def self.versioned_diffs(diff_dirs_result, target_dir)
+  def self.versioned_diffs(source_dir, target_dir)
+    versioned_diffs2(diff_dirs(source_dir, target_dir), target_dir)
+  end
+  def self.versioned_diffs2(diff_dirs_result, target_dir)
     versioned_info = versioned_filenames(diff_dirs_result)
     versions = versioned_info.map { |v_dm| v_dm['version'] }
     latest_target_versions = latest_versions(versions, target_dir)
     only_new_revisions(versioned_info, latest_target_versions, true)
   end
   
-  def self.versioned_diffs_out(diff_dirs_result, target_dir)
+  # see only_new_revisions
+  def self.versioned_diffs_out(source_dir, target_dir)
+    versioned_diffs_out2(diff_dirs(source_dir, target_dir), target_dir)
+  end
+  def self.versioned_diffs_out2(diff_dirs_result, target_dir)
     # gather all the paths, except those which are versioned, put them in the version format
     versions = diff_dirs_result.map { |diff|
       match_numeric_suffix(diff['path']) == nil ? [diff['path']] : nil
@@ -91,7 +108,7 @@ class Updates
     latest_target_versions = latest_versions(versions, target_dir)
     # now output the files with incremented target versions
     versions_paths = diff_dirs_result.map { |diff|
-      {'version'=>version_of(diff['path']), 'diff_match'=>{'diff'=>diff}}
+      {'version'=>version_of(diff), 'diff_match'=>{'diff'=>diff}}
     }
     only_new_revisions(versions_paths, latest_target_versions, false)
   end
@@ -236,13 +253,6 @@ class Updates
     }
   end
   
-  # diff is one element from diff_dirs
-  # return an array of either a) the full initial file name or b) the base name, the extension or "", and the version (this should be a Class of it's own)
-  def self.version_of(diff)
-    match = match_of_versioned_file(diff)
-    match == nil ? [diff['path']] : [match[1], match[4].to_s, match[3].to_i]
-  end
-
   # diff is an element in the result of diff_dirs
   # return MatchData of match_numeric_suffix if the 'path' types are file or nil, otherwise nil
   def self.match_of_versioned_file(diff)

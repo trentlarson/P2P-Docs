@@ -194,7 +194,7 @@ class SettingsTest
       {'path'=>'some.txt', 'source_type'=>nil, 'target_type'=>'file', 'contents'=>nil},
       {'path'=>'some1.txt', 'source_type'=>'file', 'target_type'=>'file', 'contents'=>nil}
     ]
-    result = Updates.versioned_diffs(diff_results, v_dir)
+    result = Updates.versioned_diffs2(diff_results, v_dir)
     expected = [
       {'path'=>'some.txt', 'source_type'=>nil, 'target_type'=>'file', 'target_path_previous_version'=>'some.txt', 'target_path_next_version'=>'some.txt', 'contents'=>nil},
       {'path'=>'some1.txt', 'source_type'=>'file', 'target_type'=>'file', 'target_path_previous_version'=>'some1.txt', 'target_path_next_version'=>'some1.txt', 'contents'=>nil},
@@ -208,7 +208,7 @@ class SettingsTest
     diff_results = [
       {'path'=>'some3.txt', 'source_type'=>'file', 'target_type'=>nil, 'contents'=>nil}
     ]
-    result = Updates.versioned_diffs(diff_results, v_dir)
+    result = Updates.versioned_diffs2(diff_results, v_dir)
     #versioned_info = Updates.versioned_filenames(diff_results)
     #latest_target_versions = Updates.latest_versions(versioned_info, v_dir)
     #result = Updates.only_new_revisions(versioned_info, latest_target_versions, true)
@@ -221,7 +221,7 @@ class SettingsTest
       {'path'=>'some3_2.txt', 'source_type'=>'file', 'target_type'=>'file', 'contents'=>nil},
       {'path'=>'some3_3.txt', 'source_type'=>'file', 'target_type'=>nil, 'contents'=>nil}
     ]
-    result = Updates.versioned_diffs(diff_results, v_dir)
+    result = Updates.versioned_diffs2(diff_results, v_dir)
     #versioned_info = Updates.versioned_filenames(diff_results)
     #latest_target_versions = Updates.latest_versions(versioned_info, v_dir)
     #result = Updates.only_new_revisions(versioned_info, latest_target_versions, true)
@@ -242,7 +242,7 @@ class SettingsTest
       {'path'=>'some4.txt_5', 'source_type'=>'file', 'target_type'=>nil, 'contents'=>nil},
       {'path'=>'some4.txt_12', 'source_type'=>'file', 'target_type'=>nil, 'contents'=>nil}
     ]
-    #result = Updates.versioned_diffs(diff_results, v_dir)
+    #result = Updates.versioned_diffs2(diff_results, v_dir)
     versioned_info = Updates.versioned_filenames(diff_results)
     latest_target_versions = Updates.latest_versions(versioned_info.map { |v_dm| v_dm['version'] }, v_dir)
     result = Updates.only_new_revisions(versioned_info, latest_target_versions, true)
@@ -427,7 +427,7 @@ class SettingsTest
     #puts "... and got:"; versioned_files.each { |inresult| puts inresult.to_s + "\n" }
     puts "fail: advanced versioned file diffs (which is an intermediate function that can go away if the rest works): #{versioned_files}" if versioned_files != expected
     
-    versioned_diffs = Updates.versioned_diffs diff_results, v_dir
+    versioned_diffs = Updates.versioned_diffs2 diff_results, v_dir
     expected = [
       {"path"=>"file.txt", "source_type"=>"file", "target_type"=>nil, "target_path_previous_version"=>nil, "contents"=>nil},
       {"path"=>"file_1.txt", "source_type"=>"file", "target_type"=>nil, "target_path_previous_version"=>nil, "contents"=>nil},
