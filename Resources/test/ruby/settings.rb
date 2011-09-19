@@ -849,7 +849,10 @@ class SettingsTest
       }]
     
     
-=begin Too many of these make other tests fail (or not) at random places with: wrong argument type #<Class:0x000001008abaa0> (expected Data) (TypeError)
+    # Note that it may break at random places with: wrong argument type #<Class:0x000001008abaa0> (expected Data) (TypeError)
+    # Note that it may work by commenting out the next test.
+    # It works in Ruby v 1.8.  Ug.
+
     # ... and one last version
     FileUtils.cp File.join(repo_test0['incoming_loc'], 'sample_8.txt'), File.join(repo_test0['incoming_loc'], 'sample_16.txt')
     File.open(File.join(repo_test0['incoming_loc'], 'sample_16.txt'), 'a') do |out|
@@ -864,8 +867,6 @@ class SettingsTest
          {"path"=>"sample_8.txt", "source_type"=>"file", "target_type"=>nil, "target_path_previous_version"=>"sample_2.txt", "target_path_next_version"=>"sample_8.txt", "contents"=>nil},
          {"path"=>"sample_16.txt", "source_type"=>"file", "target_type"=>nil, "target_path_previous_version"=>"sample_2.txt", "target_path_next_version"=>"sample_16.txt", "contents"=>nil}]
       }]
-=end
-    
     
     
     puts "mark reviewed, check for empty set"
@@ -873,13 +874,12 @@ class SettingsTest
     #puts "put multiple incoming, check for different acceptance"
     
     
-    
     # do the same for outgoing files
-#    FileUtils.cp_r File.join(repo_test0['incoming_loc'], 'sample_2.txt'), File.join(repo_test0['my_loc'], 'my_sample.txt')
-#    all_repo_diffs = Updates.all_outgoing_diffs(@settings)
-#    puts "fail: versioned outgoing: #{all_repo_diffs.inspect}" if all_repo_diffs !=
+    FileUtils.cp_r File.join(repo_test0['incoming_loc'], 'sample_2.txt'), File.join(repo_test0['my_loc'], 'my_sample.txt')
+    all_repo_diffs = Updates.all_outgoing_diffs(@settings)
+    puts "fail: versioned outgoing: #{all_repo_diffs.inspect}" if all_repo_diffs !=
       [{"name"=>"test out 0", "diffs"=>
-        [{"path"=>"my_sample.txt", "source_type"=>"file", "target_type"=>"file", "target_path_previous_version"=>"sample.txt", "target_path_next_version"=>"sample_3.txt", "contents"=>nil}]}]
+        [{"path"=>"my_sample.txt", "source_type"=>"file", "target_type"=>nil, "target_path_previous_version"=>nil, "target_path_next_version"=>nil, "contents"=>nil}]}]
     
     
     puts "when there's a change in my copy (whether or not to the same output) and I publish"
