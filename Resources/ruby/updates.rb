@@ -388,7 +388,7 @@ class Updates
     repo = settings.get_repo_by_name(repo_name)
     copy_all_contents(repo['incoming_loc'], settings.reviewed_dir(repo), subpath)
     if (remove != nil)
-      FileUtils::remove_entry_secure(remove, true)
+      FileUtils::remove_entry_secure(File.join(settings.reviewed_dir(repo), remove), true)
     end
   end
 

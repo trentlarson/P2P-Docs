@@ -172,7 +172,8 @@ class SettingsTest
     
     
     v_dir = File.join(@test_data_dir, "versioned_filenames")
-    Dir.mkdir v_dir
+    FileUtils::remove_entry_secure(v_dir, true)
+    FileUtils::mkdir_p(v_dir)
     File.new(File.join(v_dir, "some.txt"), 'w').write("junk\n")
     File.new(File.join(v_dir, "some1.txt"), 'w').write("junk\n")
     File.new(File.join(v_dir, "some3_12.txt"), 'w').write("junk\n")
@@ -184,8 +185,8 @@ class SettingsTest
     File.new(File.join(v_dir, "some4_3.rss"), 'w').write("junk\n")
     File.new(File.join(v_dir, "some4_a.txt"), 'w').write("junk\n")
     File.new(File.join(v_dir, "something_3.txt"), 'w').write("junk\n")
-    Dir.mkdir(File.join(v_dir, "some"))
-    Dir.mkdir(File.join(v_dir, "some_3"))
+    FileUtils::mkdir_p(File.join(v_dir, "some"))
+    FileUtils::mkdir_p(File.join(v_dir, "some_3"))
     
     
     # Remember: the diff_results are differences of source with target directories.
@@ -820,6 +821,7 @@ class SettingsTest
       }]
     
     
+    # ... and then let's review one
     Updates.mark_reviewed(@settings, 'test out 0', 'sample_2.txt', 'sample.txt')
     all_repo_diffs = Updates.all_repo_diffs(@settings)
     puts "fail: versioned incoming 4 reviewed: #{all_repo_diffs.inspect}" if all_repo_diffs !=
@@ -828,16 +830,31 @@ class SettingsTest
       }]
     
     
-    # ... and one last version
-    FileUtils.mv File.join(repo_test0['incoming_loc'], 'sample_4.txt'), File.join(repo_test0['incoming_loc'], 'sample_16.txt')
-    File.open(File.join(repo_test0['incoming_loc'], 'sample_16.txt'), 'a') do |out|
+=begin Why does this make other tests crash?  It happened after I added the mark_reviewed and this.
+    # ... and another version
+    FileUtils.cp File.join(repo_test0['incoming_loc'], 'sample_4.txt'), File.join(repo_test0['incoming_loc'], 'sample_8.txt')
+    File.open(File.join(repo_test0['incoming_loc'], 'sample_8.txt'), 'a') do |out|
       out.write "fly your leisure pace\n"
+    end
+    all_repo_diffs = Updates.all_repo_diffs(@settings)
+    puts "fail: versioned incoming 8: #{all_repo_diffs.inspect}" if all_repo_diffs !=
+      [{"name"=>"test out 0", "diffs"=>
+        [{"path"=>"sample_4.txt", "source_type"=>"file", "target_type"=>nil, "target_path_previous_version"=>"sample_2.txt", "target_path_next_version"=>"sample_4.txt", "contents"=>nil},
+         {"path"=>"sample_8.txt", "source_type"=>"file", "target_type"=>"file", "target_path_previous_version"=>"sample_2.txt", "target_path_next_version"=>"sample_8.txt", "contents"=>nil}]
+      }]
+=end
+    
+    
+    # ... and one last version
+    FileUtils.cp File.join(repo_test0['incoming_loc'], 'sample_4.txt'), File.join(repo_test0['incoming_loc'], 'sample_16.txt')
+    File.open(File.join(repo_test0['incoming_loc'], 'sample_16.txt'), 'a') do |out|
+      out.write "boo-ya!\n"
     end
     all_repo_diffs = Updates.all_repo_diffs(@settings)
     puts "fail: versioned incoming 16: #{all_repo_diffs.inspect}" if all_repo_diffs !=
       [{"name"=>"test out 0", "diffs"=>
-        [{"path"=>"sample_4.txt", "source_type"=>"file", "target_type"=>nil, "target_path_previous_version"=>"sample.txt", "target_path_next_version"=>"sample.txt", "contents"=>nil},
-         {"path"=>"sample_16.txt", "source_type"=>"file", "target_type"=>"file", "target_path_previous_version"=>"sample.txt", "target_path_next_version"=>"sample.txt", "contents"=>nil}]
+        [{"path"=>"sample_4.txt", "source_type"=>"file", "target_type"=>nil, "target_path_previous_version"=>"sample_2.txt", "target_path_next_version"=>"sample_4.txt", "contents"=>nil},
+         {"path"=>"sample_16.txt", "source_type"=>"file", "target_type"=>nil, "target_path_previous_version"=>"sample_2.txt", "target_path_next_version"=>"sample_16.txt", "contents"=>nil}]
       }]
     
     
