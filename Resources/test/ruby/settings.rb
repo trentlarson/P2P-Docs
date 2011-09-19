@@ -196,9 +196,9 @@ class SettingsTest
     ]
     result = Updates.versioned_diffs(diff_results, v_dir)
     expected = [
-      {'path'=>'some.txt', 'source_type'=>nil, 'target_type'=>'file', 'target_path_previous_version'=>"some.txt", 'contents'=>nil},
-      {'path'=>'some1.txt', 'source_type'=>'file', 'target_type'=>'file', 'target_path_previous_version'=>"some1.txt", 'contents'=>nil},
-      {'path'=>'sum.txt', 'source_type'=>'file', 'target_type'=>nil, 'target_path_previous_version'=>nil, 'contents'=>nil}
+      {'path'=>'some.txt', 'source_type'=>nil, 'target_type'=>'file', 'target_path_previous_version'=>'some.txt', 'target_path_next_version'=>'some.txt', 'contents'=>nil},
+      {'path'=>'some1.txt', 'source_type'=>'file', 'target_type'=>'file', 'target_path_previous_version'=>'some1.txt', 'target_path_next_version'=>'some1.txt', 'contents'=>nil},
+      {'path'=>'sum.txt', 'source_type'=>'file', 'target_type'=>nil, 'target_path_previous_version'=>nil, "target_path_next_version"=>nil, 'contents'=>nil}
     ]
     #puts "Expected:"; expected.each { |inresult| puts inresult.to_s + "\n" }
     #puts "... and got:"; result.each { |inresult| puts inresult.to_s + "\n" }
@@ -211,7 +211,7 @@ class SettingsTest
     result = Updates.versioned_diffs(diff_results, v_dir)
     #versioned_info = Updates.versioned_filenames(diff_results)
     #latest_target_versions = Updates.latest_versions(versioned_info, v_dir)
-    #result = Updates.only_new_revisions(versioned_info, latest_target_versions)
+    #result = Updates.only_new_revisions(versioned_info, latest_target_versions, true)
     expected = []
     puts "fail: versioned diff for initial file: #{result}" if expected != result
     
@@ -224,7 +224,7 @@ class SettingsTest
     result = Updates.versioned_diffs(diff_results, v_dir)
     #versioned_info = Updates.versioned_filenames(diff_results)
     #latest_target_versions = Updates.latest_versions(versioned_info, v_dir)
-    #result = Updates.only_new_revisions(versioned_info, latest_target_versions)
+    #result = Updates.only_new_revisions(versioned_info, latest_target_versions, true)
     expected = []
     #puts "Expected:"; expected.each { |inresult| puts inresult.to_s + "\n" }
     #puts "... and got:"; result.each { |inresult| puts inresult.to_s + "\n" }
@@ -245,11 +245,11 @@ class SettingsTest
     #result = Updates.versioned_diffs(diff_results, v_dir)
     versioned_info = Updates.versioned_filenames(diff_results)
     latest_target_versions = Updates.latest_versions(versioned_info.map { |v_dm| v_dm['version'] }, v_dir)
-    result = Updates.only_new_revisions(versioned_info, latest_target_versions)
+    result = Updates.only_new_revisions(versioned_info, latest_target_versions, true)
     expected = [
-      {'path'=>'some4_11.txt', 'source_type'=>'file', 'target_type'=>'file', 'target_path_previous_version'=>'some4_11.txt', 'contents'=>nil},
+      {'path'=>'some4_11.txt', 'source_type'=>'file', 'target_type'=>'file', 'target_path_previous_version'=>'some4_11.txt', 'target_path_next_version'=>'some4_12.txt', 'contents'=>nil},
       # this may not be a good thing, but I'm not going to try and handle it right now
-      {'path'=>'some4.txt_12', 'source_type'=>'file', 'target_type'=>nil, 'target_path_previous_version'=>'some4_11.txt', 'contents'=>nil}
+      {'path'=>'some4.txt_12', 'source_type'=>'file', 'target_type'=>nil, 'target_path_previous_version'=>'some4_11.txt', 'target_path_next_version'=>'some4_12.txt', 'contents'=>nil}
     ]
     #puts "Expected:"; expected.each { |inresult| puts inresult.to_s + "\n" }
     #puts "... and got:"; result.each { |inresult| puts inresult.to_s + "\n" }
@@ -504,7 +504,7 @@ class SettingsTest
     File.new(File.join(repo_test0['incoming_loc'], 'sample.txt'), 'w')
     all_repo_diffs = Updates.all_repo_diffs(@settings)
     puts "fail: not one empty file: #{all_repo_diffs.inspect}" if all_repo_diffs !=
-      [{"name"=>"test 0", "diffs"=>[{"path"=>"sample.txt", "source_type"=>"file", "target_type"=>nil, "target_path_previous_version"=>nil, "contents"=>nil}]}]
+      [{"name"=>"test 0", "diffs"=>[{"path"=>"sample.txt", "source_type"=>"file", "target_type"=>nil, "target_path_previous_version"=>nil, "target_path_next_version"=>nil, "contents"=>nil}]}]
 
     Updates.mark_reviewed(@settings, 'test 0', 'sample.txt')
     all_repo_diffs = Updates.all_repo_diffs(@settings)
@@ -517,7 +517,7 @@ class SettingsTest
     end
     all_repo_diffs = Updates.all_repo_diffs(@settings)
     puts "fail: one file with different content size: #{all_repo_diffs.inspect}" if all_repo_diffs !=
-      [{"name"=>"test 0", "diffs"=>[{"path"=>"sample.txt", "source_type"=>"file", "target_type"=>"file", "target_path_previous_version"=>"sample.txt", "contents"=>nil}]}]
+      [{"name"=>"test 0", "diffs"=>[{"path"=>"sample.txt", "source_type"=>"file", "target_type"=>"file", "target_path_previous_version"=>"sample.txt", "target_path_next_version"=>"sample.txt", "contents"=>nil}]}]
 
     Updates.mark_reviewed(@settings, 'test 0', 'sample.txt')
     all_repo_diffs = Updates.all_repo_diffs(@settings)
@@ -532,7 +532,7 @@ class SettingsTest
     end
     all_repo_diffs = Updates.all_repo_diffs(@settings)
     puts "fail: one file with same size but different mtime: #{all_repo_diffs.inspect}" if all_repo_diffs !=
-      [{"name"=>"test 0", "diffs"=>[{"path"=>"sample.txt", "source_type"=>"file", "target_type"=>"file", "target_path_previous_version"=>"sample.txt", "contents"=>nil}]}]
+      [{"name"=>"test 0", "diffs"=>[{"path"=>"sample.txt", "source_type"=>"file", "target_type"=>"file", "target_path_previous_version"=>"sample.txt", "target_path_next_version"=>"sample.txt", "contents"=>nil}]}]
 
     Updates.mark_reviewed(@settings, 'test 0', 'sample.txt')
     all_repo_diffs = Updates.all_repo_diffs(@settings)
@@ -553,8 +553,8 @@ class SettingsTest
     end
     all_repo_diffs = Updates.all_repo_diffs(@settings)
     puts "fail: two different files: #{all_repo_diffs.inspect}" if all_repo_diffs !=
-      [{"name"=>"test 0", "diffs"=>[{"path"=>"sample.txt", "source_type"=>"file", "target_type"=>"file", "target_path_previous_version"=>"sample.txt", "contents"=>nil}]},
-       {"name"=>"test 1", "diffs"=>[{"path"=>"1_sample.txt", "source_type"=>"file", "target_type"=>"file", "target_path_previous_version"=>"1_sample.txt", "contents"=>nil}]}]
+      [{"name"=>"test 0", "diffs"=>[{"path"=>"sample.txt", "source_type"=>"file", "target_type"=>"file", "target_path_previous_version"=>"sample.txt", "target_path_next_version"=>"sample.txt", "contents"=>nil}]},
+       {"name"=>"test 1", "diffs"=>[{"path"=>"1_sample.txt", "source_type"=>"file", "target_type"=>"file", "target_path_previous_version"=>"1_sample.txt", "target_path_next_version"=>"1_sample.txt", "contents"=>nil}]}]
 
     Updates.mark_reviewed(@settings, 'test 0', 'sample.txt')
     Updates.mark_reviewed(@settings, 'test 1', '1_sample.txt')
@@ -578,7 +578,7 @@ class SettingsTest
       [{"name"=>"test 0",
         "diffs" =>
          [{"path"=>"a_sub_dir", "source_type"=>"directory", "target_type"=>nil,
-            "target_path_previous_version"=>nil, "contents"=>['a_sample.txt']}]}]
+            "target_path_previous_version"=>nil, "target_path_next_version"=>nil, "contents"=>['a_sample.txt']}]}]
 
     Updates.mark_reviewed(@settings, 'test 0', a_filename)
     all_repo_diffs = Updates.all_repo_diffs(@settings)
@@ -604,7 +604,7 @@ class SettingsTest
       [{"name"=>"test 1",
          "diffs"=>
          [{"path"=>File.join("1_sub_dir"), "source_type"=>"directory",
-            "target_type"=>nil, "target_path_previous_version"=>nil,
+            "target_type"=>nil, "target_path_previous_version"=>nil, "target_path_next_version"=>nil,
             "contents"=>[File.join("11_sub_dir", "111_sub_dir", '1_sample.txt'),
                          File.join("11_sub_dir", "111_sub_dir", '1_sample2.txt'),
                          File.join("11_sub_dir", "112_sub_dir", '1121_sub_dir', '1_sample3.txt')]}]}]
@@ -617,7 +617,7 @@ class SettingsTest
          "diffs"=>
          [{"path"=>File.join("1_sub_dir", "11_sub_dir", "112_sub_dir"),
             "source_type"=>"directory", 
-            "target_type"=>nil, "target_path_previous_version"=>nil,
+            "target_type"=>nil, "target_path_previous_version"=>nil, "target_path_next_version"=>nil,
             "contents"=>[File.join('1121_sub_dir', '1_sample3.txt')]}]}]
 
 
@@ -630,12 +630,13 @@ class SettingsTest
          [{"path"=>File.join("1_sub_dir", "11_sub_dir", "112_sub_dir"),
             "source_type"=>"directory",
             "target_type"=>nil,
-            "target_path_previous_version"=>nil,
+            "target_path_previous_version"=>nil, "target_path_next_version"=>nil,
             "contents"=>[File.join('1121_sub_dir', '1_sample3.txt')]},
           {"path"=>File.join("1_sub_dir", "11_sub_dir", "sample.txt"),
             "source_type"=>nil,
             "target_type"=>"file",
             "target_path_previous_version"=>File.join("1_sub_dir", "11_sub_dir", "sample.txt"),
+            "target_path_next_version"=>File.join("1_sub_dir", "11_sub_dir", "sample.txt"),
             "contents"=>nil}]}]
 
     Updates.mark_reviewed(@settings, 'test 1', File.join('1_sub_dir', '11_sub_dir'))
@@ -657,6 +658,7 @@ class SettingsTest
             "source_type"=>nil,
             "target_type"=>"directory",
             "target_path_previous_version"=>File.join("1_sub_dir","11_sub_dir"),
+            "target_path_next_version"=>File.join("1_sub_dir","11_sub_dir"),
             "contents"=>["111_sub_dir/1_sample.txt",
                          "111_sub_dir/1_sample2.txt",
                          "112_sub_dir/1121_sub_dir/1_sample3.txt"]}]}]
@@ -673,7 +675,7 @@ class SettingsTest
     all_repo_diffs = Updates.all_repo_diffs(@settings)
     puts "fail: file vs dir: #{all_repo_diffs.inspect}" if all_repo_diffs != 
       [{"name"=>"test 1",
-         "diffs"=>[{"path"=>"1_sub_dir", "source_type"=>"file", "target_type"=>"directory", "target_path_previous_version"=>"1_sub_dir", "contents"=>[]}]}]
+         "diffs"=>[{"path"=>"1_sub_dir", "source_type"=>"file", "target_type"=>"directory", "target_path_previous_version"=>"1_sub_dir", "target_path_next_version"=>"1_sub_dir", "contents"=>[]}]}]
 
     Updates.mark_reviewed(@settings, 'test 1', '1_sub_dir')
     all_repo_diffs = Updates.all_repo_diffs(@settings)
@@ -689,7 +691,7 @@ class SettingsTest
     puts "fail: dir vs file: #{all_repo_diffs.inspect}" if all_repo_diffs != 
       [{"name"=>"test 1",
          "diffs"=>
-         [{"path"=>"1_sub_dir", "source_type"=>"directory", "target_type"=>"file", "target_path_previous_version"=>"1_sub_dir", "contents"=>["1_sample.txt"]}]}]
+         [{"path"=>"1_sub_dir", "source_type"=>"directory", "target_type"=>"file", "target_path_previous_version"=>"1_sub_dir", "target_path_next_version"=>"1_sub_dir", "contents"=>["1_sample.txt"]}]}]
 
     Updates.mark_reviewed(@settings, 'test 1', '1_sub_dir')
     all_repo_diffs = Updates.all_repo_diffs(@settings)
@@ -704,7 +706,7 @@ class SettingsTest
     all_repo_diffs = Updates.all_repo_diffs(@settings)
     puts "fail: mismatch file types w/ good link: #{all_repo_diffs.inspect}" if all_repo_diffs !=
       [{"name"=>"test 1",
-         "diffs"=>[{"path"=>"1_sub_dir/1_sample.txt", "source_type"=>"file", "target_type"=>"file", "target_path_previous_version"=>"1_sub_dir/1_sample.txt", "contents"=>nil}]}]
+         "diffs"=>[{"path"=>"1_sub_dir/1_sample.txt", "source_type"=>"file", "target_type"=>"file", "target_path_previous_version"=>"1_sub_dir/1_sample.txt", "target_path_next_version"=>"1_sub_dir/1_sample.txt", "contents"=>nil}]}]
 
 
 
@@ -715,7 +717,7 @@ class SettingsTest
     all_repo_diffs = Updates.all_repo_diffs(@settings)
     puts "fail: mismatch file types w/ bad link: #{all_repo_diffs.inspect}" if all_repo_diffs !=
       [{"name"=>"test 1",
-         "diffs"=>[{"path"=>"1_sub_dir/1_sample.txt", "source_type"=>"file", "target_type"=>nil, "target_path_previous_version"=>"1_sub_dir/1_sample.txt", "contents"=>nil}]}]
+         "diffs"=>[{"path"=>"1_sub_dir/1_sample.txt", "source_type"=>"file", "target_type"=>nil, "target_path_previous_version"=>"1_sub_dir/1_sample.txt", "target_path_next_version"=>"1_sub_dir/1_sample.txt", "contents"=>nil}]}]
 
 
 
@@ -726,7 +728,7 @@ class SettingsTest
     all_repo_diffs = Updates.all_repo_diffs(@settings)
     puts "fail: mismatch file types: #{all_repo_diffs.inspect}" if all_repo_diffs !=
       [{"name"=>"test 1",
-         "diffs"=>[{"path"=>"1_sub_dir/1_sample.txt", "source_type"=>"file", "target_type"=>"link", "target_path_previous_version"=>"1_sub_dir/1_sample.txt", "contents"=>nil}]}]
+         "diffs"=>[{"path"=>"1_sub_dir/1_sample.txt", "source_type"=>"file", "target_type"=>"link", "target_path_previous_version"=>"1_sub_dir/1_sample.txt", "target_path_next_version"=>"1_sub_dir/1_sample.txt", "contents"=>nil}]}]
 
     Updates.mark_reviewed(@settings, 'test 1', '1_sub_dir')
     all_repo_diffs = Updates.all_repo_diffs(@settings)
@@ -771,7 +773,7 @@ class SettingsTest
     end
     all_repo_diffs = Updates.all_repo_diffs(@settings)
     puts "fail: added incoming: #{all_repo_diffs.inspect}" if all_repo_diffs !=
-      [{"name"=>"test out 0", "diffs"=>[{"path"=>"sample.txt", "source_type"=>"file", "target_type"=>nil, "target_path_previous_version"=>nil, "contents"=>nil}]}]
+      [{"name"=>"test out 0", "diffs"=>[{"path"=>"sample.txt", "source_type"=>"file", "target_type"=>nil, "target_path_previous_version"=>nil, "target_path_next_version"=>nil, "contents"=>nil}]}]
       
     Updates.mark_reviewed(@settings, 'test out 0')
     all_repo_diffs = Updates.all_repo_diffs(@settings)
@@ -784,7 +786,7 @@ class SettingsTest
     end
     all_out_diffs = Updates.all_outgoing_diffs(@settings)
     puts "fail: must copy out: #{all_out_diffs.inspect}" if all_out_diffs !=
-      [{"name"=>"test out 0", "diffs"=>[{"path"=>"sample.txt", "source_type"=>"file", "target_type"=>nil, "target_path_previous_version"=>nil, "contents"=>nil}]}]
+      [{"name"=>"test out 0", "diffs"=>[{"path"=>"sample.txt", "source_type"=>"file", "target_type"=>nil, "target_path_previous_version"=>nil, "target_path_next_version"=>nil, "contents"=>nil}]}]
 
     Updates.copy_to_outgoing(@settings, 'test out 0')
     all_out_diffs = Updates.all_outgoing_diffs(@settings)
@@ -800,7 +802,7 @@ class SettingsTest
     all_repo_diffs = Updates.all_repo_diffs(@settings)
     puts "fail: versioned incoming: #{all_repo_diffs.inspect}" if all_repo_diffs !=
       [{"name"=>"test out 0", "diffs"=>
-        [{"path"=>"sample_2.txt", "source_type"=>"file", "target_type"=>"file", "target_path_previous_version"=>"sample.txt", "contents"=>nil}]}]
+        [{"path"=>"sample_2.txt", "source_type"=>"file", "target_type"=>"file", "target_path_previous_version"=>"sample.txt", "target_path_next_version"=>"sample.txt", "contents"=>nil}]}]
     
     
     
@@ -812,7 +814,7 @@ class SettingsTest
     all_repo_diffs = Updates.all_repo_diffs(@settings)
     puts "fail: versioned incoming: #{all_repo_diffs.inspect}" if all_repo_diffs !=
       [{"name"=>"test out 0", "diffs"=>
-        [{"path"=>"sample_3.txt", "source_type"=>"file", "target_type"=>"file", "target_path_previous_version"=>"sample.txt", "contents"=>nil}]}]
+        [{"path"=>"sample_3.txt", "source_type"=>"file", "target_type"=>"file", "target_path_previous_version"=>"sample.txt", "target_path_next_version"=>"sample.txt", "contents"=>nil}]}]
     
     
     
@@ -824,7 +826,7 @@ class SettingsTest
     all_repo_diffs = Updates.all_repo_diffs(@settings)
     puts "fail: versioned incoming: #{all_repo_diffs.inspect}" if all_repo_diffs !=
       [{"name"=>"test out 0", "diffs"=>
-        [{"path"=>"sample_16.txt", "source_type"=>"file", "target_type"=>"file", "target_path_previous_version"=>"sample.txt", "contents"=>nil}]}]
+        [{"path"=>"sample_16.txt", "source_type"=>"file", "target_type"=>"file", "target_path_previous_version"=>"sample.txt", "target_path_next_version"=>"sample.txt", "contents"=>nil}]}]
     
     
     

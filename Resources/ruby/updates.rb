@@ -80,7 +80,7 @@ class Updates
     versioned_info = versioned_filenames(diff_dirs_result)
     versions = versioned_info.map { |v_dm| v_dm['version'] }
     latest_target_versions = latest_versions(versions, target_dir)
-    only_new_revisions(versioned_info, latest_target_versions)
+    only_new_revisions(versioned_info, latest_target_versions, true)
   end
   
   def self.versioned_diffs_out(diff_dirs_result, target_dir)
@@ -90,15 +90,21 @@ class Updates
     }.compact
     latest_target_versions = latest_versions(versions, target_dir)
     # now output the files with incremented target versions
-    #versions_paths = 
+    versions_paths = diff_dirs_result.map { |diff|
+      {'version'=>version_of(diff['path']), 'diff_match'=>{'diff'=>diff}}
+    }
+    only_new_revisions(versions_paths, latest_target_versions, false)
   end
   
+  # versioned_info is an array of hash: 'version' is a version and 'diff_match' is a hash where 'diff' is one element from diff_dirs
+  # latest_target_versions is the result from latest_versions
   # return results of diff_dirs augmented with:
   # {
   #   'target_path_previous_version' => the name of the previously reviewed version of this file (for setups with versions that come in via different file names)
+  #   'target_path_next_version' => the name of the next version of the target file (for setups where outgoing files are incremented)
   # }
   # ... but without the entries where source version is gone (ie. source_type==nil) if a new version exists
-  def self.only_new_revisions(versioned_info, latest_target_versions)
+  def self.only_new_revisions(versioned_info, latest_target_versions, hide_lesser_source_versions)
     versioned_info.map { |v_dm|
       version = v_dm['version']
       diff = v_dm['diff_match']['diff']
@@ -106,7 +112,8 @@ class Updates
       latest_target_version = latest_target_versions[version_initial(version)]
       target_version_num = latest_target_version == nil ? -1 : 
         latest_target_version.length == 1 ? -1 : latest_target_version[2]
-      if (diff_version_num < target_version_num &&
+      if (hide_lesser_source_versions &&
+          diff_version_num < target_version_num &&
           # cases:
           # - both are 'file' (so files differ): who cares, since it's old
           # - it's nil (gone) in source: let's not remove it, and leave that up this user's settings
@@ -118,11 +125,15 @@ class Updates
         latest_target = latest_target_version == nil ? nil :
           latest_target_version.length == 1 ? latest_target_version[0] :
           latest_target_version[0] + "_" + latest_target_version[2].to_s + latest_target_version[1]
+        next_target = latest_target_version == nil ? nil :
+          latest_target_version.length == 1 ? latest_target_version[0] :
+          latest_target_version[0] + "_" + (latest_target_version[2]+1).to_s + latest_target_version[1]
         {
           'path' => diff['path'],
           'source_type' => diff['source_type'],
           'target_type' => diff['target_type'],
           'target_path_previous_version' => latest_target,
+          'target_path_next_version' => next_target,
           'contents' => diff['contents']
         }
       end
