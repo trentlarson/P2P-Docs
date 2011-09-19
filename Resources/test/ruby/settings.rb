@@ -247,7 +247,7 @@ class SettingsTest
     latest_target_versions = Updates.latest_versions(versioned_info.map { |v_dm| v_dm['version'] }, v_dir)
     result = Updates.only_new_revisions(versioned_info, latest_target_versions, true)
     expected = [
-      {'path'=>'some4_11.txt', 'source_type'=>'file', 'target_type'=>'file', 'target_path_previous_version'=>'some4_11.txt', 'target_path_next_version'=>'some4_12.txt', 'contents'=>nil},
+      {'path'=>'some4_11.txt', 'source_type'=>'file', 'target_type'=>'file', 'target_path_previous_version'=>'some4_11.txt', 'target_path_next_version'=>'some4_11.txt', 'contents'=>nil},
       # this may not be a good thing, but I'm not going to try and handle it right now
       {'path'=>'some4.txt_12', 'source_type'=>'file', 'target_type'=>nil, 'target_path_previous_version'=>'some4_11.txt', 'target_path_next_version'=>'some4_12.txt', 'contents'=>nil}
     ]
@@ -779,7 +779,6 @@ class SettingsTest
     all_repo_diffs = Updates.all_repo_diffs(@settings)
     puts "fail: all reviewed: #{all_repo_diffs.inspect}" if all_repo_diffs != []
     
-    puts "Here's where I expect things to start failing."
     # now let's accept those changes into our own
     File.open(File.join(repo_test0['my_loc'], 'sample.txt'), 'w') do |out|
       out.write "gabba gabba hey\n"
@@ -794,39 +793,52 @@ class SettingsTest
     
     
     
+    puts "Here's where I expect things to start failing."
     # now let's update it with a transport that uses versioned files
     FileUtils.cp File.join(repo_test0['incoming_loc'], 'sample.txt'), File.join(repo_test0['incoming_loc'], 'sample_2.txt')
     File.open(File.join(repo_test0['incoming_loc'], 'sample_2.txt'), 'a') do |out|
       out.write "you're a cheater face\n"
     end
     all_repo_diffs = Updates.all_repo_diffs(@settings)
-    puts "fail: versioned incoming: #{all_repo_diffs.inspect}" if all_repo_diffs !=
+    puts "fail: versioned incoming 2: #{all_repo_diffs.inspect}" if all_repo_diffs !=
       [{"name"=>"test out 0", "diffs"=>
-        [{"path"=>"sample_2.txt", "source_type"=>"file", "target_type"=>"file", "target_path_previous_version"=>"sample.txt", "target_path_next_version"=>"sample.txt", "contents"=>nil}]}]
+        [{"path"=>"sample_2.txt", "source_type"=>"file", "target_type"=>nil, "target_path_previous_version"=>"sample.txt", "target_path_next_version"=>"sample.txt", "contents"=>nil}]
+      }]
     
     
     
     # ... and another version
-    FileUtils.cp File.join(repo_test0['incoming_loc'], 'sample_2.txt'), File.join(repo_test0['incoming_loc'], 'sample_3.txt')
-    File.open(File.join(repo_test0['incoming_loc'], 'sample_3.txt'), 'a') do |out|
+    FileUtils.cp File.join(repo_test0['incoming_loc'], 'sample_2.txt'), File.join(repo_test0['incoming_loc'], 'sample_4.txt')
+    File.open(File.join(repo_test0['incoming_loc'], 'sample_4.txt'), 'a') do |out|
       out.write "like to shoot, not play\n"
     end
     all_repo_diffs = Updates.all_repo_diffs(@settings)
-    puts "fail: versioned incoming: #{all_repo_diffs.inspect}" if all_repo_diffs !=
+    puts "fail: versioned incoming 4: #{all_repo_diffs.inspect}" if all_repo_diffs !=
       [{"name"=>"test out 0", "diffs"=>
-        [{"path"=>"sample_3.txt", "source_type"=>"file", "target_type"=>"file", "target_path_previous_version"=>"sample.txt", "target_path_next_version"=>"sample.txt", "contents"=>nil}]}]
+        [{"path"=>"sample_2.txt", "source_type"=>"file", "target_type"=>nil, "target_path_previous_version"=>"sample.txt", "target_path_next_version"=>"sample.txt", "contents"=>nil},
+         {"path"=>"sample_4.txt", "source_type"=>"file", "target_type"=>nil, "target_path_previous_version"=>"sample.txt", "target_path_next_version"=>"sample.txt", "contents"=>nil}]
+      }]
     
+    
+    Updates.mark_reviewed(@settings, 'test out 0', 'sample_2.txt', 'sample.txt')
+    all_repo_diffs = Updates.all_repo_diffs(@settings)
+    puts "fail: versioned incoming 4 reviewed: #{all_repo_diffs.inspect}" if all_repo_diffs !=
+      [{"name"=>"test out 0", "diffs"=>
+        [{"path"=>"sample_4.txt", "source_type"=>"file", "target_type"=>nil, "target_path_previous_version"=>"sample_2.txt", "target_path_next_version"=>"sample_4.txt", "contents"=>nil}]
+      }]
     
     
     # ... and one last version
-    FileUtils.mv File.join(repo_test0['incoming_loc'], 'sample_3.txt'), File.join(repo_test0['incoming_loc'], 'sample_16.txt')
+    FileUtils.mv File.join(repo_test0['incoming_loc'], 'sample_4.txt'), File.join(repo_test0['incoming_loc'], 'sample_16.txt')
     File.open(File.join(repo_test0['incoming_loc'], 'sample_16.txt'), 'a') do |out|
       out.write "fly your leisure pace\n"
     end
     all_repo_diffs = Updates.all_repo_diffs(@settings)
-    puts "fail: versioned incoming: #{all_repo_diffs.inspect}" if all_repo_diffs !=
+    puts "fail: versioned incoming 16: #{all_repo_diffs.inspect}" if all_repo_diffs !=
       [{"name"=>"test out 0", "diffs"=>
-        [{"path"=>"sample_16.txt", "source_type"=>"file", "target_type"=>"file", "target_path_previous_version"=>"sample.txt", "target_path_next_version"=>"sample.txt", "contents"=>nil}]}]
+        [{"path"=>"sample_4.txt", "source_type"=>"file", "target_type"=>nil, "target_path_previous_version"=>"sample.txt", "target_path_next_version"=>"sample.txt", "contents"=>nil},
+         {"path"=>"sample_16.txt", "source_type"=>"file", "target_type"=>"file", "target_path_previous_version"=>"sample.txt", "target_path_next_version"=>"sample.txt", "contents"=>nil}]
+      }]
     
     
     

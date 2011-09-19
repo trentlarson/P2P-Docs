@@ -121,16 +121,20 @@ class Updates
   #   'target_path_next_version' => the name of the next version of the target file (for setups where outgoing files are incremented)
   # }
   # ... but without the entries where source version is gone (ie. source_type==nil) if a new version exists
-  def self.only_new_revisions(versioned_info, latest_target_versions, hide_lesser_source_versions)
+  def self.only_new_revisions(versioned_info, latest_target_versions, incoming)
     versioned_info.map { |v_dm|
       version = v_dm['version']
       diff = v_dm['diff_match']['diff']
       diff_version_num = version.length == 1 ? -1 : version[2]
       latest_target_version = latest_target_versions[version_initial(version)]
-      target_version_num = latest_target_version == nil ? -1 : 
+      latest_target_version_num = latest_target_version == nil ? -1 : 
         latest_target_version.length == 1 ? -1 : latest_target_version[2]
-      if (hide_lesser_source_versions &&
-          diff_version_num < target_version_num &&
+      # this is where we'll add the different outgoing setup (without versions)
+      target_output_suffix =
+        incoming ? (latest_target_version_num == -1 ? "" : ("_" + [diff_version_num, latest_target_version_num].max.to_s))
+        : ("_" + (latest_target_version_num + 1).to_s)
+      if (incoming &&
+          diff_version_num < latest_target_version_num &&
           # cases:
           # - both are 'file' (so files differ): who cares, since it's old
           # - it's nil (gone) in source: let's not remove it, and leave that up this user's settings
@@ -144,7 +148,7 @@ class Updates
           latest_target_version[0] + "_" + latest_target_version[2].to_s + latest_target_version[1]
         next_target = latest_target_version == nil ? nil :
           latest_target_version.length == 1 ? latest_target_version[0] :
-          latest_target_version[0] + "_" + (latest_target_version[2]+1).to_s + latest_target_version[1]
+          (latest_target_version[0] + target_output_suffix + latest_target_version[1])
         {
           'path' => diff['path'],
           'source_type' => diff['source_type'],
@@ -364,13 +368,13 @@ class Updates
       subpath = subpath[1, subpath.length - 1]
     end
     full_dir = File.join(source_dir, subpath)
-#puts "  recursing... #{full_dir} a file? #{FileTest.file? full_dir} #{File.ftype(full_dir)}"
+    #puts "  recursing... #{full_dir} a file? #{FileTest.file? full_dir} #{File.ftype(full_dir)}"
     if (FileTest.file? full_dir)
-#puts "  recurse ended on file #{full_dir}: #{[full_dir]}"
+      #puts "  recurse ended on file #{full_dir}: #{[full_dir]}"
       [subpath]
     elsif (FileTest.directory? full_dir)
       entries = Dir.entries(full_dir).reject{ |entry| entry == '.' || entry == '..' }
-#puts "  recursing on #{entries}: #{entries.map{ |entry| all_files_below(source_dir, File.join(subpath, entry)) }.flatten}"
+      #puts "  recursing on #{entries}: #{entries.map{ |entry| all_files_below(source_dir, File.join(subpath, entry)) }.flatten}"
       entries.map{ |entry| all_files_below(source_dir, File.join(subpath, entry)) }.flatten
     else
       # it's an unknown ftype; we'll ignore it
@@ -379,9 +383,13 @@ class Updates
   end
 
   # marks the subpath in repo['incoming_loc'] as reviewed
-  def self.mark_reviewed(settings, repo_name, subpath = nil)
+  # remove is the previous file, and it will be removed
+  def self.mark_reviewed(settings, repo_name, subpath = nil, remove = nil)
     repo = settings.get_repo_by_name(repo_name)
     copy_all_contents(repo['incoming_loc'], settings.reviewed_dir(repo), subpath)
+    if (remove != nil)
+      FileUtils::remove_entry_secure(remove, true)
+    end
   end
 
 
