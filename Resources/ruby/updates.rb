@@ -131,8 +131,7 @@ class Updates
         latest_target_version.length == 1 ? -1 : latest_target_version[2]
       # this is where we'll add the different outgoing setup (without versions)
       target_output_suffix =
-        incoming ? (latest_target_version_num == -1 ? "" : ("_" + [diff_version_num, latest_target_version_num].max.to_s))
-        : ("_" + (latest_target_version_num + 1).to_s)
+        incoming ? (latest_target_version_num == -1 ? "" : ("_" + [diff_version_num, latest_target_version_num].max.to_s)) : ("_" + (latest_target_version_num + 1).to_s)
       if (incoming &&
           diff_version_num < latest_target_version_num &&
           # cases:
