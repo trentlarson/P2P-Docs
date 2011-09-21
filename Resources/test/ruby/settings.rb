@@ -877,7 +877,33 @@ class SettingsTest
     puts "fail: versioned incoming 16: #{result.inspect}" if result != expected
     
     
-    puts "mark reviewed, check for empty set"
+    Updates.mark_reviewed(@settings, 'test out 0', 'sample_4.txt')
+    result = Updates.all_repo_diffs(@settings)
+    expected = 
+      [{"name"=>"test out 0", 
+        "diffs"=>
+        [{"path"=>"sample_8.txt", "source_type"=>"file", "target_type"=>nil, "target_path_previous_version"=>"sample_4.txt", "target_path_next_version"=>"sample_8.txt", "contents"=>nil},
+         {"path"=>"sample_16.txt", "source_type"=>"file", "target_type"=>nil, "target_path_previous_version"=>"sample_4.txt", "target_path_next_version"=>"sample_16.txt", "contents"=>nil}]
+      }]
+    puts "fail: versioned incoming accepted 4: #{result.inspect}" if result != expected
+    
+    
+    Updates.mark_reviewed(@settings, 'test out 0', 'sample_8.txt', 'sample_4.txt')
+    result = Updates.all_repo_diffs(@settings)
+    expected = 
+      [{"name"=>"test out 0", 
+        "diffs"=>
+        [{"path"=>"sample_16.txt", "source_type"=>"file", "target_type"=>nil, "target_path_previous_version"=>"sample_8.txt", "target_path_next_version"=>"sample_16.txt", "contents"=>nil}]
+      }]
+    puts "fail: versioned incoming accepted 8: #{result.inspect}" if result != expected
+    
+    
+    Updates.mark_reviewed(@settings, 'test out 0', 'sample_16.txt', 'sample_8.txt')
+    result = Updates.all_repo_diffs(@settings)
+    expected = []
+    puts "fail: versioned incoming accepted 16: #{result.inspect}" if result != expected
+    
+    
     puts "add multiple reviewed, and remove old reviewed versions"
     #puts "put multiple incoming, check for different acceptance"
     
