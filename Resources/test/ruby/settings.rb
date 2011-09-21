@@ -796,7 +796,6 @@ class SettingsTest
     
     
     
-    puts "Here's where I expect things to start failing."
     # now let's update it with a transport that uses versioned files
     FileUtils.cp File.join(repo_test0['incoming_loc'], 'sample.txt'), File.join(repo_test0['incoming_loc'], 'sample_2.txt')
     File.open(File.join(repo_test0['incoming_loc'], 'sample_2.txt'), 'a') do |out|
@@ -853,20 +852,29 @@ class SettingsTest
     # Note that it may work by commenting out the next test.
     # It works in Ruby v 1.8.  Ug.
 
-    # ... and one last version
+    # ... and one last version, with changes to previous copies
     FileUtils.cp File.join(repo_test0['incoming_loc'], 'sample_8.txt'), File.join(repo_test0['incoming_loc'], 'sample_16.txt')
+    File.open(File.join(repo_test0['incoming_loc'], 'sample.txt'), 'a') do |out|
+      out.write "boo-ya!\n"
+    end
+    File.open(File.join(repo_test0['incoming_loc'], 'sample_2.txt'), 'a') do |out|
+      out.write "boo-ya!\n"
+    end
     File.open(File.join(repo_test0['incoming_loc'], 'sample_16.txt'), 'a') do |out|
       out.write "boo-ya!\n"
     end
-    all_repo_diffs = Updates.all_repo_diffs(@settings)
-    #puts "fail: versioned incoming 16: #{all_repo_diffs}" if all_repo_diffs != [{"name"=>"test out 0", "diffs"=>[{"path"=>"sample_4.txt", "source_type"=>"file", "target_type"=>nil, "target_path_previous_version"=>"sample_2.txt", "target_path_next_version"=>"sample_4.txt", "contents"=>nil}, {"path"=>"sample_8.txt", "source_type"=>"file", "target_type"=>nil, "target_path_previous_version"=>"sample_2.txt", "target_path_next_version"=>"sample_8.txt", "contents"=>nil}, {"path"=>"sample_16.txt", "source_type"=>"file", "target_type"=>nil, "target_path_previous_version"=>"sample_2.txt", "target_path_next_version"=>"sample_16.txt", "contents"=>nil}]}]
-    puts "fail: versioned incoming 16: #{all_repo_diffs}" if all_repo_diffs != 
+    result = Updates.all_repo_diffs(@settings)
+    expected = 
       [{"name"=>"test out 0", 
         "diffs"=>
-        [{"path"=>"sample_4.txt", "source_type"=>"file", "target_type"=>nil, "target_path_previous_version"=>"sample_2.txt", "target_path_next_version"=>"sample_4.txt", "contents"=>nil},
+        [{"path"=>"sample_2.txt", "source_type"=>"file", "target_type"=>"file", "target_path_previous_version"=>"sample_2.txt", "target_path_next_version"=>"sample_2.txt", "contents"=>nil},
+         {"path"=>"sample_4.txt", "source_type"=>"file", "target_type"=>nil, "target_path_previous_version"=>"sample_2.txt", "target_path_next_version"=>"sample_4.txt", "contents"=>nil},
          {"path"=>"sample_8.txt", "source_type"=>"file", "target_type"=>nil, "target_path_previous_version"=>"sample_2.txt", "target_path_next_version"=>"sample_8.txt", "contents"=>nil},
          {"path"=>"sample_16.txt", "source_type"=>"file", "target_type"=>nil, "target_path_previous_version"=>"sample_2.txt", "target_path_next_version"=>"sample_16.txt", "contents"=>nil}]
       }]
+    #puts "Expected:"; expected.each { |inresult| puts inresult.inspect + "\n" }
+    #puts "... and got:"; result.each { |inresult| puts inresult.inspect + "\n" }
+    puts "fail: versioned incoming 16: #{result.inspect}" if result != expected
     
     
     puts "mark reviewed, check for empty set"
