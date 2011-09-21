@@ -6,6 +6,20 @@ require 'fileutils'
 # 2) ... or do this:
 # ruby -e 'load "updates.rb"; SEE_END_OF_FILE'
 
+
+rver = RUBY_VERSION.split(".")
+if (rver[0].to_i + ("." + rver[1]).to_f < 1.9)
+  # add the == method for comparing my test results in 1.8
+  class MatchData
+    def ==(b)
+      return b != nil &&
+        pre_match == b.pre_match &&
+        to_a == b.to_a &&
+        post_match == b.post_match
+    end
+  end
+end
+  
 class Updates
   
   # takes an argument which is any nesting of String, Array, and Hash objects (and nil)

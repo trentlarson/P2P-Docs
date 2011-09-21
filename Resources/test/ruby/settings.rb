@@ -139,6 +139,9 @@ class SettingsTest
     
   end
 
+
+
+
   def test_versioned_diffs
     
     file = "file_abc.txt"
@@ -362,7 +365,7 @@ class SettingsTest
       {'path'=>'dir1/dir2/file_4.txt', 'source_type'=>'file', 'target_type'=>'file', 'contents'=>nil},
       {'path'=>'dir1/dir2/file_3.txt', 'source_type'=>'file', 'target_type'=>'file', 'contents'=>nil}
     ]
-    versioned_files = Updates.versioned_filenames diff_results
+    result = Updates.versioned_filenames diff_results
     expected = 
     [
       {'version'=>["afile.txt"], 'diff_match'=>{"diff"=>{"path"=>"afile.txt", "source_type"=>"file", "target_type"=>nil, "contents"=>nil}, "match"=>nil}},
@@ -379,9 +382,9 @@ class SettingsTest
       {'version'=>["dir1/file2.txt"], 'diff_match'=>{"diff"=>{"path"=>"dir1/file2.txt", "source_type"=>"file", "target_type"=>"file", "contents"=>nil}, "match"=>nil}},
       {'version'=>["dir_5.xyz"], 'diff_match'=>{"diff"=>{"path"=>"dir_5.xyz", "source_type"=>nil, "target_type"=>"directory", "contents"=>[]}, "match"=>nil}}
     ]
-    #puts "Expected:"; expected.each { |inresult| puts inresult.to_s + "\n" }
-    #puts "... and got:"; versioned_files.each { |inresult| puts inresult.to_s + "\n" }
-    puts "fail: basic versioned file diffs: #{versioned_files}" if versioned_files != expected
+    #puts "Expected:"; expected.each { |inresult| puts inresult.inspect + "\n" }
+    #puts "... and got:"; result.each { |inresult| puts inresult.inspect + "\n" }
+    puts "fail: basic versioned file diffs: #{result.inspect}" if result != expected
     
     
     
