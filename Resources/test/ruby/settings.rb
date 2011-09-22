@@ -780,7 +780,7 @@ class SettingsTest
     all_repo_diffs = Updates.all_repo_diffs(@settings)
     puts "fail: added incoming: #{all_repo_diffs.inspect}" if all_repo_diffs !=
       [{"name"=>"test out 0", "diffs"=>[{"path"=>"sample.txt", "source_type"=>"file", "target_type"=>nil, "target_path_previous_version"=>nil, "target_path_next_version"=>nil, "contents"=>nil}]}]
-      
+    
     Updates.mark_reviewed(@settings, 'test out 0')
     all_repo_diffs = Updates.all_repo_diffs(@settings)
     puts "fail: all reviewed: #{all_repo_diffs.inspect}" if all_repo_diffs != []
@@ -901,22 +901,33 @@ class SettingsTest
     puts "fail: versioned incoming accepted 8: #{result.inspect}" if result != expected
     
     
-    Updates.mark_reviewed(@settings, 'test out 0', 'sample_16.txt', 'sample_8.txt')
-    result = Updates.all_repo_diffs(@settings)
-    expected = []
-    puts "fail: versioned incoming accepted 16: #{result.inspect}" if result != expected
     
-    
-    puts "add multiple reviewed, and remove old reviewed versions"
-    #puts "put multiple incoming, check for different acceptance"
-    
-    
-    # do the same for outgoing files
-    FileUtils.cp_r File.join(repo_test0['incoming_loc'], 'sample_2.txt'), File.join(repo_test0['my_loc'], 'my_sample.txt')
+    FileUtils.cp_r(File.join(@settings.reviewed_dir('test out 0'), 'sample_8.txt'), File.join(repo_test0['my_loc'], 'my_sample.txt'))
     all_repo_diffs = Updates.all_outgoing_diffs(@settings)
     puts "fail: versioned outgoing: #{all_repo_diffs.inspect}" if all_repo_diffs !=
       [{"name"=>"test out 0", "diffs"=>
         [{"path"=>"my_sample.txt", "source_type"=>"file", "target_type"=>nil, "target_path_previous_version"=>nil, "target_path_next_version"=>nil, "contents"=>nil}]}]
+    
+    
+    Updates.copy_to_outgoing(@settings, 'test out 0', 'my_sample.txt')
+    all_repo_diffs = Updates.all_outgoing_diffs(@settings)
+    puts "fail: versioned outgoing: #{all_repo_diffs.inspect}" if all_repo_diffs != []
+    
+    
+    Updates.mark_reviewed(@settings, 'test out 0', 'sample_16.txt', 'sample_8.txt')
+    result = Updates.all_repo_diffs(@settings)
+    expected = []
+    puts "fail: versioned incoming accepted 16: #{result.inspect}" if result != expected
+    puts "fail: versioned incoming old are gone: #{result.inspect}" if File.exist? File.join(@settings.reviewed_dir('test out 0'), "sample_8.txt")
+    
+    
+    
+    Updates.copy_to_outgoing(@settings, 'test out 0', 'my_sample.txt')
+    all_repo_diffs = Updates.all_outgoing_diffs(@settings)
+    puts "fail: versioned outgoing: #{all_repo_diffs.inspect}" if all_repo_diffs != []
+    puts
+    puts "gotta check that it created a versioned my_sample_2.txt!!"
+    puts
     
     
     puts "when there's a change in my copy (whether or not to the same output) and I publish"
