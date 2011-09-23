@@ -252,8 +252,8 @@ class SettingsTest
     ]
     #result = Updates.versioned_diffs2(diff_results, v_dir)
     versioned_info = Updates.versioned_filenames(diff_results)
-    latest_target_versions = Updates.latest_versions(versioned_info.map { |v_dm| v_dm['version'] }, v_dir)
-    result = Updates.only_new_revisions(versioned_info, latest_target_versions, true)
+    versions = versioned_info.map { |v_dm| v_dm['version'] }
+    result = Updates.only_new_revisions(versioned_info, versions, v_dir, true)
     expected = [
       {'path'=>'some4_11.txt', 'source_type'=>'file', 'target_type'=>'file', 'target_path_previous_version'=>'some4_11.txt', 'target_path_next_version'=>'some4_11.txt', 'contents'=>nil},
       # this may not be a good thing, but I'm not going to try and handle it right now
@@ -770,6 +770,8 @@ class SettingsTest
     setup_settings({'repositories'=>[]})
     repo_test0 = @settings.add_repo('test out 0', File.join(@test_data_dir, 'sources', 'cracked'),
       File.join(@test_data_dir, 'my_copies', 'cracked'), File.join(@test_data_dir, 'targets', 'cracked'))
+    puts "fail: couldn't create repo 'test out 0'" if repo_test0 == nil
+    
     FileUtils::mkpath(repo_test0['incoming_loc'])
     FileUtils::mkpath(@settings.reviewed_dir(repo_test0))
     FileUtils::mkpath(repo_test0['my_loc'])
@@ -791,7 +793,7 @@ class SettingsTest
     end
     all_out_diffs = Updates.all_outgoing_diffs(@settings)
     puts "fail: must copy out: #{all_out_diffs.inspect}" if all_out_diffs !=
-      [{"name"=>"test out 0", "diffs"=>[{"path"=>"sample.txt", "source_type"=>"file", "target_type"=>nil, "target_path_previous_version"=>nil, "target_path_next_version"=>nil, "contents"=>nil}]}]
+      [{"name"=>"test out 0", "diffs"=>[{"path"=>"sample.txt", "source_type"=>"file", "target_type"=>nil, "target_path_previous_version"=>nil, "target_path_next_version"=>"sample_0.txt", "contents"=>nil}]}]
 
     Updates.copy_to_outgoing(@settings, 'test out 0')
     all_out_diffs = Updates.all_outgoing_diffs(@settings)
@@ -906,29 +908,35 @@ class SettingsTest
     all_repo_diffs = Updates.all_outgoing_diffs(@settings)
     puts "fail: versioned outgoing: #{all_repo_diffs.inspect}" if all_repo_diffs !=
       [{"name"=>"test out 0", "diffs"=>
-        [{"path"=>"my_sample.txt", "source_type"=>"file", "target_type"=>nil, "target_path_previous_version"=>nil, "target_path_next_version"=>nil, "contents"=>nil}]}]
+        [{"path"=>"my_sample.txt", "source_type"=>"file", "target_type"=>nil, "target_path_previous_version"=>nil, "target_path_next_version"=>"my_sample_0.txt", "contents"=>nil}]}]
     
     
+    # in the program this will copy to my_sample_0.txt, but we'll do my_sample.txt just for testing
     Updates.copy_to_outgoing(@settings, 'test out 0', 'my_sample.txt')
     all_repo_diffs = Updates.all_outgoing_diffs(@settings)
-    puts "fail: versioned outgoing: #{all_repo_diffs.inspect}" if all_repo_diffs != []
+    puts "fail: versioned outgoing after copy 8: #{all_repo_diffs.inspect}" if all_repo_diffs != []
     
     
     Updates.mark_reviewed(@settings, 'test out 0', 'sample_16.txt', 'sample_8.txt')
     result = Updates.all_repo_diffs(@settings)
     expected = []
     puts "fail: versioned incoming accepted 16: #{result.inspect}" if result != expected
-    puts "fail: versioned incoming old are gone: #{result.inspect}" if File.exist? File.join(@settings.reviewed_dir('test out 0'), "sample_8.txt")
+    puts "fail: versioned incoming reviewed not gone" if File.exist? File.join(@settings.reviewed_dir('test out 0'), "sample_8.txt")
     
     
-    
-    Updates.copy_to_outgoing(@settings, 'test out 0', 'my_sample.txt')
+    # copy that reviewed info into my own copy
+    FileUtils.cp_r(File.join(@settings.reviewed_dir('test out 0'), 'sample_16.txt'), File.join(repo_test0['my_loc'], 'my_sample.txt'))
     all_repo_diffs = Updates.all_outgoing_diffs(@settings)
-    puts "fail: versioned outgoing: #{all_repo_diffs.inspect}" if all_repo_diffs != []
-    puts
-    puts "gotta check that it created a versioned my_sample_2.txt!!"
-    puts
+    puts "fail: versioned outgoing after copy 16: #{all_repo_diffs.inspect}" if all_repo_diffs !=
+      [{"name"=>"test out 0", "diffs"=>
+        [{"path"=>"my_sample.txt", "source_type"=>"file", "target_type"=>"file", "target_path_previous_version"=>"my_sample.txt", "target_path_next_version"=>"my_sample_0.txt", "contents"=>nil}]}]
     
+    
+    
+    Updates.copy_to_outgoing(@settings, 'test out 0', 'my_sample.txt', 'my_sample_0.txt')
+    all_repo_diffs = Updates.all_outgoing_diffs(@settings)
+    puts "fail: versioned outgoing after 16 pushed out: #{all_repo_diffs.inspect}" if all_repo_diffs != []
+    puts "fail: versioned outgoing after 16 pushed out not created" if not File.exist? File.join(repo_test0['outgoing_loc'], 'my_sample_0.txt')
     
     puts "when there's a change in my copy (whether or not to the same output) and I publish"
     puts "  if outgoing is marked as number-versioned"
