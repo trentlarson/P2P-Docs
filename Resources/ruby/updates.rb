@@ -84,9 +84,14 @@ class Updates
   
   
   # diff is one element from diff_dirs
+  # version_check is whether to just accept path as version (typically just for outgoing) 
   # return an array of either a) the full initial file name or b) the base name, the extension or "", and the version (this should be a Class of it's own)
-  def self.version_of(diff)
-    match = match_of_versioned_file(diff)
+  def self.version_of(diff, version_check = true)
+    if (version_check)
+      match = match_of_versioned_file(diff)
+    else 
+      match = nil
+    end
     match == nil ? [diff['path']] : [match[1], match[4].to_s, match[3].to_i]
   end
   
@@ -160,12 +165,8 @@ class Updates
   end
   def self.versioned_diffs_out2(diff_dirs_result, source_dir, target_dir, not_versioned)
     versioned_info = diff_dirs_result.map { |diff|
-      {'version'=>version_of(diff), 'diff_match'=>{'diff'=>diff}}
+      {'version'=>version_of(diff, false), 'diff_match'=>{'diff'=>diff}}
     }
-    # gather all the paths, except those which are versioned, put them in the version format
-    versions = diff_dirs_result.map { |diff|
-      diff['source_type'] != nil ? version_of(diff) : nil
-    }.compact
     # now remove any diffs only in the target... we'll just ignore them (possibly with some cleanup process later)
     versioned_info.delete_if { |v_dm| 
       #match_numeric_suffix(v_dm['diff_match']['diff']['path']) != nil &&
@@ -173,6 +174,10 @@ class Updates
       v_dm['diff_match']['diff']['source_type'] == nil
     }
 
+    # gather all the paths, except those which are outputs, and put them in the version format
+    versions = diff_dirs_result.map { |diff|
+      diff['source_type'] != nil ? version_of(diff, false) : nil
+    }.compact
     latest_target_versions = latest_versions(versions, target_dir)
 
     # now output the files with incremented target versions
@@ -191,8 +196,7 @@ class Updates
           File.mtime(File.join(source_dir, diff['path'])) <= File.mtime(File.join(target_dir, latest_target)))
         nil
       else
-        if (latest_target_version == nil ||
-            not_versioned)
+        if (not_versioned)
           next_target = diff['path']
         else
           latest_target_version_num = latest_target_version == nil ? -1 : 
@@ -262,7 +266,7 @@ class Updates
     initial_with_max_version_at_target
   end
   
-  # return array of base-ext pairs for each possible cut position for versioning (only initial files), or nil if there are no candidate positions
+  # return array of base-ext pairs for each possible cut position for versioning (only initial files, used in outgoing), or nil if there are no candidate positions
   def self.possible_version_exts(path)
     path_file = File.split(path)
     segments = path_file[1].split(".")
