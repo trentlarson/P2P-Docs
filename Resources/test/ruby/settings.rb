@@ -1018,7 +1018,7 @@ class SettingsTest
     Updates.copy_to_outgoing(@settings, 'test out 2nd', 'second.txt')
     result = Updates.all_outgoing_diffs(@settings)
     puts "fail: second repo changes accepted: #{result}" if result != []
-    puts "fail: first repo version OK" if not File.exist? File.join(repo_test0['outgoing_loc'], 'our_sample_3_0.txt')
+    puts "fail: first repo version doesn't exist" if not File.exist? File.join(repo_test0['outgoing_loc'], 'our_sample_3_0.txt')
     
     
     File.open(File.join(repo_test0['my_loc'], 'our_sample_3.txt'), 'a') do |out|
@@ -1039,10 +1039,10 @@ class SettingsTest
     Updates.copy_to_outgoing(@settings, 'test out 2nd', 'second.txt')
     result = Updates.all_outgoing_diffs(@settings)
     puts "fail: later first & second repo more changes accepted #{result}" if result != []
-    puts "fail: later first repo version not OK" if not File.exist? File.join(repo_test0['outgoing_loc'], 'our_sample_3_0.txt')
-    puts "fail: later first repo reviewed version not OK" if not File.exist? File.join(@settings.reviewed_dir(repo_test0), 'our_sample_3_0.txt')
-    puts "fail: later second repo version not OK" if not File.exist? File.join(repo_test_2nd['outgoing_loc'], 'second.txt')
-    puts "fail: later second repo reviewed version not OK" if File.exist? File.join(@settings.reviewed_dir(repo_test_2nd), 'second.txt')
+    puts "fail: later first repo version doesn't exist" if not File.exist? File.join(repo_test0['outgoing_loc'], 'our_sample_3_0.txt')
+    puts "fail: later first repo reviewed version doesn't exist" if not File.exist? File.join(@settings.reviewed_dir(repo_test0), 'our_sample_3_0.txt')
+    puts "fail: later second repo version doesn't exist" if not File.exist? File.join(repo_test_2nd['outgoing_loc'], 'second.txt')
+    puts "fail: later second repo reviewed version doesn't exist" if File.exist? File.join(@settings.reviewed_dir(repo_test_2nd), 'second.txt')
 
     
   end
