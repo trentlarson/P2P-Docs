@@ -144,7 +144,7 @@ settings: initial settings; if nil, @@settings will not be reset
         max = maxRepo['id'] + 1
       end
       new_repo = { 'id' => max, 'name' => name, 'incoming_loc' => incoming_loc, 'my_loc' => my_loc, 'outgoing_loc' => outgoing_loc }
-      Dir.mkdir reviewed_dir(new_repo)
+      FileUtils.mkpath reviewed_dir(new_repo)
     rescue
       return nil
     end

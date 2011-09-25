@@ -35,18 +35,36 @@ class SettingsTest
     @settings.replace(settings_data)
 
     # set up the directory structure
-    sources_dir = File.join(@settings.data_dir, "sources")
-    FileUtils::remove_entry_secure(sources_dir, true)
-    Dir.mkdir(sources_dir)
-    FileUtils::remove_entry_secure(@settings.reviewed_base_dir, true)
-    Dir.mkdir(@settings.reviewed_base_dir)
     if (settings_data['repositories'] != nil)
       settings_data['repositories'].each do |repo|
-        Dir.mkdir(repo['incoming_loc'])
+        make_repo_dirs(repo)
       end
     end
   end
-
+  
+  def add_repo(name, incoming_loc, my_loc = nil, outgoing_loc = nil)
+    repo = @settings.add_repo(name, incoming_loc, my_loc, outgoing_loc)
+    if (repo != nil)
+      make_repo_dirs(repo)
+    end
+    repo
+  end
+  
+  def make_repo_dirs(repo)
+    if (repo['incoming_loc'] != nil)
+      FileUtils::remove_entry_secure(repo['incoming_loc'], true)
+      FileUtils.mkdir_p(repo['incoming_loc'])
+    end
+    if (repo['my_loc'] != nil)
+      FileUtils::remove_entry_secure(repo['my_loc'], true)
+      FileUtils.mkdir_p(repo['my_loc'])
+    end
+    if (repo['outgoing_loc'] != nil)
+      FileUtils::remove_entry_secure(repo['outgoing_loc'], true)
+      FileUtils.mkdir_p(repo['outgoing_loc'])
+    end
+  end
+  
   def test_repo_names()
     name = "test_this-thing_here-_"
     puts "fail: #{name} doesn't match expected" if @settings.fixed_repo_name(name) != name
@@ -490,8 +508,8 @@ class SettingsTest
 
     repo_test0 = {'id' => 0, 'name'=>'test 0', 'incoming_loc'=>File.join(@test_data_dir, 'sources', 'hacked')}
     @settings.replace({'repositories'=>[repo_test0]})
-    Dir.mkdir(repo_test0['incoming_loc'])
-    Dir.mkdir(@settings.reviewed_dir(repo_test0))
+    FileUtils.mkdir_p(repo_test0['incoming_loc'])
+    FileUtils.mkdir_p(@settings.reviewed_dir(repo_test0))
     all_repo_diffs = Updates.all_repo_diffs(@settings)
     puts "fail: diffs on one blank repo: #{all_repo_diffs.inspect}" if all_repo_diffs != []
 
@@ -499,8 +517,8 @@ class SettingsTest
 
     repo_test1 = {'id' => 1, 'name'=>'test 1', 'incoming_loc'=>File.join(@test_data_dir, 'sources', 'hacked-again')}
     @settings.replace({'repositories'=>[repo_test0, repo_test1]})
-    Dir.mkdir(repo_test1['incoming_loc'])
-    Dir.mkdir(@settings.reviewed_dir(repo_test1))
+    FileUtils.mkdir_p(repo_test1['incoming_loc'])
+    FileUtils.mkdir_p(@settings.reviewed_dir(repo_test1))
     all_repo_diffs = Updates.all_repo_diffs(@settings)
     puts "fail: diffs on two blank repos: #{all_repo_diffs.inspect}" if all_repo_diffs != []
 
@@ -744,21 +762,21 @@ class SettingsTest
     
     # check that there's no outgoing diffs if there's no outgoing
     setup_settings({'repositories'=>[]})
-    repo_test0 = @settings.add_repo('test out 0', File.join(@test_data_dir, 'sources', 'cracked'),
+    repo_test0 = add_repo('test out 0', File.join(@test_data_dir, 'sources', 'cracked'),
       nil, File.join(@test_data_dir, 'my_copies', 'cracked'))
     all_out_diffs = Updates.all_outgoing_diffs(@settings)
     puts "fail: diff with no source isn't blank: #{all_out_diffs.inspect}" if all_out_diffs != []
     
     # ... or no my_loc
     setup_settings({'repositories'=>[]})
-    repo_test0 = @settings.add_repo('test out 0', File.join(@test_data_dir, 'sources', 'cracked'),
+    repo_test0 = add_repo('test out 0', File.join(@test_data_dir, 'sources', 'cracked'),
       File.join(@test_data_dir, 'my_copies', 'cracked'), nil)
     all_out_diffs = Updates.all_outgoing_diffs(@settings)
     puts "fail: diff with no outgoing isn't blank: #{all_out_diffs.inspect}" if all_out_diffs != []
 
     # ... or neither
     setup_settings({'repositories'=>[]})
-    repo_test0 = @settings.add_repo('test out 0', File.join(@test_data_dir, 'sources', 'cracked'),
+    repo_test0 = add_repo('test out 0', File.join(@test_data_dir, 'sources', 'cracked'),
       nil, nil)
     all_out_diffs = Updates.all_outgoing_diffs(@settings)
     puts "fail: diff with no source/outgoing isn't blank: #{all_out_diffs.inspect}" if all_out_diffs != []
@@ -768,14 +786,10 @@ class SettingsTest
   def test_full_workflow
     
     setup_settings({'repositories'=>[]})
-    repo_test0 = @settings.add_repo('test out 0', File.join(@test_data_dir, 'sources', 'cracked'),
+    repo_test0 = add_repo('test out 0', File.join(@test_data_dir, 'sources', 'cracked'),
       File.join(@test_data_dir, 'my_copies', 'cracked'), File.join(@test_data_dir, 'targets', 'cracked'))
     puts "fail: couldn't create repo 'test out 0'" if repo_test0 == nil
     
-    FileUtils::mkpath(repo_test0['incoming_loc'])
-    FileUtils::mkpath(@settings.reviewed_dir(repo_test0))
-    FileUtils::mkpath(repo_test0['my_loc'])
-    FileUtils::mkpath(repo_test0['outgoing_loc'])
     File.open(File.join(repo_test0['incoming_loc'], 'sample.txt'), 'w') do |out|
       out.write "gabba gabba hey\n"
     end
@@ -945,6 +959,7 @@ class SettingsTest
     puts "      ... and if output is same as input, ensure it's marked as reviewed"
     puts "  else outgoing not number-versioned"
     puts "    so check for new outgoing version (always)"
+    puts "... and check that a source of versioned format gets shown to the user in either case"
     #puts "put multiple outgoing, check for correct outgoing"
     puts "Here's where I expect things to stop failing."
     

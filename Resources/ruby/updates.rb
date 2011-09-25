@@ -99,32 +99,6 @@ class Updates
   
   
   
-  # see only_new_revisions
-  def self.versioned_diffs(source_dir, target_dir)
-    versioned_diffs2(diff_dirs(source_dir, target_dir), target_dir)
-  end
-  def self.versioned_diffs2(diff_dirs_result, target_dir)
-    versioned_info = versioned_filenames(diff_dirs_result)
-    versions = versioned_info.map { |v_dm| v_dm['version'] }
-    only_new_revisions(versioned_info, versions, target_dir, true)
-  end
-  
-  # see only_new_revisions
-  def self.versioned_diffs_out(source_dir, target_dir)
-    versioned_diffs_out2(diff_dirs(source_dir, target_dir), target_dir)
-  end
-  def self.versioned_diffs_out2(diff_dirs_result, target_dir)
-    versioned_info = diff_dirs_result.map { |diff|
-      {'version'=>version_of(diff), 'diff_match'=>{'diff'=>diff}}
-    }
-    # gather all the paths, except those which are versioned, put them in the version format
-    versions = diff_dirs_result.map { |diff|
-      match_numeric_suffix(diff['path']) == nil ? [diff['path']] : nil
-    }.compact
-    # now output the files with incremented target versions
-    only_new_revisions(versioned_info, versions, target_dir, false)
-  end
-  
   # versioned_info is an array of hash: 'version' is a version and 'diff_match' is a hash where 'diff' is one element from diff_dirs
   # latest_target_versions is the result from latest_versions
   # incoming is true if we're doing the incoming directory, false otherwise
@@ -134,6 +108,122 @@ class Updates
   #   'target_path_next_version' => the name of the next version of the target file (for setups where outgoing files are incremented)
   # }
   # ... but without the entries where source version is gone (ie. source_type==nil) if a newer version exists
+  def self.versioned_diffs(source_dir, target_dir)
+    versioned_diffs2(diff_dirs(source_dir, target_dir), target_dir)
+  end
+  def self.versioned_diffs2(diff_dirs_result, target_dir)
+    versioned_info = versioned_filenames(diff_dirs_result)
+    versions = versioned_info.map { |v_dm| v_dm['version'] }
+    
+    latest_target_versions = latest_versions(versions, target_dir)
+
+    # now output the files with the latest target versions
+
+    versioned_info.map { |v_dm|
+      version = v_dm['version']
+      diff = v_dm['diff_match']['diff']
+      diff_version_num = version.length == 1 ? -1 : version[2]
+      latest_target_version = latest_target_versions[version_initial(version)]
+      latest_target_version_num = latest_target_version == nil ? -1 : 
+        latest_target_version.length == 1 ? -1 : latest_target_version[2]
+      if (diff_version_num < latest_target_version_num &&
+          # cases:
+          # - both are 'file' (so files differ): who cares, since it's old
+          # - it's nil (gone) in source: let's not remove it, and leave that up this user's settings
+          # - it's nil (gone) in target: that's OK, no need to copy the old version 
+          (diff['source_type'] == nil || diff['source_type'] == 'file') &&
+          (diff['target_type'] == nil || diff['target_type'] == 'file'))
+        nil
+      else
+        latest_target = latest_target_version == nil ? nil :
+          latest_target_version.length == 1 ? latest_target_version[0] :
+          latest_target_version[0] + "_" + latest_target_version[2].to_s + latest_target_version[1]
+        max_version = [diff_version_num, latest_target_version_num].max.to_s
+        next_target = latest_target_version == nil ? nil :
+          latest_target_version.length == 1 ? latest_target_version[0] :
+          latest_target_version[0] + "_" + max_version + latest_target_version[1]
+        {
+          'path' => diff['path'],
+          'source_type' => diff['source_type'],
+          'target_type' => diff['target_type'],
+          'target_path_previous_version' => latest_target,
+          'target_path_next_version' => next_target,
+          'contents' => diff['contents']
+        }
+      end
+    }.compact
+  end
+  
+  # see versioned_diffs
+  def self.versioned_diffs_out(source_dir, target_dir)
+    versioned_diffs_out2(diff_dirs(source_dir, target_dir), source_dir, target_dir)
+  end
+  def self.versioned_diffs_out2(diff_dirs_result, source_dir, target_dir)
+    versioned_info = diff_dirs_result.map { |diff|
+      {'version'=>version_of(diff), 'diff_match'=>{'diff'=>diff}}
+    }
+    # gather all the paths, except those which are versioned, put them in the version format
+    versions = diff_dirs_result.map { |diff|
+      (!match_numeric_suffix(diff['path'])) ? version_of(diff) : nil
+    }.compact
+    # now remove any diffs that are versioned variations of a base one (with source_type of nil)
+    versioned_info.delete_if { |v_dm| 
+      match_numeric_suffix(v_dm['diff_match']['diff']['path']) != nil &&
+      versions.include?([version_initial(v_dm['version'])]) &&
+      v_dm['diff_match']['diff']['source_type'] == nil
+    }
+
+    latest_target_versions = latest_versions(versions, target_dir)
+
+    # now output the files with incremented target versions
+
+    versioned_info.map { |v_dm|
+      version = v_dm['version']
+      diff = v_dm['diff_match']['diff']
+      latest_target_version = latest_target_versions[version_initial(version)]
+      latest_target_version_num = latest_target_version == nil ? -1 : 
+        latest_target_version.length == 1 ? -1 : latest_target_version[2]
+      # this is where we'll add the different outgoing setup (without versions)
+      latest_target = latest_target_version == nil ? nil :
+        latest_target_version.length == 1 ? latest_target_version[0] :
+        latest_target_version[0] + "_" + latest_target_version[2].to_s + latest_target_version[1]
+      source_already_copied = true
+      if (latest_target != nil &&
+          diff['source_type'] == 'file' &&
+          # if the size and modified time are the same, we'll assume it's already copied
+          File.size(File.join(source_dir, diff['path'])) == File.size(File.join(target_dir, latest_target)) &&
+          File.mtime(File.join(source_dir, diff['path'])) <= File.mtime(File.join(target_dir, latest_target)))
+         nil
+      else
+        max_version = (latest_target_version_num + 1).to_s
+        if (latest_target_version == nil ||
+            latest_target_version.length == 1) 
+          possible_splits = possible_version_exts(version_initial(version))
+          if (possible_splits == nil)
+            base = version_initial(version)
+            ext = ""
+          else
+            base = possible_splits.last[0]
+            ext = possible_splits.last[1]
+          end
+        else
+          base = latest_target_version[0]
+          ext = latest_target_version[1]
+        end
+        next_target = base + "_" + max_version + ext
+        {
+          'path' => diff['path'],
+          'source_type' => diff['source_type'],
+          'target_type' => diff['target_type'],
+          'target_path_previous_version' => latest_target,
+          'target_path_next_version' => next_target,
+          'contents' => diff['contents']
+        }
+      end
+    }.compact
+  end
+  
+  # deprecated
   def self.only_new_revisions(versioned_info, versions, target_dir, incoming)
     
     latest_target_versions = latest_versions(versions, target_dir)
@@ -254,8 +344,8 @@ class Updates
   # base is the base name of the file
   # ext is the file extension, which is optional if you're just looking for the existence of the initial file
   # return an array of:
-  # the initial file of [dir+base+ext], if it exists,
-  # plus all files that match_numeric_suffix, as [dir+base, ext, version]
+  # - the initial file of [dir+base+ext], if it exists,
+  # - plus all files that match_numeric_suffix, as [dir+base, ext, version]
   def self.all_target_file_versions(dir, base, extension = nil)
     
     ext = extension.to_s
