@@ -181,36 +181,39 @@ class Updates
       version = v_dm['version']
       diff = v_dm['diff_match']['diff']
       latest_target_version = latest_target_versions[version_initial(version)]
-      latest_target_version_num = latest_target_version == nil ? -1 : 
-        latest_target_version.length == 1 ? -1 : latest_target_version[2]
       # this is where we'll add the different outgoing setup (without versions)
       latest_target = latest_target_version == nil ? nil :
         latest_target_version.length == 1 ? latest_target_version[0] :
         latest_target_version[0] + "_" + latest_target_version[2].to_s + latest_target_version[1]
-      source_already_copied = true
       if (latest_target != nil &&
           diff['source_type'] == 'file' &&
           # if the size and modified time are the same, we'll assume it's already copied
           File.size(File.join(source_dir, diff['path'])) == File.size(File.join(target_dir, latest_target)) &&
           File.mtime(File.join(source_dir, diff['path'])) <= File.mtime(File.join(target_dir, latest_target)))
-         nil
+        nil
       else
-        max_version = (latest_target_version_num + 1).to_s
-        if (latest_target_version == nil ||
-            latest_target_version.length == 1) 
-          possible_splits = possible_version_exts(version_initial(version))
-          if (possible_splits == nil)
-            base = version_initial(version)
-            ext = ""
-          else
-            base = possible_splits.last[0]
-            ext = possible_splits.last[1]
-          end
+        if (latest_target_version == nil)
+          next_target = diff['path']
         else
-          base = latest_target_version[0]
-          ext = latest_target_version[1]
+          latest_target_version_num = latest_target_version == nil ? -1 : 
+            latest_target_version.length == 1 ? -1 : latest_target_version[2]
+          max_version = (latest_target_version_num + 1).to_s
+          if (latest_target_version == nil ||
+              latest_target_version.length == 1) 
+            possible_splits = possible_version_exts(version_initial(version))
+            if (possible_splits == nil)
+              base = version_initial(version)
+              ext = ""
+            else
+              base = possible_splits.last[0]
+              ext = possible_splits.last[1]
+            end
+          else
+            base = latest_target_version[0]
+            ext = latest_target_version[1]
+          end
+          next_target = base + "_" + max_version + ext
         end
-        next_target = base + "_" + max_version + ext
         {
           'path' => diff['path'],
           'source_type' => diff['source_type'],

@@ -807,7 +807,7 @@ class SettingsTest
     end
     all_out_diffs = Updates.all_outgoing_diffs(@settings)
     puts "fail: must copy out: #{all_out_diffs.inspect}" if all_out_diffs !=
-      [{"name"=>"test out 0", "diffs"=>[{"path"=>"sample.txt", "source_type"=>"file", "target_type"=>nil, "target_path_previous_version"=>nil, "target_path_next_version"=>"sample_0.txt", "contents"=>nil}]}]
+      [{"name"=>"test out 0", "diffs"=>[{"path"=>"sample.txt", "source_type"=>"file", "target_type"=>nil, "target_path_previous_version"=>nil, "target_path_next_version"=>"sample.txt", "contents"=>nil}]}]
 
     Updates.copy_to_outgoing(@settings, 'test out 0')
     all_out_diffs = Updates.all_outgoing_diffs(@settings)
@@ -927,7 +927,7 @@ class SettingsTest
     all_repo_diffs = Updates.all_outgoing_diffs(@settings)
     puts "fail: versioned outgoing: #{all_repo_diffs.inspect}" if all_repo_diffs !=
       [{"name"=>"test out 0", "diffs"=>
-        [{"path"=>"my_sample.txt", "source_type"=>"file", "target_type"=>nil, "target_path_previous_version"=>nil, "target_path_next_version"=>"my_sample_0.txt", "contents"=>nil}]}]
+        [{"path"=>"my_sample.txt", "source_type"=>"file", "target_type"=>nil, "target_path_previous_version"=>nil, "target_path_next_version"=>"my_sample.txt", "contents"=>nil}]}]
     
     
     # in the program this will copy to my_sample_0.txt, but we'll do my_sample.txt just for testing
@@ -960,8 +960,19 @@ class SettingsTest
     File.open(File.join(repo_test0['my_loc'], 'my_sample.txt'), 'a') do |out|
       out.write "Thank you.\n"
     end
+    File.open(File.join(repo_test0['my_loc'], 'our_sample_3.txt'), 'a') do |out|
+      out.write "You're welcome.\n"
+    end
     result = Updates.all_outgoing_diffs(@settings)
     puts "fail: versioned outgoing after another change: #{result}" if result !=
+      [{"name"=>"test out 0", "diffs"=>
+        [{"path"=>"my_sample.txt", "source_type"=>"file", "target_type"=>"file", "target_path_previous_version"=>"my_sample_0.txt", "target_path_next_version"=>"my_sample_1.txt", "contents"=>nil},
+         {"path"=>"our_sample_3.txt", "source_type"=>"file", "target_type"=>nil, "target_path_previous_version"=>nil, "target_path_next_version"=>"our_sample_3.txt", "contents"=>nil}]}]
+    
+    
+    Updates.copy_to_outgoing(@settings, 'test out 0', 'our_sample_3.txt')
+    result = Updates.all_outgoing_diffs(@settings)
+    puts "fail: versioned outgoing pushed after another change: #{result.inspect}" if result !=
       [{"name"=>"test out 0", "diffs"=>
         [{"path"=>"my_sample.txt", "source_type"=>"file", "target_type"=>"file", "target_path_previous_version"=>"my_sample_0.txt", "target_path_next_version"=>"my_sample_1.txt", "contents"=>nil}]}]
     
@@ -973,7 +984,8 @@ class SettingsTest
     result = Updates.all_outgoing_diffs(@settings)
     puts "fail: versioned outgoing same as incoming: #{result.inspect}" if result !=
       [{"name"=>"test out 0",
-        "diffs"=>[{"path"=>"sample.txt", "source_type"=>"file", "target_type"=>"file", "target_path_previous_version"=>"sample_16.txt", "target_path_next_version"=>"sample_17.txt", "contents"=>nil}]}]
+        "diffs"=>[{"path"=>"our_sample_3.txt", "source_type"=>"file", "target_type"=>nil, "target_path_previous_version"=>nil, "target_path_next_version"=>"our_sample_3.txt", "contents"=>nil},
+                  {"path"=>"sample.txt", "source_type"=>"file", "target_type"=>"file", "target_path_previous_version"=>"sample_16.txt", "target_path_next_version"=>"sample_17.txt", "contents"=>nil}]}]
     Updates.copy_to_outgoing(@settings, 'test out 0', 'sample.txt', 'sample_17.txt')
     result = Updates.all_repo_diffs(@settings)
     puts "fail: versioned incoming after outgoing pushed: #{result.inspect}" if result != []
@@ -981,8 +993,6 @@ class SettingsTest
     
     puts "  when outgoing not number-versioned"
     puts "    check for new outgoing version (always)"
-    puts "... and check that a source of versioned format gets shown to the user in either case"
-    #puts "put multiple outgoing, check for correct outgoing"
     
   end
     
