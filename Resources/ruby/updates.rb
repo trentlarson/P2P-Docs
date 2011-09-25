@@ -74,7 +74,7 @@ class Updates
       result = 
         result.collect do |repo|
         { 'name' => repo['name'],
-          'diffs' => versioned_diffs_out(repo['my_loc'], repo['outgoing_loc'])
+          'diffs' => versioned_diffs_out(repo['my_loc'], repo['outgoing_loc'], repo['not_versioned'])
         }
       end
       result.select { |hash| hash['diffs'] != [] }
@@ -155,16 +155,16 @@ class Updates
   end
   
   # see versioned_diffs
-  def self.versioned_diffs_out(source_dir, target_dir)
-    versioned_diffs_out2(diff_dirs(source_dir, target_dir), source_dir, target_dir)
+  def self.versioned_diffs_out(source_dir, target_dir, not_versioned)
+    versioned_diffs_out2(diff_dirs(source_dir, target_dir), source_dir, target_dir, not_versioned)
   end
-  def self.versioned_diffs_out2(diff_dirs_result, source_dir, target_dir)
+  def self.versioned_diffs_out2(diff_dirs_result, source_dir, target_dir, not_versioned)
     versioned_info = diff_dirs_result.map { |diff|
       {'version'=>version_of(diff), 'diff_match'=>{'diff'=>diff}}
     }
     # gather all the paths, except those which are versioned, put them in the version format
     versions = diff_dirs_result.map { |diff|
-      (!match_numeric_suffix(diff['path'])) ? version_of(diff) : nil
+      diff['source_type'] != nil ? version_of(diff) : nil
     }.compact
     # now remove any diffs only in the target... we'll just ignore them (possibly with some cleanup process later)
     versioned_info.delete_if { |v_dm| 
@@ -181,7 +181,6 @@ class Updates
       version = v_dm['version']
       diff = v_dm['diff_match']['diff']
       latest_target_version = latest_target_versions[version_initial(version)]
-      # this is where we'll add the different outgoing setup (without versions)
       latest_target = latest_target_version == nil ? nil :
         latest_target_version.length == 1 ? latest_target_version[0] :
         latest_target_version[0] + "_" + latest_target_version[2].to_s + latest_target_version[1]
@@ -192,72 +191,12 @@ class Updates
           File.mtime(File.join(source_dir, diff['path'])) <= File.mtime(File.join(target_dir, latest_target)))
         nil
       else
-        if (latest_target_version == nil)
+        if (latest_target_version == nil ||
+            not_versioned)
           next_target = diff['path']
         else
           latest_target_version_num = latest_target_version == nil ? -1 : 
             latest_target_version.length == 1 ? -1 : latest_target_version[2]
-          max_version = (latest_target_version_num + 1).to_s
-          if (latest_target_version == nil ||
-              latest_target_version.length == 1) 
-            possible_splits = possible_version_exts(version_initial(version))
-            if (possible_splits == nil)
-              base = version_initial(version)
-              ext = ""
-            else
-              base = possible_splits.last[0]
-              ext = possible_splits.last[1]
-            end
-          else
-            base = latest_target_version[0]
-            ext = latest_target_version[1]
-          end
-          next_target = base + "_" + max_version + ext
-        end
-        {
-          'path' => diff['path'],
-          'source_type' => diff['source_type'],
-          'target_type' => diff['target_type'],
-          'target_path_previous_version' => latest_target,
-          'target_path_next_version' => next_target,
-          'contents' => diff['contents']
-        }
-      end
-    }.compact
-  end
-  
-  # deprecated
-  def self.only_new_revisions(versioned_info, versions, target_dir, incoming)
-    
-    latest_target_versions = latest_versions(versions, target_dir)
-
-    versioned_info.map { |v_dm|
-      version = v_dm['version']
-      diff = v_dm['diff_match']['diff']
-      diff_version_num = version.length == 1 ? -1 : version[2]
-      latest_target_version = latest_target_versions[version_initial(version)]
-      latest_target_version_num = latest_target_version == nil ? -1 : 
-        latest_target_version.length == 1 ? -1 : latest_target_version[2]
-      # this is where we'll add the different outgoing setup (without versions)
-      if (incoming &&
-          diff_version_num < latest_target_version_num &&
-          # cases:
-          # - both are 'file' (so files differ): who cares, since it's old
-          # - it's nil (gone) in source: let's not remove it, and leave that up this user's settings
-          # - it's nil (gone) in target: that's OK, no need to copy the old version 
-          (diff['source_type'] == nil || diff['source_type'] == 'file') &&
-          (diff['target_type'] == nil || diff['target_type'] == 'file'))
-        nil
-      else
-        latest_target = latest_target_version == nil ? nil :
-          latest_target_version.length == 1 ? latest_target_version[0] :
-          latest_target_version[0] + "_" + latest_target_version[2].to_s + latest_target_version[1]
-        if (incoming)
-          max_version = [diff_version_num, latest_target_version_num].max.to_s
-          next_target = latest_target_version == nil ? nil :
-            latest_target_version.length == 1 ? latest_target_version[0] :
-            latest_target_version[0] + "_" + max_version + latest_target_version[1]
-        else
           max_version = (latest_target_version_num + 1).to_s
           if (latest_target_version == nil ||
               latest_target_version.length == 1) 
@@ -323,7 +262,7 @@ class Updates
     initial_with_max_version_at_target
   end
   
-  # return array of base-ext pairs for each possible cut position for versioning, or nil if there are no candidate positions
+  # return array of base-ext pairs for each possible cut position for versioning (only initial files), or nil if there are no candidate positions
   def self.possible_version_exts(path)
     path_file = File.split(path)
     segments = path_file[1].split(".")
@@ -530,7 +469,8 @@ class Updates
 
 
   # copy everything from the source to the target, under a common subpath
-  # subpath may be nil
+  # if source_subpath is nil, source will be the source_loc
+  # if target_subpath is nil, target will be same as source_subpath
   def self.copy_all_contents(source_loc, target_loc, source_subpath = nil, target_subpath = nil)
     if (source_subpath.nil?)
       source = source_loc

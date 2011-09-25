@@ -42,8 +42,8 @@ class SettingsTest
     end
   end
   
-  def add_repo(name, incoming_loc, my_loc = nil, outgoing_loc = nil)
-    repo = @settings.add_repo(name, incoming_loc, my_loc, outgoing_loc)
+  def add_repo(name, incoming_loc, my_loc = nil, outgoing_loc = nil, not_versioned = false)
+    repo = @settings.add_repo(name, incoming_loc, my_loc, outgoing_loc, not_versioned)
     if (repo != nil)
       make_repo_dirs(repo)
     end
@@ -168,6 +168,13 @@ class SettingsTest
     combos = Updates.possible_version_exts(file)
     puts "fail: bad combo #{file} => #{combos}" if combos != [["file_abc", ".txt"]]
     
+    file = "our_sample_3.txt"
+    match = Updates.match_numeric_suffix(file)
+    puts "fail: bad match: #{file} => #{match}" if match[1] != "our_sample" && match[3] != "3"
+    # we should only be using possible_version_exts on initial files... but we're not going to specify this behavior
+    #combos = Updates.possible_version_exts(file)
+    #puts "fail: bad combo #{file} => #{combos}" if combos != [["our_sample_3", ".txt"]]
+    
     file = "dir1/dir2/file_abc.txt_2"
     match = Updates.match_numeric_suffix(file)
     puts "fail: bad match: #{file} => #{match}" if match[3] != "2" && match[4] != nil?
@@ -268,10 +275,10 @@ class SettingsTest
       {'path'=>'some4.txt_5', 'source_type'=>'file', 'target_type'=>nil, 'contents'=>nil},
       {'path'=>'some4.txt_12', 'source_type'=>'file', 'target_type'=>nil, 'contents'=>nil}
     ]
-    #result = Updates.versioned_diffs2(diff_results, v_dir)
-    versioned_info = Updates.versioned_filenames(diff_results)
-    versions = versioned_info.map { |v_dm| v_dm['version'] }
-    result = Updates.only_new_revisions(versioned_info, versions, v_dir, true)
+    result = Updates.versioned_diffs2(diff_results, v_dir)
+    #versioned_info = Updates.versioned_filenames(diff_results)
+    #versions = versioned_info.map { |v_dm| v_dm['version'] }
+    #result = Updates.only_new_revisions(versioned_info, versions, v_dir, true)
     expected = [
       {'path'=>'some4_11.txt', 'source_type'=>'file', 'target_type'=>'file', 'target_path_previous_version'=>'some4_11.txt', 'target_path_next_version'=>'some4_11.txt', 'contents'=>nil},
       # this may not be a good thing, but I'm not going to try and handle it right now
@@ -991,8 +998,53 @@ class SettingsTest
     puts "fail: versioned incoming after outgoing pushed: #{result.inspect}" if result != []
     
     
-    puts "  when outgoing not number-versioned"
-    puts "    check for new outgoing version (always)"
+    # now for a non-versioned repo
+    repo_test_2nd = add_repo('test out 2nd', File.join(@test_data_dir, 'sources_2nd', 'cracked'),
+      File.join(@test_data_dir, 'my_copies_2nd', 'cracked'), File.join(@test_data_dir, 'targets_2nd', 'cracked'), true)
+    puts "fail: couldn't create repo 'test out 2nd'" if repo_test_2nd == nil
+    
+    
+    File.open(File.join(repo_test_2nd['my_loc'], 'second.txt'), 'a') do |out|
+      out.write "No, thank you.\n"
+    end
+    result = Updates.all_outgoing_diffs(@settings)
+    puts "fail: second repo has change: #{result}" if result != 
+      [{"name"=>"test out 0",
+        "diffs"=>[{"path"=>"our_sample_3.txt", "source_type"=>"file", "target_type"=>nil, "target_path_previous_version"=>nil, "target_path_next_version"=>"our_sample_3.txt", "contents"=>nil}]}, 
+       {"name"=>"test out 2nd",
+        "diffs"=>[{"path"=>"second.txt", "source_type"=>"file", "target_type"=>nil, "target_path_previous_version"=>nil, "target_path_next_version"=>"second.txt", "contents"=>nil}]}]
+    
+    
+    Updates.copy_to_outgoing(@settings, 'test out 0', 'our_sample_3.txt')
+    Updates.copy_to_outgoing(@settings, 'test out 2nd', 'second.txt')
+    result = Updates.all_outgoing_diffs(@settings)
+    puts "fail: second repo changes accepted: #{result}" if result != []
+    puts "fail: first repo version OK" if not File.exist? File.join(repo_test0['outgoing_loc'], 'our_sample_3.txt')
+    
+    
+    File.open(File.join(repo_test0['my_loc'], 'our_sample_3.txt'), 'a') do |out|
+      out.write "Well, why not?\n"
+    end
+    File.open(File.join(repo_test_2nd['my_loc'], 'second.txt'), 'a') do |out|
+      out.write "Well, why not?\n"
+    end
+    result = Updates.all_outgoing_diffs(@settings)
+    puts "fail: first & second repo have more changes: #{result}" if result != 
+      [{"name"=>"test out 0",
+        "diffs"=>[{"path"=>"our_sample_3.txt", "source_type"=>"file", "target_type"=>"file", "target_path_previous_version"=>"our_sample_3.txt", "target_path_next_version"=>"our_sample_4.txt", "contents"=>nil}]}, 
+       {"name"=>"test out 2nd",
+        "diffs"=>[{"path"=>"second.txt", "source_type"=>"file", "target_type"=>"file", "target_path_previous_version"=>"second.txt", "target_path_next_version"=>"second.txt", "contents"=>nil}]}]
+    
+    
+    Updates.copy_to_outgoing(@settings, 'test out 0', 'our_sample_3.txt', 'our_sample_4.txt')
+    Updates.copy_to_outgoing(@settings, 'test out 2nd', 'second.txt')
+    result = Updates.all_outgoing_diffs(@settings)
+    puts "fail: later first & second repo more changes accepted #{result}" if result != []
+    puts "fail: later first repo version not OK" if not File.exist? File.join(repo_test0['outgoing_loc'], 'our_sample_4.txt')
+    puts "fail: later first repo reviewed version not OK" if not File.exist? File.join(@settings.reviewed_dir(repo_test0), 'our_sample_4.txt')
+    puts "fail: later second repo version not OK" if not File.exist? File.join(repo_test_2nd['outgoing_loc'], 'second.txt')
+    puts "fail: later second repo reviewed version not OK" if File.exist? File.join(@settings.reviewed_dir(repo_test_2nd), 'second.txt')
+
     
   end
     
