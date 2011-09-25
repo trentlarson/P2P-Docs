@@ -139,7 +139,7 @@ class Updates
           latest_target_version.length == 1 ? latest_target_version[0] :
           latest_target_version[0] + "_" + latest_target_version[2].to_s + latest_target_version[1]
         max_version = [diff_version_num, latest_target_version_num].max.to_s
-        next_target = latest_target_version == nil ? nil :
+        next_target = latest_target_version == nil ? diff['path'] :
           latest_target_version.length == 1 ? latest_target_version[0] :
           latest_target_version[0] + "_" + max_version + latest_target_version[1]
         {
@@ -166,10 +166,10 @@ class Updates
     versions = diff_dirs_result.map { |diff|
       (!match_numeric_suffix(diff['path'])) ? version_of(diff) : nil
     }.compact
-    # now remove any diffs that are versioned variations of a base one (with source_type of nil)
+    # now remove any diffs only in the target... we'll just ignore them (possibly with some cleanup process later)
     versioned_info.delete_if { |v_dm| 
-      match_numeric_suffix(v_dm['diff_match']['diff']['path']) != nil &&
-      versions.include?([version_initial(v_dm['version'])]) &&
+      #match_numeric_suffix(v_dm['diff_match']['diff']['path']) != nil &&
+      #versions.include?([version_initial(v_dm['version'])]) &&
       v_dm['diff_match']['diff']['source_type'] == nil
     }
 
@@ -520,6 +520,9 @@ class Updates
   def self.copy_to_outgoing(settings, repo_name, source_subpath = nil, target_subpath = nil)
     repo = settings.get_repo_by_name(repo_name)
     copy_all_contents(repo['my_loc'], repo['outgoing_loc'], source_subpath, target_subpath)
+    if (repo['outgoing_loc'] == repo['incoming_loc'])
+      copy_all_contents(repo['outgoing_loc'], settings.reviewed_dir(repo), target_subpath, target_subpath)
+    end
   end
 
 
