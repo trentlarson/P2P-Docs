@@ -83,6 +83,15 @@ class Updates
   
   
   
+  
+  def self.new_version1(filename)
+    return [filename]
+  end
+  
+  def self.new_version3(base, ext, ver_num)
+    return [base, ext, ver_num]
+  end
+  
   # diff is one element from diff_dirs
   # version_check is whether to just accept path as version (typically just for outgoing) 
   # return an array of either a) the full initial file name or b) the base name, the extension or "", and the version (this should be a Class of it's own)
@@ -92,7 +101,7 @@ class Updates
     else 
       match = nil
     end
-    match == nil ? [diff['path']] : [match[1], match[4].to_s, match[3].to_i]
+    match == nil ? new_version1(diff['path']) : new_version3(match[1], match[4].to_s, match[3].to_i)
   end
   
   # version is a version array (see versioned_filenames)
@@ -143,16 +152,12 @@ class Updates
         latest_target = latest_target_version == nil ? nil :
           latest_target_version.length == 1 ? latest_target_version[0] :
           latest_target_version[0] + "_" + latest_target_version[2].to_s + latest_target_version[1]
-        max_version = [diff_version_num, latest_target_version_num].max.to_s
-        next_target = latest_target_version == nil ? diff['path'] :
-          latest_target_version.length == 1 ? latest_target_version[0] :
-          latest_target_version[0] + "_" + max_version + latest_target_version[1]
         {
           'path' => diff['path'],
           'source_type' => diff['source_type'],
           'target_type' => diff['target_type'],
           'target_path_previous_version' => latest_target,
-          'target_path_next_version' => next_target,
+          'target_path_next_version' => diff['path'],
           'contents' => diff['contents']
         }
       end
@@ -205,7 +210,7 @@ class Updates
           if (latest_target_version == nil ||
               latest_target_version.length == 1) 
             possible_splits = possible_version_exts(version_initial(version))
-            if (possible_splits == nil)
+            if (possible_splits.empty?)
               base = version_initial(version)
               ext = ""
             else
@@ -272,7 +277,7 @@ class Updates
     segments = path_file[1].split(".")
     # add the '.' back to each but the first
     if (segments.length == 1)
-      nil
+      []
     else
       dot_segs = [segments[0]] + (segments[1..segments.length].map{|seg| "." + seg})
       result = []
@@ -295,11 +300,13 @@ class Updates
   def self.all_target_file_versions(dir, base, extension = nil)
     
     ext = extension.to_s
-    initial_file_array = Dir.glob(File.join(dir, base + ext)).empty? ? [] : [[base + ext]]
+    initial_file_array = Dir.glob(File.join(dir, base + ext)).empty? ? [] : [new_version1(base + ext)]
     
     more_files = ext.nil? ? [] : Dir.glob(File.join(dir, base + "_*" + ext))
     more_matches = more_files.map { |name| match_numeric_suffix(name) }.compact
-    more_arrays = more_matches.map { |m| [File.split(m[1])[1], m[4].to_s, m[3].to_i] }
+    more_arrays = more_matches.map { |m| new_version3(File.split(m[1])[1], m[4].to_s, m[3].to_i) }
+    # remove any whose extensions don't match (probably only when ext == "")
+    more_arrays.delete_if { |version| version[1] != ext }
     
     initial_file_array + more_arrays
   end
