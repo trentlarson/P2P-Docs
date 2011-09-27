@@ -2,6 +2,7 @@ require 'fileutils'
 require File.join(File.expand_path(File.dirname(__FILE__)), "../../ruby/settings.rb")
 
 base_repo_dir = File.expand_path(File.join("build", "sample-repos"))
+FileUtils.rm_rf(base_repo_dir)
 settings = Settings.new(base_repo_dir)
 
 # make a bunch of repositories

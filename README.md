@@ -8,7 +8,6 @@ A "-" means it's not done yet.
 
  * Repositories
     * CRUD
-    * - numbers for repo IDs
     * - allow individual files to be their own repository
  * - Doc Alerts: notify when there's new content
  * Doc Changes (external?): display the new content
@@ -28,9 +27,16 @@ Test Details:
     * - ones with thousands of dirs/files
     * - repo changes, mirroring the tests in SettingsTest
   * - test with blank incoming setting
+  * Automated test: ruby Resources/test/ruby/settings.rb (and check that there is no output)
+  * Test many repos in app:
+    * run command: ruby Resources/test/ruby/settings_repositories.rb
+    * edit application.properties (Mac: ~/Library/Application Support/Titanium/appdata/info.familyhistories.p2pdocs)
+      * comment out the setting "settings-dir" with the prefix of "//"
+      * add a line with a pointer to your app source path ending with "build/sample-repos"": settings-dir: /Users/tlarson/dev/p2pdocs/p2pdocs8/build/sample-repos
+    * run app and play with it
 
 
-Plans
+Specific Plans
 -----
 
 In priority order:
@@ -42,8 +48,8 @@ In priority order:
  * fix unknown crashes on search, eg "Robert"
  * fix unknown crashes on deleting a repo (though it works if you got to create screen first)
  * default to versioned files, but allow to overwrite (both incoming and outgoing)
- * default to keep old incoming versions, but allow deletion 
- * default to keep old outgoing versions, but allow deletion 
+ * default to keep old reviewed versions, but allow deletion
+ * default to keep old outgoing versions, but allow deletion
  * allow to make outgoing same location as incoming
  * when creating/editing repo: warn if outbound w/o home, no home under incoming, no out under home (small)
  * repository choices (hints for choosing P2P folders; small x) (medium)
@@ -54,6 +60,9 @@ In priority order:
    * FAQ: on repo crashes, go to add a repo and cancel and then it works
  * search through repository files (not just Jean's file)
  * program auto-update (medium)
+ * use repo ID numbers everywhere (instead of names)
+ * fix the new-repo transition to slide whole screen (not half)
+ * make a consistent styling for the whole app
  * rework graphics with repo pic
    * http://www.clker.com/clipart-vertical-file-cabinet.html
    * http://search.coolclips.com/media/?D=busi1110
@@ -66,5 +75,5 @@ Finished
 Externalities
 -------------
 
-various JavaScript libraries; see Resources/js files
-icons for home-interact-people from dellustrations.com; see http://www.smashingmagazine.com/2008/10/01/dellipack-2-a-free-icon-set/
+ * JavaScript libraries: see Resources/js files
+ * icons for home-interact-people from dellustrations.com: see http://www.smashingmagazine.com/2008/10/01/dellipack-2-a-free-icon-set/

@@ -43,7 +43,7 @@
 <script type="text/javascript">
   // Initialize the basic setup.
   if (!Titanium.App.Properties.hasProperty('settings-dir')) {
-    // Titanium.App.Properties pulls from the application.properties file.  Note that lines in it beginning with # may disappear; I use // for commentary.
+    // Titanium.App.Properties pulls from the application.properties file.  Note that lines in it beginning with # sometimes disappear; I use // for commentary.
     Titanium.App.Properties.setString('settings-dir', Titanium.Filesystem.getApplicationDataDirectory().toString());
   }
 </script>
