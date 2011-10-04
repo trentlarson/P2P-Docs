@@ -32,8 +32,11 @@ Test Details:
     * run command: ruby Resources/test/ruby/settings_repositories.rb
     * edit application.properties (Mac: ~/Library/Application Support/Titanium/appdata/info.familyhistories.p2pdocs)
       * comment out the setting "settings-dir" with the prefix of "//"
-      * add a line with a pointer to your app source path ending with "build/sample-repos"": settings-dir: /Users/tlarson/dev/p2pdocs/p2pdocs8/build/sample-repos
-    * run app and play with it
+      * add a line with a pointer to your app source path ending with "build/sample-repos", eg:
+        settings-dir: /Users/tlarson/dev/p2pdocs/p2pdocs8/build/sample-repos
+    * run app and test
+      * If you click on a repo name (eg. "test 0"), then mark the checkbox, then click "Accept", it should disappear (rather than throw some JavaScript exception)
+      * If you click on "Configure", then click "change" next to "Outgoing", then select a directory and hit "Open", it should set it (rather than crash)
 
 
 Specific Plans
