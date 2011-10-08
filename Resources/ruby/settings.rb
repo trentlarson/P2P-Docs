@@ -114,6 +114,7 @@ settings: initial settings; if nil, @@settings will not be reset
   end
 
   # return repo if the repo was added; otherwise, nil (eg. name blank or duplicate)
+  # side-effects: creates the reviewed directory for the repo (but no other file system checks or saves)
   def add_repo(name, incoming_loc, my_loc = nil, outgoing_loc = nil, not_versioned = false)
     begin
       if (name.class.name == "RubyKObject") # for method results from Titanium
@@ -152,6 +153,7 @@ settings: initial settings; if nil, @@settings will not be reset
     new_repo
   end
 
+  # side-effects: renames the reviewed directory (but does no other file system checks or saves)
   def remove_repo(name)
     if (name.class.name == "RubyKObject") # for method results from Titanium
       name = name.toString()

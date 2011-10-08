@@ -59,7 +59,7 @@
     }
   end
   window.p2pdoc_copy_to_outgoing = lambda { |all_diffs| all_diffs.each { |name_diff| Updates.copy_all_to_outgoing(window.p2pdoc_settings, name_diff['name'], name_diff['diffs']) } }
-  window.p2pdoc_mark_reviewed = lambda { |repo_name, path| Updates.mark_reviewed(window.p2pdoc_settings, repo_name, path) }
+  window.p2pdoc_mark_reviewed = lambda { |repo_name, path, previous_path| Updates.mark_reviewed(window.p2pdoc_settings, repo_name, path, previous_path) }
 </script>
 
 <script type="text/javascript">
@@ -84,7 +84,8 @@ function markAccepted() {
       var repoName, path;
       repoName = $(this).attr("repoName");
       path = $(this).attr("path");
-      window.p2pdoc_mark_reviewed(repoName, path);
+      previousPath = $(this).attr("previousPath");
+      window.p2pdoc_mark_reviewed(repoName, path, previousPath);
       var repoDiv = $(this).parent().parent().parent();
       $(this).parent().hide(500, function() {
         $(this).remove();
@@ -185,7 +186,10 @@ $(document).ready(function() {
             addedDiff.insertBefore(diffTemplate);
             addedDiff.show();
             addedDiff.attr("id", "diff_" + diffNum);
-            addedDiff.find("#reviewed_").attr("id", "reviewed_" + diffNum).attr("repoName", repoName).attr("path", diffSet.path);
+            addedDiff.find("#reviewed_").attr("id", "reviewed_" + diffNum)
+              .attr("repoName", repoName)
+              .attr("path", diffSet.path)
+              .attr("previousPath", diffSet.target_path_previous_version);
             
             addedDiff.find("#diffPath_").attr("id", "diffPath_" + diffNum).html(diffSet.path);
             if (diffSet.source_type === "file") {
@@ -197,7 +201,7 @@ $(document).ready(function() {
                 if (diffSet.target_type === "file") {
                   repoData = window.p2pdoc_settings.get_repo_by_name(repoName);
                   file1 = repoData.incoming_loc + Titanium.Filesystem.getSeparator() + diffSet.path;
-                  file2 = window.p2pdoc_settings.reviewed_dir(repoName) + Titanium.Filesystem.getSeparator() + diffSet.path;
+                  file2 = window.p2pdoc_settings.reviewed_dir(repoName) + Titanium.Filesystem.getSeparator() + diffSet.target_path_previous_version;
                   addedDiff.find("#changeView a").attr("href", "changes.html?file1=" + file1 + "&file2=" + file2).show();
                 } else {
                   // it's something other than a file
@@ -283,7 +287,7 @@ $(document).ready(function() {
       </h3>
       <div id="diffList">
         <div id="diff_" style="display:none;">
-          <input type="checkbox" id="reviewed_" repo="_" path="_">
+          <input type="checkbox" id="reviewed_" repo="_" path="_" previousPath="_">
           <span id="diffPath_">path</span>
           <span id="sourceView"><a href="#" style="display:none;">(open)</a></span>
           <span id="changeView"><a href="#" style="display:none;">(see changes)</a></span>

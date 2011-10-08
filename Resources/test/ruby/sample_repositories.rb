@@ -15,5 +15,4 @@ settings = Settings.new(base_repo_dir)
     out.write("data\n")
   end
 end
-settings.save()
 

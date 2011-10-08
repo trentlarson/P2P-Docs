@@ -1,5 +1,6 @@
 require File.join(File.expand_path(File.dirname(__FILE__)), "../../ruby/settings.rb")
 require File.join(File.expand_path(File.dirname(__FILE__)), "../../ruby/updates.rb")
+require File.join(File.expand_path(File.dirname(__FILE__)), "test_utils.rb")
 
 class SettingsTest
 
@@ -37,32 +38,13 @@ class SettingsTest
     # set up the directory structure
     if (settings_data['repositories'] != nil)
       settings_data['repositories'].each do |repo|
-        make_repo_dirs(repo)
+        TestUtils.make_repo_dirs(repo)
       end
     end
   end
   
   def add_repo(name, incoming_loc, my_loc = nil, outgoing_loc = nil, not_versioned = false)
-    repo = @settings.add_repo(name, incoming_loc, my_loc, outgoing_loc, not_versioned)
-    if (repo != nil)
-      make_repo_dirs(repo)
-    end
-    repo
-  end
-  
-  def make_repo_dirs(repo)
-    if (repo['incoming_loc'] != nil)
-      FileUtils::remove_entry_secure(repo['incoming_loc'], true)
-      FileUtils.mkdir_p(repo['incoming_loc'])
-    end
-    if (repo['my_loc'] != nil)
-      FileUtils::remove_entry_secure(repo['my_loc'], true)
-      FileUtils.mkdir_p(repo['my_loc'])
-    end
-    if (repo['outgoing_loc'] != nil)
-      FileUtils::remove_entry_secure(repo['outgoing_loc'], true)
-      FileUtils.mkdir_p(repo['outgoing_loc'])
-    end
+    TestUtils.add_repo(@settings, name, incoming_loc, my_loc, outgoing_loc, not_versioned)
   end
   
   def test_repo_names()
