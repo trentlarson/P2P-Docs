@@ -7,6 +7,8 @@ require 'fileutils'
 # 2) ... or do this:
 # ruby -e 'load "settings.rb"; SEE_END_OF_FILE'
 
+# When running in Titanium, you can print to the console ('puts' doesn't always show immediately): Titanium.API.print("I'm here!\n")
+
 class Settings
 
   VERSION = "0"

@@ -21,29 +21,41 @@
   var BACKUP_PROP = '//settings-dir-bak';
 
   function restoreRegularOperation() {
-    if (Titanium.App.Properties.hasProperty(BACKUP_PROP)) {
-      Titanium.App.Properties.setString('settings-dir', Titanium.App.Properties.getString(BACKUP_PROP));
-    } else {
-      Titanium.App.Properties.setString('settings-dir', Titanium.Filesystem.getApplicationDataDirectory().toString());
+    try {
+      if (Titanium.App.Properties.hasProperty(BACKUP_PROP)) {
+        Titanium.App.Properties.setString('settings-dir', Titanium.App.Properties.getString(BACKUP_PROP));
+      } else {
+        Titanium.App.Properties.setString('settings-dir', Titanium.Filesystem.getApplicationDataDirectory().toString());
+      }
+      alert("All set to regular environment.");
+    } catch (e) {
+      alert("error: " + e);
     }
-    alert("All set to regular environment.");
   }
 
   function setupTestForVersionedFiles() {
-    if (Titanium.App.Properties.hasProperty('settings-dir')
-        && !Titanium.App.Properties.hasProperty(BACKUP_PROP)) {
-      Titanium.App.Properties.setString(BACKUP_PROP, Titanium.App.Properties.getString('settings-dir'));
+    try {
+      if (Titanium.App.Properties.hasProperty('settings-dir')
+          && !Titanium.App.Properties.hasProperty(BACKUP_PROP)) {
+        Titanium.App.Properties.setString(BACKUP_PROP, Titanium.App.Properties.getString('settings-dir'));
+      }
+      var settingsDir = Titanium.Filesystem.getFile(Titanium.App.getHome(), 'sample-repos-versioned').toString();
+      Titanium.App.Properties.setString('settings-dir', settingsDir);
+      window.p2pdoc_test_versioned(Titanium.App.getHome());
+      alert("All set for test environment.");
+    } catch (e) {
+      alert("error: " + e);
     }
-    var settingsDir = Titanium.Filesystem.getFile(Titanium.App.getHome(), 'sample-repos-versioned').toString();
-    Titanium.App.Properties.setString('settings-dir', settingsDir);
-    window.p2pdoc_test_versioned(Titanium.App.getHome());
-    alert("All set for test environment.");
   }
 
   $(document).ready(function() {
-    $('#everything').show('slide', { direction: "down" }, 500);
-    $('#regular-app').click(function(){ restoreRegularOperation(); });
-    $('#test-for-versioned-files').click(function(){ setupTestForVersionedFiles(); });
+    try {
+      $('#everything').show('slide', { direction: "down" }, 500);
+      $('#regular-app').click(function(){ restoreRegularOperation(); });
+      $('#test-for-versioned-files').click(function(){ setupTestForVersionedFiles(); });
+    } catch (e) {
+      alert("error: " + e);
+    }
   });
   
 </script>

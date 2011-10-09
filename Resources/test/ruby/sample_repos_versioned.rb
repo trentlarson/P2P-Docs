@@ -43,15 +43,19 @@ class SampleReposVersioned
     
     repo_name = "test 0"
     repo_dir_name = File.join(base_repo_dir, settings.fixed_repo_name(repo_name))
+    added = true
     TestUtils.add_repo(settings, repo_name, repo_dir_name)
-    
-    File.open(File.join(repo_dir_name, "test.txt"), 'w') do |out|
-      out.write("data\n")
-    end
-    
-    File.open(File.join(repo_dir_name, "test_2.txt"), 'w') do |out|
-      out.write("data\n")
-      out.write("... is in your future\n")
+    if (!added)
+      raise "I was unable to create the test repository."
+    else
+      File.open(File.join(repo_dir_name, "test.txt"), 'w') do |out|
+        out.write("data\n")
+      end
+      
+      File.open(File.join(repo_dir_name, "test_2.txt"), 'w') do |out|
+        out.write("data\n")
+        out.write("... is in your future\n")
+      end
     end
 
   end
