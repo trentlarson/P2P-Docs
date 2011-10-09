@@ -1,0 +1,68 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<html>
+<head>
+
+<script type="text/javascript" src="js/jquery-1.5.1.min.js"></script>
+<script type="text/javascript" src="js/jquery-ui-1.8.13.custom.min.js"></script>
+
+<script type="text/ruby" src="test/ruby/sample_repos_versioned.rb"></script>
+<script type="text/javascript">
+  // Initialize the basic setup.
+  if (!Titanium.App.Properties.hasProperty('settings-dir')) {
+    // Titanium.App.Properties pulls from the application.properties file.  Note that lines in it beginning with # sometimes disappear; I use // for commentary.
+    Titanium.App.Properties.setString('settings-dir', Titanium.Filesystem.getApplicationDataDirectory().toString());
+  }
+</script>
+<script type="text/ruby">
+  window.p2pdoc_test_versioned = lambda { |content_dir| SampleReposVersioned.create(Titanium.Filesystem.getFile(Titanium.App.getHome(), "Resources"), content_dir) }
+</script>
+
+<script type="text/javascript">
+  var BACKUP_PROP = '//settings-dir-bak';
+
+  function restoreRegularOperation() {
+    if (Titanium.App.Properties.hasProperty(BACKUP_PROP)) {
+      Titanium.App.Properties.setString('settings-dir', Titanium.App.Properties.getString(BACKUP_PROP));
+    } else {
+      Titanium.App.Properties.setString('settings-dir', Titanium.Filesystem.getApplicationDataDirectory().toString());
+    }
+    alert("All set to regular environment.");
+  }
+
+  function setupTestForVersionedFiles() {
+    if (Titanium.App.Properties.hasProperty('settings-dir')
+        && !Titanium.App.Properties.hasProperty(BACKUP_PROP)) {
+      Titanium.App.Properties.setString(BACKUP_PROP, Titanium.App.Properties.getString('settings-dir'));
+    }
+    var settingsDir = Titanium.Filesystem.getFile(Titanium.App.getHome(), 'sample-repos-versioned').toString();
+    Titanium.App.Properties.setString('settings-dir', settingsDir);
+    window.p2pdoc_test_versioned(Titanium.App.getHome());
+    alert("All set for test environment.");
+  }
+
+  $(document).ready(function() {
+    $('#everything').show('slide', { direction: "down" }, 500);
+    $('#regular-app').click(function(){ restoreRegularOperation(); });
+    $('#test-for-versioned-files').click(function(){ setupTestForVersionedFiles(); });
+  });
+  
+</script>
+
+</head>
+<body>
+  
+<div id="everything">
+
+  <br/>
+  <a href="repositories.html" class="ui-state-default" style="float:right;">Done</a>
+  
+  <br/>
+  <span id="regular-app" class="ui-state-default">Switch to regular application.</span>
+  
+  <br/>
+  <br/>
+  <span id="test-for-versioned-files" class="ui-state-default">Switch to test for versioned files.</span>
+  
+</div>
+</body>
+</html>
