@@ -4,7 +4,7 @@ require 'fileutils'
 
 class SampleReposVersioned
   
-  def self.create(app_sources_base_dir, test_content_dir, app_file = nil)
+  def self.create(app_sources_base_dir, test_content_dir, app_dir)
     
     if (app_sources_base_dir.class.name == "RubyKObject")
       app_sources_base_dir = app_sources_base_dir.toString()
@@ -12,14 +12,14 @@ class SampleReposVersioned
     if (test_content_dir.class.name == "RubyKObject")
       test_content_dir = test_content_dir.toString()
     end
+    if (app_dir.class.name == "RubyKObject")
+      app_dir = app_dir.toString()
+    end
     
     require File.join(app_sources_base_dir, "ruby/settings.rb")
     require File.join(app_sources_base_dir, "test/ruby/test_utils.rb")
     
-    if (app_file == nil)
-      app_file = File.expand_path("~/Library/Application Support/Titanium/appdata/info.familyhistories.p2pdocs12/application.properties")
-    end
-    
+    app_file = File.expand_path(File.join(app_dir, "application.properties"))
     base_repo_dir = File.expand_path(File.join(test_content_dir, "sample-repos-versioned"))
     FileUtils.rm_rf(base_repo_dir)
     settings = Settings.new(base_repo_dir)

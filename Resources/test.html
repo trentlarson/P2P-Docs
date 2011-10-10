@@ -14,7 +14,7 @@
   }
 </script>
 <script type="text/ruby">
-  window.p2pdoc_test_versioned = lambda { |content_dir| SampleReposVersioned.create(Titanium.Filesystem.getFile(Titanium.App.getHome(), "Resources"), content_dir) }
+  window.p2pdoc_test_versioned = lambda { |content_dir| SampleReposVersioned.create(Titanium.Filesystem.getFile(Titanium.App.getHome(), "Resources"), content_dir, Titanium.Filesystem.getApplicationDataDirectory()) }
 </script>
 
 <script type="text/javascript">
