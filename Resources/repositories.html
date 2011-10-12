@@ -4,6 +4,7 @@
 
 <script type="text/javascript" src="js/jquery-1.5.1.min.js"></script>
 <script type="text/javascript" src="js/jquery-ui-1.8.13.custom.min.js"></script>
+<script type="text/javascript" src="js/p2pdocs.js"></script>
 
 <style type="text/css">
 .repoItem {
@@ -113,6 +114,16 @@ var insertRepo = function(repo, showSlowly) {
     }
   });
   
+  addedItem.find("#inFolderOpener_").attr("id", "inFolderOpener_" + dom_suffix)
+  .html(repo.incoming_loc == null || repo.incoming_loc.length === 0 ? "" : "(open)")
+  .click(viewFileWrapperFunc(repo.incoming_loc, Titanium.Filesystem.getSeparator()));
+  addedItem.find("#myLocFolderOpener_").attr("id", "myLocFolderOpener_" + dom_suffix)
+  .html(repo.my_loc == null || repo.my_loc.length === 0 ? "" : "(open)")
+  .click(viewFileWrapperFunc(repo.my_loc, Titanium.Filesystem.getSeparator()));
+  addedItem.find("#outFolderOpener_").attr("id", "outFolderOpener_" + dom_suffix)
+  .html(repo.outgoing_loc == null || repo.outgoing_loc.length === 0 ? "" : "(open)")
+  .click(viewFileWrapperFunc(repo.outgoing_loc, Titanium.Filesystem.getSeparator()));
+  
   // attach methods to the visuals
   addedItem.find("#repoRemove_" + dom_suffix).click(removeRepo(dom_suffix, repo.name));
   
@@ -184,6 +195,7 @@ $(document).ready(function() {
           <span id="repoInPath_" class="repoInfo"></span>
           <a href="#" id="inFolderChooser_" class="repoAct">(change)</a>
           <a href="#" id="inFolderRemover_" class="repoAct">(remove)</a>
+          <a href="#" id="inFolderOpener_" class="repoAct">(open)</a>
         </td>
       </tr>
       <tr>
@@ -192,6 +204,7 @@ $(document).ready(function() {
           <span id="repoMyLocPath_" class="repoInfo"></span>
           <a href="#" id="myLocFolderChooser_" class="repoAct">(change)</a>
           <a href="#" id="myLocFolderRemover_" class="repoAct">(remove)</a>
+          <a href="#" id="myLocFolderOpener_" class="repoAct">(open)</a>
         </td>
       </tr>
       <tr>
@@ -200,6 +213,7 @@ $(document).ready(function() {
           <span id="repoOutPath_" class="repoInfo"></span>
           <a href="#" id="outFolderChooser_" class="repoAct">(change)</a>
           <a href="#" id="outFolderRemover_" class="repoAct">(remove)</a>
+          <a href="#" id="outFolderOpener_" class="repoAct">(open)</a>
         </td>
       </tr>
     </table>
