@@ -17,6 +17,7 @@ class SampleReposVersioned
     end
     
     require File.join(app_sources_base_dir, "ruby/settings.rb")
+    require File.join(app_sources_base_dir, "ruby/updates.rb")
     require File.join(app_sources_base_dir, "test/ruby/test_utils.rb")
     
     app_file = File.expand_path(File.join(app_dir, "application.properties"))
@@ -43,10 +44,9 @@ class SampleReposVersioned
     
     repo_name = "test 0"
     repo_dir_name = File.join(base_repo_dir, settings.fixed_repo_name(repo_name))
-    added = true
-    TestUtils.add_repo(settings, repo_name, repo_dir_name)
+    added = TestUtils.add_repo(settings, repo_name, repo_dir_name)
     if (!added)
-      raise "I was unable to create the test repository."
+      raise "I was unable to create the #{repo_name} repository."
     else
       File.open(File.join(repo_dir_name, "test.txt"), 'w') do |out|
         out.write("data\n")
@@ -56,6 +56,30 @@ class SampleReposVersioned
         out.write("data\n")
         out.write("... is in your future\n")
       end
+      
+      File.open(File.join(repo_dir_name, "test_4.txt"), 'w') do |out|
+        out.write("data\n")
+        out.write("... is in your future, buddy.\n")
+      end
+    end
+
+    repo_name = "test 1 - should see no changes to accept"
+    repo_dir_name = File.join(base_repo_dir, settings.fixed_repo_name(repo_name))
+    added = TestUtils.add_repo(settings, repo_name, repo_dir_name)
+    if (!added)
+      raise "I was unable to create the #{repo_name} repository."
+    else
+      File.open(File.join(repo_dir_name, "test.txt"), 'w') do |out|
+        out.write("data\n")
+      end
+      
+      File.open(File.join(repo_dir_name, "test_2.txt"), 'w') do |out|
+        out.write("data\n")
+        out.write("... is in your future\n")
+      end
+      
+      Updates.mark_reviewed(settings, repo_name, "test_2.txt")
+      
     end
 
   end
