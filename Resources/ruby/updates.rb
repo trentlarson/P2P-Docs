@@ -48,7 +48,7 @@ class Updates
   end
   
   # return the diffs of the incoming files and reviewed files;
-  # format is an array of { 'name' => REPO_NAME, 'diffs' => RESULT_OF_DIFF_DIRS }
+  # format is an array of { 'name' => REPO_NAME, 'diffs' => RESULT_OF_VERSIONED_DIFFS }
   def self.all_repo_diffs(settings)
     result = settings.properties['repositories']
     if (result == nil) 
@@ -65,7 +65,7 @@ class Updates
   end
   
   # return the diffs of my copies of files and outgoing files;
-  # format is an array of { 'name' => REPO_NAME, 'diffs' => RESULT_OF_DIFF_DIRS }
+  # format is an array of { 'name' => REPO_NAME, 'diffs' => RESULT_OF_VERSIONED_DIFFS }
   def self.all_outgoing_diffs(settings)
     result = settings.properties['repositories']
     if (result == nil) 

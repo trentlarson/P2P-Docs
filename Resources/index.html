@@ -118,10 +118,25 @@ $(document).ready(function() {
       // show the copy-to-outgoing action
       var allOutDiffs = JSON.parse(window.p2pdoc_all_out_diffs_json);
       if (allOutDiffs.length > 0) {
-        $('#outChanges').show().click(function() {
+        var outCount = allOutDiffs.length;
+        for (var outRepoNum = 0; outRepoNum < outCount; outRepoNum++) {
+          $('#outChangeList').append(allOutDiffs[outRepoNum].name);
+          $('#outChangeList').append("<ul>\n");
+          var outChangeCount = allOutDiffs[outRepoNum].diffs.length;
+          for (var outChangeNum = 0; outChangeNum < outChangeCount; outChangeNum++) {
+            $('#outChangeList').append("<li>" + allOutDiffs[outRepoNum].diffs[outChangeNum].path + "</li>\n");
+          }
+          $('#outChangeList').append("</ul>\n");
+        }
+        $('#exportOutChanges').click(function() {
             copy_to_outgoing(allOutDiffs);
             $(this).hide(500);
+            return false;
         });
+        $('#previewOutgoing').click(function() {
+          $(this).next().toggle(500);
+        });
+        $('#outChanges').show();
       }
       
       // show the incoming-review action
@@ -251,8 +266,11 @@ $(document).ready(function() {
 
 <br/>
 <br/>
-<div id="outChanges" style="display:none">
-  <h3><a href="#"><span class="ui-widget">Export unshared changes to the outgoing folders.</span></a></h3>
+<div id="outChanges" style="display:none;">
+  <h3><a href="#" id="exportOutChanges"><span class="ui-widget">Export unshared changes to the outgoing folders.</span></a></h3>
+  <span id="previewOutgoing">(preview)</span>
+  <div id="outChangeList" style="display:none;">
+  </div>
 </div>
 
 <div id="inChanges">
