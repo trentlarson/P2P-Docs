@@ -56,9 +56,10 @@ $(document).ready(function() {
     if (term != null) {
       
       if (term.length < 2) {
-        alert("Sorry, I'm not going to even try for fear I'll choke on it.");
+        alert("Sorry, I'm not going to even try for fear I'll choke on the massive set of data.");
       } else {
         var moreInfo = window.searcher.main("/Users/tlarson/backed/doc/family-histories/JeanGould.html", term);
+        var nothing = moreInfo.toString(); // this is just to avoid crashes, eg. on searches for "Robert"
         
         if (moreInfo.length == 0) {
           $("#files").append("Nothing.");
@@ -82,7 +83,7 @@ $(document).ready(function() {
                 } else {
                   alert("There is no anchor point near that text.  The file will open at the top, and you'll have to search for that text.");
                 }
-               Titanium.Desktop.openURL("file://" + filename);
+                Titanium.Desktop.openURL("file://" + filename);
               } else {
                 Titanium.Desktop.openApplication(filename);
               }
