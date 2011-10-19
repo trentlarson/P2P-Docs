@@ -65,6 +65,13 @@ function openFile(filename, filepos) {
       
 $(document).ready(function() {
   try {
+    
+    // First, open up a file if requested.
+    var filename = getParam("filename"), filepos = getParam("filepos");
+    if (filename != null) {
+      openFile(filename, filepos);
+    }
+    
     $('#term').focus();
 
     var term = getParam("term");
@@ -103,12 +110,6 @@ $(document).ready(function() {
       }
     }
 
-    // Now open up a file if requested.
-    var filename = getParam("filename"), filepos = getParam("filepos");
-    if (filename != null) {
-      openFile(filename, filepos);
-    }
-    
   } catch (e) {
     alert('error: ' + e);
   }
