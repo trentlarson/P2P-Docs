@@ -46,7 +46,12 @@ class Search
     if (names.length > 0)
       return names.last.last
     else
-      return nil
+      names = buffer.scan(/<a name='(.+?)'/)
+      if (names.length > 0)
+        return names.last.last
+      else
+        return nil
+      end
     end
   end
 
