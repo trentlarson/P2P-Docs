@@ -74,6 +74,7 @@ $(document).ready(function() {
     
     $('#term').focus();
 
+    // Now check files for the search results.
     var term = getParam("term");
     if (term != null) {
       
@@ -93,15 +94,22 @@ $(document).ready(function() {
             var file = moreInfo[i].file, pos = moreInfo[i].pos
             $("#files").append("<div class='blurb'><span class='openApp' file='" + moreInfo[i].file + "' pos='" + moreInfo[i].pos + "'>" + moreInfo[i].line + "</span></div>")
               .click(function(e) {
+                // This approach is bad because we throw away search results; see other options "without a page reload" elsewhere.
                 window.location.href = "search.html?filename=" + encodeURI(file) + "&filepos=" + encodeURI(pos);
               });
-              /** error in JavaScript: TypeError: Result of expression 'window.searcher.previous_anchor_name' [undefined] is not a function.
+              /** 
+               * This is an approach to open the file without a page reload.
+               * Error when you click on it: TypeError: Result of expression 'window.searcher.previous_anchor_name' [undefined] is not a function.
+               * 
               .click(function(e) { openFile(file, pos); });
               **/
           }
           
-          /** error when you click on it, in JavaScript: TypeError: Result of expression 'window.searcher.previous_anchor_name' [undefined] is not a function.
+          /** 
+           * This is an approach to open the file without a page reload.
+           * Error when you click on it, in JavaScript: TypeError: Result of expression 'window.searcher.previous_anchor_name' [undefined] is not a function.
            *  ... or in Ruby if I finagle anything that calls Ruby (on method 'freeze' or 'public_methods' or...): Error: undefined method `call' for "freeze":String
+           * 
           $(".blurb .openApp").each(function() {
             $(this).click(function(e) { openFile($(this).attr("file"), parseInt($(this).attr("pos"))); });
           });
