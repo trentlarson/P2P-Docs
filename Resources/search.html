@@ -25,7 +25,7 @@
 </script>
 
 <script type="text/ruby">
-  window.searcher = Search.new
+  window.p2pdocs_searcher = Search.new
 </script>
 
 <script type="text/javascript">
@@ -51,7 +51,7 @@ function getParam(name) {
 function openFile(filename, filepos) {
   if (endsWith(filename, ".htm")
       || endsWith(filename, ".html")) {
-    var anchorName = window.searcher.previous_anchor_name(filename, filepos);
+    var anchorName = window.p2pdocs_searcher.previous_anchor_name(filename, filepos);
     if (anchorName) {
       filename = filename + "#" + anchorName;
     } else {
@@ -61,6 +61,15 @@ function openFile(filename, filepos) {
   } else {
     Titanium.Desktop.openApplication(filename);
   }
+}
+
+// This approach is bad because we throw away search results; see other options "without a page reload" elsewhere.
+function functionOnClickForOpeningResults(filename, filepos) {
+Titanium.API.print("creating function for " + filename + " and " + filepos + "\n");
+  var openFun = function(e) {
+    window.location.href = "search.html?filename=" + encodeURI(filename) + "&filepos=" + encodeURI(filepos);
+  };
+  return openFun;
 }
       
 $(document).ready(function() {
@@ -81,7 +90,7 @@ $(document).ready(function() {
       if (term.length < 2) {
         alert("Sorry, I'm not going to even try for fear I'll choke on the massive set of data.");
       } else {
-        var moreInfo = window.searcher.main("/Users/tlarson/backed/doc/family-histories/JeanGould.html", term);
+        var moreInfo = window.p2pdocs_searcher.main("/Users/tlarson/backed/doc/family-histories/JeanGould.html", term);
         var nothing = moreInfo.toString(); // this is just to avoid crashes, eg. on searches for "Robert"
         //Titanium.API.print("results: " + moreInfo + "\n"); // this also could avoid crashes
         
@@ -92,28 +101,17 @@ $(document).ready(function() {
           // create an element for each search result
           for (var i = 0; i < moreInfo.length; i++) {
             var file = moreInfo[i].file, pos = moreInfo[i].pos
-            $("#files").append("<div class='blurb'><span class='openApp' file='" + moreInfo[i].file + "' pos='" + moreInfo[i].pos + "'>" + moreInfo[i].line + "</span></div>")
-              .click(function(e) {
-                // This approach is bad because we throw away search results; see other options "without a page reload" elsewhere.
-                window.location.href = "search.html?filename=" + encodeURI(file) + "&filepos=" + encodeURI(pos);
-              });
-              /** 
-               * This is an approach to open the file without a page reload.
-               * Error when you click on it: TypeError: Result of expression 'window.searcher.previous_anchor_name' [undefined] is not a function.
-               * 
-              .click(function(e) { openFile(file, pos); });
-              **/
+            $("#files").append("<div class='blurb'><span class='openApp' file='" + moreInfo[i].file + "' pos='" + moreInfo[i].pos + "'>" + moreInfo[i].line + "</span></div>");
+            $(".openApp").last().click(functionOnClickForOpeningResults(file, pos));
+            /** 
+             * This is an approach to open the file without a page reload.
+             * Error when you click on it, in JavaScript: TypeError: Result of expression 'window.p2pdocs_searcher.previous_anchor_name' [undefined] is not a function.
+             *  ... or in Ruby if I finagle anything that calls Ruby (on method 'freeze' or 'public_methods' or...): Error: undefined method `call' for "freeze":String
+             * 
+            $(".openApp").last().click(function(e) { openFile(file, pos); });
+            **/
           }
           
-          /** 
-           * This is an approach to open the file without a page reload.
-           * Error when you click on it, in JavaScript: TypeError: Result of expression 'window.searcher.previous_anchor_name' [undefined] is not a function.
-           *  ... or in Ruby if I finagle anything that calls Ruby (on method 'freeze' or 'public_methods' or...): Error: undefined method `call' for "freeze":String
-           * 
-          $(".blurb .openApp").each(function() {
-            $(this).click(function(e) { openFile($(this).attr("file"), parseInt($(this).attr("pos"))); });
-          });
-          **/
         }
       }
     }
