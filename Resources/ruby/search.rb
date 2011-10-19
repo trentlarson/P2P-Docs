@@ -28,6 +28,15 @@ class Search
   BUFFER_LENGTH = 2048
   # return the XML anchor name attribute value before the given position, or nil if none found in BUFFER_LENGTH beforehand
   def previous_anchor_name(filename, filepos)
+    if (filename.class.name == "RubyKObject") # for method results from Titanium
+      filename = filename.toString()
+    end
+    if (filepos.class.name == "RubyKObject") # for method results from Titanium
+      filepos = filepos.toString().to_i
+    elsif (filepos.class.name == "String")
+      filepos = filepos.to_i
+    end
+    
     buffer = ""
     File.open(filename) do |io|
       io.seek(filepos - BUFFER_LENGTH)
