@@ -60,6 +60,7 @@ $(document).ready(function() {
       } else {
         var moreInfo = window.searcher.main("/Users/tlarson/backed/doc/family-histories/JeanGould.html", term);
         var nothing = moreInfo.toString(); // this is just to avoid crashes, eg. on searches for "Robert"
+        //Titanium.API.print("results: " + moreInfo + "\n"); // this also could avoid crashes
         
         if (moreInfo.length == 0) {
           $("#files").append("Nothing.");

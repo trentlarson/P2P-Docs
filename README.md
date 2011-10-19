@@ -50,7 +50,6 @@ In priority order:
  * fix unknown crashes on repositories page when accepting a change too many (100) repos
    ... though if you go to repo create screen first it just stops on javascript at mark_reviewed on index.html
  * fix unknown crashes on repeated clicks back-and-forth from main to configure
- * fix unknown crashes on search, eg "Robert"
  * fix unknown crashes on deleting a repo (though it works if you got to create screen first)
  * default to versioned files, but allow to overwrite (both incoming and outgoing)
  * default to keep old reviewed versions, but allow deletion
