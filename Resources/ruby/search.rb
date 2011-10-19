@@ -7,25 +7,52 @@
 
 class Search
 
+  # filename can be directory or single file
   # return an array of hashes: file => filename, line => line with matching text, pos => file position of beginning of line
   def main(filename, term)
-
+    if (filename.class.name == "RubyKObject") # for method results from Titanium
+      filename = filename.toString()
+    end
+    if (term.class.name == "RubyKObject") # for method results from Titanium
+      term = term.toString()
+    end
+    
+    filenames = all_files_below(filename)
+    
     lines = []
-    pos = 0
-    File.open(filename) do |io|
-      io.each do |line|
-        length = line.length # do this before chomping the line-ending characters
-        line.chomp!
-        lines << { "file" => filename, "line" => line, "pos" => pos } if line.include? term
-        pos += length
+    filenames.each do |filename|
+      pos = 0
+      File.open(filename) do |io|
+        io.each do |line|
+          length = line.length # do this before chomping the line-ending characters
+          line.chomp!
+          lines << { "file" => filename, "context" => line, "pos" => pos } if line.include? term
+          pos += length
+        end
       end
     end
-
     lines
-
   end
+  
+  # return a list, may be empty, never nil
+  def all_files_below(dirname)
+    result = all_files_below_rec(dirname)
+    result == nil ? [] : result.flatten
+  end
+  # return a list of file names, may be empty, nil if dirname is not an existing file or directory
+  def all_files_below_rec(dirname)
+    if (File.file?(dirname))
+      [dirname]
+    elsif (File.directory?(dirname))
+      entries = Dir.new(dirname).entries.reject{ |entry| entry == "." || entry == ".." }
+      entries.map{ |entry| all_files_below(File.join(dirname, entry)) }
+    end
+  end
+  
+  
 
   BUFFER_LENGTH = 2048
+  
   # return the XML anchor name attribute value before the given position, or nil if none found in BUFFER_LENGTH beforehand
   def previous_anchor_name(filename, filepos)
     if (filename.class.name == "RubyKObject") # for method results from Titanium
