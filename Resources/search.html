@@ -93,14 +93,10 @@ $(document).ready(function() {
               **/
           }
           
-          /** error when you click on it, in Ruby: Error: undefined method `call' for "freeze":String
-              ... or in JavaScript: TypeError: Result of expression 'window.searcher.previous_anchor_name' [undefined] is not a function.
+          /** error when you click on it, in JavaScript: TypeError: Result of expression 'window.searcher.previous_anchor_name' [undefined] is not a function.
+           *  ... or in Ruby if I finagle anything that calls Ruby (on method 'freeze' or 'public_methods' or...): Error: undefined method `call' for "freeze":String
           $(".blurb .openApp").each(function() {
-            $(this).click(function(e) {
-              filename = $(this).attr("file");
-              filepos = parseInt($(this).attr("pos"));
-              openFile(filename, filepos);
-            });
+            $(this).click(function(e) { openFile($(this).attr("file"), parseInt($(this).attr("pos"))); });
           });
           **/
         }
