@@ -67,6 +67,7 @@ In priority order:
  * use repo ID numbers everywhere (instead of names)
  * fix the new-repo transition to slide whole screen (not half)
  * make a consistent styling for the whole app
+ * search - HTML: not just "a name=" strings, and not just single- and double-quotes
  * rework graphics with repo pic
    * http://www.clker.com/clipart-vertical-file-cabinet.html
    * http://search.coolclips.com/media/?D=busi1110
