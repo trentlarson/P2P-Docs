@@ -47,6 +47,7 @@ Specific Plans
 In priority order:
 
  * Doc Changes
+ * navigation: from search to repo definitions and back
  * fix unknown crashes on repositories page when accepting a change too many (100) repos
    ... though if you go to repo create screen first it just stops on javascript at mark_reviewed on index.html
  * fix unknown crashes on repeated clicks back-and-forth from main to configure
