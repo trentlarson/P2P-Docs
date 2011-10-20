@@ -9,15 +9,14 @@ class Search
 
   # filename can be directory or single file
   # return an array of hashes: file => filename, line => line with matching text, pos => file position of beginning of line
-  def main(filename, term)
-    if (filename.class.name == "RubyKObject") # for method results from Titanium
-      filename = filename.toString()
-    end
+  def main(settings, term)
+
     if (term.class.name == "RubyKObject") # for method results from Titanium
       term = term.toString()
     end
     
-    filenames = all_files_below(filename)
+    #filenames = all_files_below(filename)
+    filenames = search_dirs_from(settings).map{ |dir| all_files_below(dir) }.flatten
     
     lines = []
     filenames.each do |filename|
@@ -32,6 +31,19 @@ class Search
       end
     end
     lines
+  end
+  
+  # return all the repository directories in which to search for content, meaning the home directory or (if that's not set) the incoming directory
+  def search_dirs_from(settings)
+    settings.properties['repositories'].map{ |repo| 
+      if (repo['my_loc'] != nil)
+        repo['my_loc']
+      elsif (repo['incoming_loc'] != nil)
+        repo['incoming_loc']
+      else
+        nil
+      end
+    }.reject{ |loc| loc.nil? }
   end
   
   # return a list, may be empty, never nil
