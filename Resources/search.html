@@ -37,6 +37,7 @@ function endsWith(str, suffix) {
 }
 
 // http://www.netlobo.com/url_query_string_javascript.html
+// also in changes.html
 function getParam(name) {
   name = name.replace(/[\[]/,"\\\[").replace(/[\]]/,"\\\]");
   var regexS = "[\\?&]"+name+"=([^&#]*)";
@@ -45,7 +46,7 @@ function getParam(name) {
   if( results == null )
     return null;
   else
-    return results[1];
+    return unescape(results[1]);
 }
 
 function openFile(filename, filepos) {
@@ -65,7 +66,6 @@ function openFile(filename, filepos) {
 
 // This approach is bad because we throw away search results; see other options "without a page reload" elsewhere.
 function functionOnClickForOpeningResults(filename, filepos) {
-Titanium.API.print("creating function for " + filename + " and " + filepos + "\n");
   var openFun = function(e) {
     window.location.href = "search.html?filename=" + encodeURI(filename) + "&filepos=" + encodeURI(filepos);
   };
