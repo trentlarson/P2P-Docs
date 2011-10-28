@@ -4,6 +4,8 @@
 
 <script type="text/javascript" src="js/jquery-1.5.1.min.js"></script>
 <script type="text/javascript" src="js/jquery-ui-1.8.13.custom.min.js"></script>
+<script type="text/javascript" src="js/stacktrace.js"></script>
+<script type="text/javascript" src="js/p2pdocs.js"></script>
 
 <script type="text/ruby" src="test/ruby/sample_repos_versioned.rb"></script>
 <script type="text/javascript">
@@ -29,7 +31,7 @@
       }
       alert("All set to regular environment.");
     } catch (e) {
-      alert("error: " + e);
+      p2pdocsHandleError(e);
     }
   }
 
@@ -44,7 +46,7 @@
       window.p2pdoc_test_versioned(Titanium.App.getHome());
       alert("All set for test environment.");
     } catch (e) {
-      alert("error: " + e);
+      p2pdocsHandleError(e);
     }
   }
 
@@ -54,7 +56,7 @@
       $('#regular-app').click(function(){ restoreRegularOperation(); });
       $('#test-for-versioned-files').click(function(){ setupTestForVersionedFiles(); });
     } catch (e) {
-      alert("error: " + e);
+      p2pdocsHandleError(e);
     }
   });
   

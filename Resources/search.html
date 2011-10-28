@@ -16,6 +16,9 @@
 </style>
 
 <script type="text/javascript" src="js/jquery-1.5.1.min.js"></script>
+<script type="text/javascript" src="js/stacktrace.js"></script>
+<script type="text/javascript" src="js/p2pdocs.js"></script>
+
 <script type="text/ruby"       src="ruby/settings.rb"></script>
 <script type="text/ruby"       src="ruby/search.rb"></script>
 
@@ -52,16 +55,20 @@ function getParam(name) {
 }
 
 function openFile(filename, filepos) {
-  if (endsWith(filename, ".htm")
-      || endsWith(filename, ".html")) {
-    if (filepos) {
-      filename = filename + "#" + filepos;
+  try {
+    if (endsWith(filename, ".htm")
+        || endsWith(filename, ".html")) {
+      if (filepos) {
+        filename = filename + "#" + filepos;
+      } else {
+        alert("There is no anchor point near that text.  The file will open at the top, and you'll have to search for that text.");
+      }
+      Titanium.Desktop.openURL("file://" + filename);
     } else {
-      alert("There is no anchor point near that text.  The file will open at the top, and you'll have to search for that text.");
+      Titanium.Desktop.openApplication(filename);
     }
-    Titanium.Desktop.openURL("file://" + filename);
-  } else {
-    Titanium.Desktop.openApplication(filename);
+  } catch (e) {
+    p2pdocsHandleError(e);
   }
 }
 
@@ -97,7 +104,7 @@ $(document).ready(function() {
     $('#term').focus();
 
   } catch (e) {
-    alert('error: ' + e);
+    p2pdocsHandleError(e);
   }
 
 });
