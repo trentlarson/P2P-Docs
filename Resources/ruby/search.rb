@@ -20,13 +20,23 @@ class Search
     
     lines = []
     filenames.each do |filename|
-      pos = 0
+      pos = nil
       File.open(filename) do |io|
         io.each do |line|
           length = line.length # do this before chomping the line-ending characters
           line.chomp!
-          lines << { "file" => filename, "context" => line, "pos" => pos } if line.include? term
-          pos += length
+          lines << { "file" => filename, "context" => line, "position" => pos } if line.include? term
+          # now save any anchor in there for future hits
+          # (not doing this before the match in case the anchor is after the term)
+          anames = line.scan(/<a name="(.+?)"/)
+          if (anames.length > 0)
+            pos = anames[0].last
+          else
+            anames = line.scan(/<a name='(.+?)'/)
+            if (anames.length > 0)
+              pos = anames[0].last
+            end
+          end
         end
       end
     end

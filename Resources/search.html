@@ -54,9 +54,9 @@ function getParam(name) {
 function openFile(filename, filepos) {
   if (endsWith(filename, ".htm")
       || endsWith(filename, ".html")) {
-    var anchorName = window.p2pdocs_searcher.previous_anchor_name(filename, filepos);
-    if (anchorName) {
-      filename = filename + "#" + anchorName;
+    //var anchorName = window.p2pdocs_searcher.previous_anchor_name(filename, filepos);
+    if (filepos) {
+      filename = filename + "#" + filepos;
     } else {
       alert("There is no anchor point near that text.  The file will open at the top, and you'll have to search for that text.");
     }
@@ -102,8 +102,8 @@ $(document).ready(function() {
           
           // create an element for each search result
           for (var i = 0; i < moreInfo.length; i++) {
-            var file = moreInfo[i].file, pos = moreInfo[i].pos
-            $("#files").append("<div class='blurb'><span class='openApp' file='" + moreInfo[i].file + "' pos='" + moreInfo[i].pos + "'>" + moreInfo[i].context + "</span></div>");
+            var file = moreInfo[i].file, pos = moreInfo[i].position
+            $("#files").append("<div class='blurb'><span class='openApp' file='" + moreInfo[i].file + "' pos='" + moreInfo[i].position + "'>" + moreInfo[i].context + "</span></div>");
             $(".openApp").last().click(functionOnClickForOpeningResults(file, pos));
             /** 
              * This is an approach to open the file without a page reload.
