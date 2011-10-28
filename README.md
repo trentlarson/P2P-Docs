@@ -74,12 +74,17 @@ In priority order:
    * http://search.coolclips.com/media/?D=busi1110
 
 
-Finished
---------
-
-
 Externalities
 -------------
 
- * JavaScript libraries: see Resources/js files
- * icons for home-interact-people from dellustrations.com: see http://www.smashingmagazine.com/2008/10/01/dellipack-2-a-free-icon-set/
+ * JavaScript libraries: see files in Resources/js directory
+ * icons for home-interact-people by Wendell Fernandes at dellustrations.com; see http://www.smashingmagazine.com/2008/10/01/dellipack-2-a-free-icon-set/
+ * gear-raw.32.png by Icon Shock; see http://www.gettyicons.com/free-icon/101/programmers-pack-icon-set/free-settings-icon-png/
+ * binoculars-raw.32.png by DaPino; see http://www.iconarchive.com/show/fishing-equipment-icons-by-dapino/binoculars-icon.html
+ * rss-feed-raw.jpg by Carl Newton: http://carlnewton.deviantart.com/art/RSS-Icon-37808083 via http://wonderful-tricks.blogspot.com/2009/05/collection-of-free-rss-feed-icons.html
+ * rss-feed-raw2.jpg by burnsflipper: http://burnsflipper.deviantart.com/art/MyCircles-RSS-Icon-40357449 via http://wonderful-tricks.blogspot.com/2009/05/collection-of-free-rss-feed-icons.html
+
+Other Commentary
+----------------
+ * Dear cyberchaos05 (http://cyberchaos05.deviantart.com/): I would have used your magnifying glass, but you don't allow derivatives.  http://www.iconspedia.com/icon/search-10368.html
+ 
