@@ -47,7 +47,6 @@ Specific Plans
 In priority order:
 
  * Doc Changes
- * navigation: from search to repo definitions and back
  * fix unknown crashes on repositories page when accepting a change too many (100) repos
    ... though if you go to repo create screen first it just stops on javascript at mark_reviewed on index.html
  * fix unknown crashes on deleting a repo (though it works if you go to create screen first)
@@ -67,7 +66,7 @@ In priority order:
  * use repo ID numbers everywhere (instead of names)
  * fix the new-repo transition to slide whole screen (not half)
  * make a consistent styling for the whole app
- * search - HTML: not just "a name=" strings, and not just single- and double-quotes
+ * search - HTML anchors: not just "a name=" strings, and not just single- and double-quotes
  * rework graphics with repo pic
    * http://www.clker.com/clipart-vertical-file-cabinet.html
    * http://search.coolclips.com/media/?D=busi1110
