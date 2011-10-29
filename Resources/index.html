@@ -17,7 +17,7 @@
   Titanium.UI.getWindows()[0].showInspector(true);
   var settingsFile = Titanium.Filesystem.getFile(window.p2pdoc_settings.settings_file());
   if (settingsFile.exists()) {
-    window.location.href= "repo-index.html";
+    window.location.href= "repo-index.html?redirectIfNoUpdates=";
   } else {
     window.location.href= "repository.html";
   }

@@ -36,9 +36,9 @@ Test Details:
       
         settings-dir: /Users/tlarson/dev/p2pdocs/p2pdocs8/build/sample-repos
 
-    * run app and test
-        * If you click on a repo name (eg. "test 0"), then mark the checkbox, then click "Accept", it should disappear (rather than throw some JavaScript exception)
-        * If you click on "Configure", then click "change" next to "Outgoing", then select a directory and hit "Open", it should set it (rather than crash)
+    * run app and test on the 'feed' screen
+        * If you click on a repo name (eg. "test 0"), then mark the checkbox, then click "Accept Changes", it should disappear (rather than throw some JavaScript exception)
+        * If you click on "Configure" (gear icon), then click "change" next to "Outgoing", then select a directory and hit "Open", it should set it (rather than crash)
 
 
 Specific Plans

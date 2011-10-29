@@ -57,3 +57,18 @@ function viewFileWrapperFunc(sourceDir, path) {
   }
   return viewFileFunc;
 }
+
+// from http://www.netlobo.com/url_query_string_javascript.html
+// also in search.html
+function urlParam( name )
+{
+  name = name.replace(/[\[]/,"\\\[").replace(/[\]]/,"\\\]");
+  var regexS = "[\\?&]"+name+"=([^&#]*)";
+  var regex = new RegExp( regexS );
+  var results = regex.exec( window.location.href );
+  if( results == null )
+    return null;
+  else
+    return unescape(results[1]); // I added the unescape: looks like Titanium doesn't unencode this internal stuff.
+}
+

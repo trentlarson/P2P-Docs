@@ -111,7 +111,9 @@ $(document).ready(function() {
       
       // show the copy-to-outgoing action
       var allOutDiffs = JSON.parse(window.p2pdoc_all_out_diffs_json);
+      var changesExist = false;
       if (allOutDiffs.length > 0) {
+        changesExist = true;
         var outCount = allOutDiffs.length;
         for (var outRepoNum = 0; outRepoNum < outCount; outRepoNum++) {
           $('#outChangeList').append(allOutDiffs[outRepoNum].name);
@@ -139,6 +141,7 @@ $(document).ready(function() {
         $('#noDiffs').show();
         
       } else {
+        changesExist = true;
         $('#inChanges').show();
   
         // declare the repo variables for data and DOM elements
@@ -220,7 +223,12 @@ $(document).ready(function() {
           }
         }
       }
-  
+
+      if (urlParam("redirectIfNoUpdates") != null
+          && !changesExist) {
+        window.location.href = "search.html";
+      }
+    
       // click to toggle panel
       $('.panelHeader').click(function() {
         $(this).next().toggle(500);
