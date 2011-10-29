@@ -7,6 +7,8 @@
 <script type="text/javascript" src="js/stacktrace.js"></script>
 <script type="text/javascript" src="js/p2pdocs.js"></script>
 
+<link rel="stylesheet" type="text/css" href="css/p2pdocs.css" />
+
 <style type="text/css">
 .repoItem {
   display: none;
@@ -152,7 +154,10 @@ var removeRepo = function(dom_suffix, name) {
 $(document).ready(function() {
 
   try {
-  
+    
+    $('#settingsDir').html(window.p2pdoc_settings.data_dir());
+    $('#settingsDir').next().click(viewFileWrapperFunc(window.p2pdoc_settings.data_dir(), Titanium.Filesystem.getSeparator()));
+    
     var repos = window.p2pdoc_settings.properties().repositories;
     var repo;
     if (repos.length > 0) {
@@ -189,8 +194,10 @@ $(document).ready(function() {
     <a href="repositories.html"><img src="images/gear.32.png" alt="Configure"/></a>
   </div>
 
-<a href="repo-index.html" class="ui-state-default" style="float:right;">Done</a>
-  
+<div id="settings">
+  Settings Directory: <span id="settingsDir"></span> <a href="">(open)</a>
+</div>
+
 <div id="repoList">
   <div id="repoItem_" class="repoItem">
     <img src="images/button-red-x.png" title="Remove" alt="Remove" id="repoRemove_" class="repoRemove">

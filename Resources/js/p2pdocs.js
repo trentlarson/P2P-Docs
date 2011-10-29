@@ -28,6 +28,9 @@ function p2pdocsHandleError(err, extras) {
 }
 
 /**
+ * Returns a function that will open the given location in the system's default opener.
+ * To open a directory, pass a path of Titanium.FileSystem.getSeparator() (because other things don't work, such as ending the sourceDir with the separator),.
+ * 
  * requires Titanium, stacktrace.js
  */
 function viewFileWrapperFunc(sourceDir, path) {

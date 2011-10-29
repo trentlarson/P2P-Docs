@@ -8,13 +8,7 @@
 <script type="text/javascript" src="js/p2pdocs.js"></script>
 
 <script type="text/ruby" src="test/ruby/sample_repos_versioned.rb"></script>
-<script type="text/javascript">
-  // Initialize the basic setup.
-  if (!Titanium.App.Properties.hasProperty('settings-dir')) {
-    // Titanium.App.Properties pulls from the application.properties file.  Note that lines in it beginning with # sometimes disappear; I use // for commentary.
-    Titanium.App.Properties.setString('settings-dir', Titanium.Filesystem.getApplicationDataDirectory().toString());
-  }
-</script>
+
 <script type="text/ruby">
   window.p2pdoc_test_versioned = lambda { |content_dir| SampleReposVersioned.create(Titanium.Filesystem.getFile(Titanium.App.getHome(), "Resources"), content_dir, Titanium.Filesystem.getApplicationDataDirectory()) }
 </script>

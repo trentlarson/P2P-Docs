@@ -23,12 +23,6 @@
 <script type="text/ruby"       src="ruby/search.rb"></script>
 
 <script type="text/ruby">
-  if (!Titanium.App.Properties.hasProperty('settings-dir'))
-    Titanium.App.Properties.setString('settings-dir', Titanium.Filesystem.getApplicationDataDirectory().toString());
-  end
-</script>
-
-<script type="text/ruby">
   window.p2pdocs_settings = Settings.new(Titanium.App.Properties.getString("settings-dir"))
   window.p2pdocs_searcher = Search.new
 </script>
