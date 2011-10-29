@@ -193,7 +193,7 @@ $(document).ready(function() {
                   repoData = window.p2pdoc_settings.get_repo_by_name(repoName);
                   file1 = repoData.incoming_loc + Titanium.Filesystem.getSeparator() + diffSet.path;
                   file2 = window.p2pdoc_settings.reviewed_dir(repoName) + Titanium.Filesystem.getSeparator() + diffSet.target_path_previous_version;
-                  addedDiff.find("#changeView a").attr("href", "changes.html?file1=" + file1 + "&file2=" + file2).show();
+                  addedDiff.find("#changeView a").attr("href", "file-diff.html?file1=" + file1 + "&file2=" + file2).show();
                 } else {
                   // it's something other than a file
                   addedDiff.find("#strangeView a").show();
