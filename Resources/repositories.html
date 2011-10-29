@@ -156,7 +156,7 @@ $(document).ready(function() {
   try {
     
     $('#settingsDir').html(window.p2pdoc_settings.data_dir());
-    $('#settingsDir').next().click(viewFileWrapperFunc(window.p2pdoc_settings.data_dir(), Titanium.Filesystem.getSeparator()));
+    $('#openSettings').click(viewFileWrapperFunc(window.p2pdoc_settings.data_dir(), Titanium.Filesystem.getSeparator()));
     
     var repos = window.p2pdoc_settings.properties().repositories;
     var repo;
@@ -195,7 +195,7 @@ $(document).ready(function() {
   </div>
 
 <div id="settings">
-  Settings Directory: <span id="settingsDir"></span> <a href="">(open)</a>
+  Settings Directory: <span id="settingsDir"></span> <a href="" id="openSettings">(open)</a>
 </div>
 
 <div id="repoList">
@@ -237,7 +237,7 @@ $(document).ready(function() {
 <img src="images/button-green-plus.png" title="Add" alt="Add" id="repoAdd_" class="repoAdd">
 
 <br/>
-<a href="test.html" class="ui-state-default" style="float:right; opacity:0.0;">Test Modes</a>
+<a href="test.html" style="float:right; opacity:0.0;">Test Modes</a>
 
 </div>
 

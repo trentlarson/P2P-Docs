@@ -14,6 +14,7 @@
   window.p2pdoc_settings = Settings.new(Titanium.App.Properties.getString("settings-dir"))
 </script>
 <script type="text/javascript">
+  Titanium.UI.getWindows()[0].showInspector(true);
   var settingsFile = Titanium.Filesystem.getFile(window.p2pdoc_settings.settings_file());
   if (settingsFile.exists()) {
     window.location.href= "repo-index.html";

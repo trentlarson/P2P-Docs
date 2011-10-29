@@ -8,7 +8,8 @@
 <script type="text/javascript" src="js/stacktrace.js"></script>
 <script type="text/javascript" src="js/p2pdocs.js"></script>
 
-<link type="text/css" href="css/smoothness/jquery-ui-1.8.13.custom.css" rel="stylesheet"/>
+<link rel="stylesheet" type="text/css" href="css/smoothness/jquery-ui-1.8.13.custom.css"/>
+<link rel="stylesheet" type="text/css" href="css/p2pdocs.css" />
 
 <style>
 #inChanges {
@@ -91,10 +92,9 @@ function markAccepted() {
             repoDiv.remove();
             // now revert to default display if that was the last repo
             if ($('#inChanges #repoList').children().length == 1) {
-              $('#sideActionWrapper').hide(500);
+              $('#inChanges').hide(500);
               $('#noDiffs').show(500);
             }
-            $(this).remove();
           });
         }
       });
@@ -124,11 +124,11 @@ $(document).ready(function() {
         }
         $('#exportOutChanges').click(function() {
             copy_to_outgoing(allOutDiffs);
-            $(this).hide(500);
+            $('#outChanges').hide(500);
             return false;
         });
         $('#previewOutgoing').click(function() {
-          $(this).next().toggle(500);
+          $("#outChangeList").toggle(500);
         });
         $('#outChanges').show();
       }
@@ -139,7 +139,7 @@ $(document).ready(function() {
         $('#noDiffs').show();
         
       } else {
-        $('#sideActionWrapper').show();
+        $('#inChanges').show();
   
         // declare the repo variables for data and DOM elements
         var repoCount, repoTemplate, oneRepoDiffs, repoName, repoDiffList, repoDiffCount, addedRepo;
@@ -259,20 +259,23 @@ $(document).ready(function() {
     <a href="repositories.html"><img src="images/gear.32.png" alt="Configure"/></a>
   </div>
 
-<h2 id="noRepos" class="ui-widget">Your first task is to find your incoming files.<br/>Click 'Configure' to tell me where they are.</h2>
-<h2 id="noDiffs" class="ui-widget" style="display:none;">You've seen it all, so you can go play with another toy.<br/>Y'all come back now, ya hear?</h2>
+<h2 id="noRepos">Your first task is to find your incoming files.<br/>Click 'Configure' to tell me where they are.</h2>
+<h2 id="noDiffs" style="display:none;">You've seen it all, so you can go play with another toy.<br/>Y'all come back now, ya hear?</h2>
 
 <br/>
 <br/>
 <div id="outChanges" style="display:none;">
-  <h3><a href="#" id="exportOutChanges"><span class="ui-widget">Export unshared changes to the outgoing folders.</span></a></h3>
-  <span id="previewOutgoing">(preview)</span>
-  <div id="outChangeList" style="display:none;">
-  </div>
+  <span><strong>You've made changes that aren't exported to the outgoing folders.</strong></span>
+  <a href="" id="previewOutgoing">(preview)</a>
+  <a href="" id="exportOutChanges">(accept)</a>
+  <div id="outChangeList" style="display:none;"></div>
 </div>
 
-<div id="inChanges">
-  <div id="repoList" class="ui-widget">
+<br/>
+<br/>
+<div id="inChanges" style="display:none;">
+  <span><strong>Here are incoming changes that you haven't reviewed.</strong></span>
+  <div id="repoList">
     <div id="repo_" style="display:none;">
       <h3 class="panelHeader">
         <a href="#">
@@ -293,9 +296,9 @@ $(document).ready(function() {
     </div>
   </div>
   
-  <div id="sideActionWrapper" class="ui-widget" style="display:none;">
+  <div id="sideActionWrapper">
     <div id="sideAction">
-      <a href="#" onclick="javascript: markAccepted(); return false;">Accept</a>
+      <a href="#" onclick="javascript: markAccepted(); return false;">Accept Checked</a>
     </div>
   </div>
 

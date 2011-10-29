@@ -2,6 +2,8 @@
 <html>
 <head>
 
+<link rel="stylesheet" type="text/css" href="css/p2pdocs.css" />
+
 <script type="text/javascript" src="js/jquery-1.5.1.min.js"></script>
 <script type="text/javascript" src="js/jquery-ui-1.8.13.custom.min.js"></script>
 <script type="text/javascript" src="js/stacktrace.js"></script>
@@ -83,7 +85,7 @@
       $('#everything').show('slide', { direction: "down" }, 500);
       $('#restore-env').click(function(){ restoreRegularOperation(); });
       $('#setup-test-env-for-new-install').click(function(){ setupTestForNewInstall(); });
-      $('#setup-test-env-for-new-install').next().click(function(){ Titanium.App.restart(); });
+      $('#restart').click(function(){ Titanium.App.restart(); });
       $('#setup-test-env-for-versioned-files').click(function(){ setupTestForVersionedFiles(); });
     } catch (e) {
       p2pdocsHandleError(e);
@@ -104,7 +106,7 @@
   
   <br/>
   <br/>
-  <span id="setup-test-env-for-new-install">Switch to test for a newly installed application.</span> <a href="junk">(restart)</a>
+  <span id="setup-test-env-for-new-install">Switch to test for a newly installed application.</span> <a href="junk" id="restart">(restart)</a>
   
   <br/>
   <br/>
