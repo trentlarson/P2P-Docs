@@ -139,13 +139,7 @@ var insertRepo = function(repo, showSlowly) {
 var removeRepo = function(dom_suffix, name) {
   function removeIt() {
     if (confirm("This will stop tracking the repository '" + name + "', but it will leave all the files.  Are you sure you want to stop tracking it?")) {
-      window.p2pdoc_settings.remove_repo(name);
-      window.p2pdoc_settings.save();
-      
-      var selector = "#repoItem_" + dom_suffix;
-      $(selector).hide(500, function() {
-        $(this).remove();
-      });
+      window.location.href = "?removeRepo=" + escape(name) + "&domSuffix=" + escape(dom_suffix);
     }
   }
   return removeIt;
@@ -155,6 +149,19 @@ $(document).ready(function() {
 
   try {
     
+    // Wouldn't it be nice if we could just do this inside the removeRepo function?  But then Titanium crashes.
+    if (urlParam("removeRepo") != null) {
+      name = urlParam("removeRepo");
+      window.p2pdoc_settings.remove_repo(name);
+      window.p2pdoc_settings.save();
+
+      dom_suffix = urlParam("domSuffix");
+      var selector = "#repoItem_" + dom_suffix;
+      $(selector).hide(500, function() {
+        $(this).remove();
+      });
+    }
+
     $('#settingsDir').html(window.p2pdoc_settings.data_dir());
     $('#openSettings').click(viewFileWrapperFunc(window.p2pdoc_settings.data_dir(), Titanium.Filesystem.getSeparator()));
     
