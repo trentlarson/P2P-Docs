@@ -93,6 +93,24 @@ $(document).ready(function() {
       return truncPathForDisplay(this.outgoingLoc());
     }, viewModel);
     
+    var selectHome = function() {
+      Titanium.UI.getCurrentWindow().openFolderChooserDialog(function(selectionResponse) {
+        if (selectionResponse.length > 0) { viewModel.homeLoc(selectionResponse[0]); }
+      });
+    }
+
+    var selectIncoming = function() {
+      Titanium.UI.getCurrentWindow().openFolderChooserDialog(function(selectionResponse) {
+        if (selectionResponse.length > 0) { viewModel.incomingLoc(selectionResponse[0]); }
+      });
+    }
+    
+    var selectOutgoing = function() {
+      Titanium.UI.getCurrentWindow().openFolderChooserDialog(function(selectionResponse) {
+        if (selectionResponse.length > 0) { viewModel.outgoingLoc(selectionResponse[0]); }
+      });
+    }
+
     $("#homePic").hover(
       function() { $(this).attr("src", "images/home.png"); },
       function() { if (viewModel.homeLoc() == null) { $(this).attr("src", "images/home-grey.png"); } }
@@ -101,6 +119,7 @@ $(document).ready(function() {
         // turn it on
         viewModel.homeLoc("");
         $('#homeLocHolder').show('slide', { direction: "up" }, 500);
+        selectHome();
       } else {
         // turn it off
         viewModel.homeLoc(null);
@@ -116,6 +135,7 @@ $(document).ready(function() {
         // turn it on
         viewModel.incomingLoc("");
         $('#incomingLocHolder').show('slide', { direction: "up" }, 500);
+        selectIncoming();
       } else {
         // turn it off
         viewModel.incomingLoc(null);
@@ -135,6 +155,7 @@ $(document).ready(function() {
         }
         viewModel.outgoingLoc("");
         $('#outgoingLocHolder').show('slide', { direction: "up" }, 500);
+        selectOutgoing();
       } else {
         // turn it off
         viewModel.outgoingLoc(null);
@@ -157,23 +178,11 @@ $(document).ready(function() {
     // activate knockout.js
     ko.applyBindings(viewModel);
     
-    $("#homeFolderChooser").click(function() {
-      Titanium.UI.getCurrentWindow().openFolderChooserDialog(function(selectionResponse) {
-        if (selectionResponse.length > 0) { viewModel.homeLoc(selectionResponse[0]); }
-      });
-    });
+    $("#homeFolderChooser").click(selectHome);
 
-    $("#inFolderChooser").click(function() {
-      Titanium.UI.getCurrentWindow().openFolderChooserDialog(function(selectionResponse) {
-        if (selectionResponse.length > 0) { viewModel.incomingLoc(selectionResponse[0]); }
-      });
-    });
+    $("#inFolderChooser").click(selectIncoming);
 
-    $("#outFolderChooser").click(function() {
-      Titanium.UI.getCurrentWindow().openFolderChooserDialog(function(selectionResponse) {
-        if (selectionResponse.length > 0) { viewModel.outgoingLoc(selectionResponse[0]); }
-      });
-    });
+    $("#outFolderChooser").click(selectOutgoing);
     
 });
 </script>

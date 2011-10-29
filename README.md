@@ -13,7 +13,7 @@ A "-" means it's not done yet.
   * Doc Changes (external?): display the new content
   * - Doc Resolution: accept or reject the changes in my own versions
     * - then copy my version into any shared areas
-  * - Search: search for items of interest
+  * Search: search for items of interest
   * - Notifications: notify of changes, via desktop and via preferred media
 
 
@@ -41,10 +41,8 @@ Test Details:
         * If you click on "Configure" (gear icon), then click "change" next to "Outgoing", then select a directory and hit "Open", it should set it (rather than crash)
 
 
-Specific Plans
------
-
-In priority order:
+Details, By Priority
+--------------------
 
  * Doc Changes
  * fix unknown crashes on repositories page when accepting a change too many (100) repos
