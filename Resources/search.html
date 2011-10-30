@@ -3,7 +3,7 @@
 
 <link rel="stylesheet" type="text/css" href="css/p2pdocs.css" />
 
-<style type="text/css"">
+<style type="text/css">
 
 .blurb {
   height: 30px;
@@ -73,10 +73,22 @@ $(document).ready(function() {
           $("#files").append("Nothing.");
         } else {
           
+          var filesFound = [];
+          var fileIndex = -1;
+          
           // create an element for each search result
           for (var i = 0; i < moreInfo.length; i++) {
-            $("#files").append("<div class='blurb'><span class='openApp'>" + moreInfo[i].context + "</span></div>");
-            $(".openApp").last().click(function(file, pos) {
+            
+            // group the results (currently by file)
+            fileIndex = filesFound.indexOf(moreInfo[i].file); 
+            if (fileIndex == -1) {
+              filesFound.push(moreInfo[i].file);
+              fileIndex = filesFound.length - 1;
+              $("#files").append("<div fileNum='" + fileIndex + "'><strong>" + moreInfo[i].file + "</strong></div>");
+            }
+            
+            $("#files div[fileNum=\"" + fileIndex + "\"]").append("<div class='blurb'><span class='openApp'>" + moreInfo[i].context + "</span></div>");
+            $("#files div[fileNum=\"" + fileIndex + "\"] .openApp").last().click(function(file, pos) {
               return function(e) { openFile(file, pos); };
             }(moreInfo[i].file, moreInfo[i].position));
           }
