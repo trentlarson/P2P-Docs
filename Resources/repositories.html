@@ -201,14 +201,11 @@ $(document).ready(function() {
     <a href="repositories.html"><img src="images/gear.32.png" alt="Configure"/></a>
   </div>
 
-<div id="settings">
-  Settings Directory: <span id="settingsDir"></span> <a href="" id="openSettings">(open)</a>
-</div>
-
 <div id="repoList">
+  <h2>Libraries</h2>
   <div id="repoItem_" class="repoItem">
-    <img src="images/button-red-x.png" title="Remove" alt="Remove" id="repoRemove_" class="repoRemove">
-    <span id="repoName_"><span class="repoInfo"></span></span>
+    <span id="repoName_"><strong><span class="repoInfo"></span></strong></span>
+    <img src="images/button-red-x.16.png" title="Remove" alt="Remove" id="repoRemove_" class="repoRemove">
     <table>
       <tr>
         <td><span class="repoInfo">Incoming</span></td>
@@ -242,6 +239,14 @@ $(document).ready(function() {
 </div>
 
 <img src="images/button-green-plus.png" title="Add" alt="Add" id="repoAdd_" class="repoAdd">
+
+<br/>
+<br/>
+<br/>
+<h2>Other</h2>
+<div id="settings">
+  <strong>Settings Directory</strong>: <span id="settingsDir"></span> <a href="" id="openSettings">(open)</a>
+</div>
 
 <br/>
 <a href="test.html" style="float:right; opacity:0.0;">Test Modes</a>
