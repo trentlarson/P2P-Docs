@@ -45,6 +45,7 @@ Details, By Priority
 --------------------
 
  * Doc Changes
+ * fix crashes on repo outgoing dir changes
  * fix unknown crashes on repositories page when accepting a change too many (100) repos
    ... though if you go to repo create screen first it just stops on javascript at mark_reviewed on index.html
  * default to versioned files, but allow to overwrite (both incoming and outgoing)
