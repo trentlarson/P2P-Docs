@@ -50,7 +50,7 @@ Details, By Priority
  * default to versioned files, but allow to overwrite (both incoming and outgoing)
  * default to keep old reviewed versions, but allow deletion
  * default to keep old outgoing versions, but allow deletion
- * on searches: eliminate duplicate folders
+ * on searches, notify the user for skipped files
  * allow to make outgoing same location as incoming
  * when creating/editing repo: warn if outbound w/o home, no home under incoming, no out under home (small)
  * repository choices (hints for choosing P2P folders; small x) (medium)
