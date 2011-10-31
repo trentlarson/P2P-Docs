@@ -50,6 +50,7 @@ Details, By Priority
  * default to versioned files, but allow to overwrite (both incoming and outgoing)
  * default to keep old reviewed versions, but allow deletion
  * default to keep old outgoing versions, but allow deletion
+ * on searches: eliminate duplicate folders
  * allow to make outgoing same location as incoming
  * when creating/editing repo: warn if outbound w/o home, no home under incoming, no out under home (small)
  * repository choices (hints for choosing P2P folders; small x) (medium)
@@ -58,7 +59,6 @@ Details, By Priority
  * transitions between screens (small)
  * documentation and/or help (medium)
    * FAQ: on repo crashes, go to add a repo and cancel and then it works
- * search through repository files (not just Jean's file)
  * program auto-update (medium)
  * use repo ID numbers everywhere (instead of names)
  * fix the new-repo transition to slide whole screen (not half)

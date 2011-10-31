@@ -16,7 +16,7 @@ class Search
     end
     
     #filenames = all_files_below(filename)
-    filenames = search_dirs_from(settings).map{ |dir| all_files_below(dir) }.flatten
+    filenames = search_dirs_from(settings).map{ |dir| all_files_below(dir) }.flatten.sort.uniq
     
     lines = []
     filenames.each do |filename|
@@ -24,7 +24,12 @@ class Search
       File.open(filename) do |io|
         io.each do |line|
           length = line.length # do this before chomping the line-ending characters
-          line.chomp!
+          line = line.chomp
+          # This is a hack to avoid binary files, particularly because we'll crash later on the term matching.  Ideally, we should notify the user, or use some settings to avoid these.
+          if (line.bytes.to_a.index{|b| b < 9 || (9 < b && b < 32) || b == 127 }) # this detects non-printable characters, besides tab... but we've got to allow international characters
+          #if (line.bytes.to_a.index(0)) # this detects a 0 character, which may be enough
+            break
+          end
           lines << { "file" => filename, "context" => line, "position" => pos } if line.include? term
           # now save any anchor in there for future hits
           # (not doing this before the match in case the anchor is after the term)
