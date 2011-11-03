@@ -1,16 +1,50 @@
-All In The P2P / P2P-Docs
+P2P-Docs
 ==============
+
+Sync up your shared files, either because they overlap or because
+you're sharing in a P2P system that makes things... complicated.
+
+P2P is a great way to share files, privately or publicly.  However,
+there are currently a few quirks in the state-of-the-art that make
+collaboration a bit difficult.
+
+Let's say, for example, you're working on some historical
+documentation, and you subscribe to other people's feeds where they
+share their finds... and you may insert some of their info into your
+copies, but not all of it: maybe you only want information that's
+relevant (eg. to your family), or maybe you only fully trust certain
+people to have good information.  Anyway, you may want to know when
+they make changes, or you may want to apply some of their changes to
+your copies, or you may want to push your changes out to others.  Or
+maybe you want it all.  Hopefully this will help.
+
+To use this tool, configure it with the folders on your computer that
+hold shared files:
+
+ * If you're subscribing to someone's files, then make that folder the
+   "incoming" folder (eg. a Dropbox or "Vuze Downloads" folder).
+
+ * If you've got your own copy of the files (maybe changed) in another
+   place, then make that folder the "home" folder.
+
+ * If you're publishing files, then make that folder the "outgoing"
+   folder (eg. a Dropbox or Vuze share folder).
+
+You can download packages for Windows, Mac, and Linux:
+http://api.appcelerator.net/p/pages/app_page?token=04txtaw6
 
 User Stories
 ------------
 
 A "-" means it's not done yet.
 
-  * Repositories
-    * CRUD
+  * Libraries (AKA Repositories)
+    * - manage folders/friends from the sharing tools
     * - allow individual files to be their own repository
+    * - allow outgoing to the same place as incoming
   * - Doc Alerts: notify when there's new content
   * Doc Changes (external?): display the new content
+    * - set up trust for certain incoming files, to shortcut to my copy
   * - Doc Resolution: accept or reject the changes in my own versions
     * - then copy my version into any shared areas
   * Search: search for items of interest
@@ -82,5 +116,6 @@ Externalities
 
 Other Commentary
 ----------------
+
  * Dear cyberchaos05 (http://cyberchaos05.deviantart.com/): I would have used your magnifying glass, but you don't allow derivatives.  http://www.iconspedia.com/icon/search-10368.html
  
