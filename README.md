@@ -12,7 +12,12 @@ relevant (eg. to your family), or maybe you only fully trust
 information from certain people.  Anyway, you may want to know when
 they make changes, or you may want to apply some of their changes to
 your copies, or you may want to push your changes out to others.  Or
-maybe you want it all.  Hopefully this will help.
+maybe you want it all.
+
+Hopefully this will help.  Current file-sharing programs have
+shortcomings for projects with files with similar (but not exactly the
+same) histories: they typically synchronize all changes, and they
+publish and subscribe to the (torrent) file and don't do updates.
 
 First, you'll need to know where your shared files are stored.  Here
 are some common locations:
@@ -48,6 +53,12 @@ create great tools for sharing and searching family histories.
 
 See the User Stories below to see what features are finished and what are planned.
 
+BTW, there are projects where this approach will not work well.  Don't
+try it if you need real-time sharing; most updates won't happen for
+hours (or days?) after you make your changes.  (This may change as our
+P2P technologies improve... I hope the need for this program goes away
+because these features get incorporated into mainstream P2P clients.)
+
 You can download packages for Windows, Mac, and Linux:
 http://api.appcelerator.net/p/pages/app_page?token=04txtaw6
 
@@ -67,6 +78,10 @@ A "-" means it's not done yet.
     * - then copy my version into any shared areas
   * Search: search for items of interest
   * - Notifications: notify of changes, via desktop and via preferred media
+  * - Use a true file-control system (eg. git)
+  * - Work as a plugin/client for some of the main file-sharing
+      systems (eg. Vuze, Dropbox), to hide some of the ugliness of
+      maintenance that this tool imposes
 
 
 Test Details:
