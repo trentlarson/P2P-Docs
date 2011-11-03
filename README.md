@@ -43,7 +43,7 @@ the right locations, with new version numbers if necessary, whether
 you've reviewed the incoming change (ie. you want to "mark it as
 read") or you want to publish your outgoing change.  Note that this
 has a rudimentary search for text files when there are no changes to
-review; this is part of a larger effort at [familyhistories.info] to
+review; this is part of a larger effort at http://familyhistories.info to
 create great tools for sharing and searching family histories.
 
 See the User Stories below to see what features are finished and what are planned.
