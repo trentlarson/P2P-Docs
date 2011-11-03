@@ -2,24 +2,31 @@ P2P-Docs
 ==============
 
 Sync up your shared files, either because they overlap or because
-you're sharing in a P2P system that makes things... complicated.
-
-P2P is a great way to share files, privately or publicly.  However,
-there are currently a few quirks in the state-of-the-art that make
-collaboration a bit difficult.
+you're sharing with a program that makes things... complicated.
 
 Let's say, for example, you're working on some historical
 documentation, and you subscribe to other people's feeds where they
-share their finds... and you may insert some of their info into your
+share their updates... and you may insert some of their info into your
 copies, but not all of it: maybe you only want information that's
-relevant (eg. to your family), or maybe you only fully trust certain
-people to have good information.  Anyway, you may want to know when
+relevant (eg. to your family), or maybe you only fully trust
+information from certain people.  Anyway, you may want to know when
 they make changes, or you may want to apply some of their changes to
 your copies, or you may want to push your changes out to others.  Or
 maybe you want it all.  Hopefully this will help.
 
-To use this tool, configure it with the folders on your computer that
-hold shared files:
+First, you'll need to know where your shared files are stored.  Here
+are some common locations:
+
+  * In Dropbox, click on the Dropbox icon and "Open Dropbox Folder".
+
+  * In Vuze, look for a "Vuze Downloads" folder under "Documents".
+
+  * In AeroFS, click on the AeroFS icon and look at "Browse Library".
+
+  * In uTorrent, lood for a "uTorrent Downloads" folder under "Documents".
+
+
+To use this tool, configure it with those folders:
 
  * If you're subscribing to someone's files, then make that folder the
    "incoming" folder (eg. a Dropbox or "Vuze Downloads" folder).
@@ -29,6 +36,17 @@ hold shared files:
 
  * If you're publishing files, then make that folder the "outgoing"
    folder (eg. a Dropbox or Vuze share folder).
+
+After that, whenever there is a change to any of these files, this
+will show you what has changed and prompt you to move those files to
+the right locations, with new version numbers if necessary, whether
+you've reviewed the incoming change (ie. you want to "mark it as
+read") or you want to publish your outgoing change.  Note that this
+has a rudimentary search for text files when there are no changes to
+review; this is part of a larger effort at [familyhistories.info] to
+create great tools for sharing and searching family histories.
+
+See the User Stories below to see what features are finished and what are planned.
 
 You can download packages for Windows, Mac, and Linux:
 http://api.appcelerator.net/p/pages/app_page?token=04txtaw6
