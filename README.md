@@ -91,7 +91,7 @@ A "-" means it's not done yet.
   * - Use a true file-control system underneath (eg. git)
   * - Work as a plugin/client for some of the main file-sharing
       systems (eg. Vuze, Dropbox, Singly), to hide some of the ugliness of
-      maintenance that this tool imposes
+      maintenance and duplication that this tool imposes
 
 
 Test Details:
