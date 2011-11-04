@@ -4,6 +4,9 @@ P2P-Docs
 Sync up your shared files, either because they overlap or because
 you're sharing with a program that makes things... complicated.
 
+Download packages for Windows, Mac, and Linux here:
+http://api.appcelerator.net/p/pages/app_page?token=04txtaw6
+
 Let's say, for example, you're working on some historical
 documentation, and you subscribe to other people's feeds where they
 share their updates... and you may insert some of their info into your
@@ -12,12 +15,20 @@ relevant (eg. to your family), or maybe you only fully trust
 information from certain people.  Anyway, you may want to know when
 they make changes, or you may want to apply some of their changes to
 your copies, or you may want to push your changes out to others.  Or
-maybe you want it all.
+maybe you want it all.  (You can see more user stories at
+http://familyhistories.info .)
 
 Hopefully this will help.  Current file-sharing programs have
 shortcomings for projects with files with similar (but not exactly the
 same) histories: they typically synchronize all changes, and they
-publish and subscribe to the (torrent) file and don't do updates.
+publish and subscribe to the (torrent) file and don't do updates.  The
+ideal implementation would be a plugin in each content app, one that
+publishes or consumes the info to/from the right locations;
+second-best would be to build this publishing/consuming into the P2P
+clients.  So P2P-Docs aims to move files to the right locations; it
+detects changes and prompts the user to review the changes and pull or
+push them to the right places (incrementing versions in the file names
+if necessary).
 
 First, you'll need to know where your shared files are stored.  Here
 are some common locations:
@@ -30,8 +41,10 @@ are some common locations:
 
   * In uTorrent, lood for a "uTorrent Downloads" folder under "Documents".
 
+  * In AllianceP2P, go to "View" then "My share" then "Shared files".
 
-To use this tool, configure it with those folders:
+
+Start P2P-Docs and configure it with those folders:
 
  * If you're subscribing to someone's files, then make that folder the
    "incoming" folder (eg. a Dropbox or "Vuze Downloads" folder).
@@ -47,9 +60,9 @@ will show you what has changed and prompt you to move those files to
 the right locations, with new version numbers if necessary, whether
 you've reviewed the incoming change (ie. you want to "mark it as
 read") or you want to publish your outgoing change.  Note that this
-has a rudimentary search for text files when there are no changes to
-review; this is part of a larger effort at http://familyhistories.info to
-create great tools for sharing and searching family histories.
+has a rudimentary search for text and HTML files; this is part of a
+larger effort at http://familyhistories.info to create great tools for
+sharing and searching family histories.
 
 See the User Stories below to see what features are finished and what are planned.
 
@@ -58,9 +71,6 @@ try it if you need real-time sharing; most updates won't happen for
 hours (or days?) after you make your changes.  (This may change as our
 P2P technologies improve... I hope the need for this program goes away
 because these features get incorporated into mainstream P2P clients.)
-
-You can download packages for Windows, Mac, and Linux:
-http://api.appcelerator.net/p/pages/app_page?token=04txtaw6
 
 User Stories
 ------------
@@ -78,9 +88,9 @@ A "-" means it's not done yet.
     * - then copy my version into any shared areas
   * Search: search for items of interest
   * - Notifications: notify of changes, via desktop and via preferred media
-  * - Use a true file-control system (eg. git)
+  * - Use a true file-control system underneath (eg. git)
   * - Work as a plugin/client for some of the main file-sharing
-      systems (eg. Vuze, Dropbox), to hide some of the ugliness of
+      systems (eg. Vuze, Dropbox, Singly), to hide some of the ugliness of
       maintenance that this tool imposes
 
 
