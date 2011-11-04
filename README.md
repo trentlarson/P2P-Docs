@@ -1,8 +1,9 @@
 P2P-Docs
 ==============
 
-Sync up your shared files, either because they overlap or because
-you're sharing with a program that makes things... complicated.
+Use this together with the file-sharing program of your choice to
+share files in more of a publish/subscribe model (and maintain your
+own changes separately), keeping your own organization of files.
 
 Download packages for Windows, Mac, and Linux here:
 http://api.appcelerator.net/p/pages/app_page?token=04txtaw6
