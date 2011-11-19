@@ -95,12 +95,6 @@ A "-" means it's not done yet.
       maintenance and duplication that this tool imposes
 
 
-Setup:
-
-* to disable the app calling Appcelerator (for tracking), add this in tiapp.xml inside ti:app element:
-  <analytics>false</analytics>
-
-
 Test Details:
 
 * Register & unregister repos: add/remove funny names; add/remove duplicate names
@@ -113,16 +107,21 @@ Test Details:
 * - test with blank incoming setting
 * Automated test: ruby Resources/test/ruby/settings.rb (and check that there is no output)
 * Test many repos in app:
-    * run command: ruby Resources/test/ruby/settings_repositories.rb
-    * edit application.properties (Mac: ~/Library/Application Support/Titanium/appdata/info.familyhistories.p2pdocs)
-        * comment out the setting "settings-dir" with the prefix of "//"
-        * add a line with a pointer to your app source path ending with "build/sample-repos", eg:
-      
-        settings-dir: /Users/tlarson/dev/p2pdocs/p2pdocs8/build/sample-repos
-
-    * run app and test on the 'feed' screen
+    * go to the test page: click on the gear at the top right (may require a 'Cancel' on first screen)
+    * scroll to the bottom, and move the mouse to the right, then down under the last text on the screen until the cursor shows something clickable
+    * click
+    * click on "Switch to test for many libraries."; you'll get an alert that the environment is set
+    * click on "Done"
+    * go to the 'feed' screen (orange button next to the gear)
         * If you click on a repo name (eg. "test 0"), then mark the checkbox, then click "Accept Changes", it should disappear (rather than throw some JavaScript exception)
         * If you click on "Configure" (gear icon), then click "change" next to "Outgoing", then select a directory and hit "Open", it should set it (rather than crash)
+          (Note that it may not crash if you go to another page and then come back and do it.)
+
+
+Development Setup:
+
+* to disable the app calling Appcelerator (for tracking), add this in tiapp.xml inside ti:app element:
+  <analytics>false</analytics>
 
 
 Details, By Priority
