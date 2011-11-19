@@ -95,6 +95,12 @@ A "-" means it's not done yet.
       maintenance and duplication that this tool imposes
 
 
+Setup:
+
+* to disable the app calling Appcelerator (for tracking), add this in tiapp.xml inside ti:app element:
+  <analytics>false</analytics>
+
+
 Test Details:
 
 * Register & unregister repos: add/remove funny names; add/remove duplicate names
