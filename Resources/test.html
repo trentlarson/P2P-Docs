@@ -10,11 +10,13 @@
 <script type="text/javascript" src="js/p2pdocs.js"></script>
 
 <script type="text/ruby" src="test/ruby/sample_repos_versioned.rb"></script>
+<script type="text/ruby" src="test/ruby/sample_repositories.rb"></script>
 <script type="text/ruby" src="ruby/settings.rb"></script>
 
 <script type="text/ruby">
   window.p2pdoc_settings = Settings.new(Titanium.App.Properties.getString("settings-dir"))
   window.p2pdoc_test_versioned = lambda { |content_dir| SampleReposVersioned.create(Titanium.Filesystem.getFile(Titanium.App.getHome(), "Resources"), Titanium.Filesystem.getFile(Titanium.App.getHome(), content_dir)) }
+  window.p2pdoc_test_many = lambda { |content_dir| SampleManyRepos.create(Titanium.Filesystem.getFile(Titanium.App.getHome(), "Resources"), Titanium.Filesystem.getFile(Titanium.App.getHome(), content_dir)) }
 </script>
 
 <script type="text/javascript">
@@ -67,7 +69,7 @@
 
   function setupTestForVersionedFiles() {
     try {
-      // backup the settings and create new test settings
+      // backup the settings and create new test settings (must be done by Titanium JavaScript or it won't be recognized as edited)
       if (Titanium.App.Properties.hasProperty('settings-dir')
           && !Titanium.App.Properties.hasProperty(BACKUP_PROP)) {
         Titanium.App.Properties.setString(BACKUP_PROP, Titanium.App.Properties.getString('settings-dir'));
@@ -83,6 +85,24 @@
     }
   }
 
+  function setupTestForManyRepos() {
+    try {
+      // backup the settings and create new test settings (must be done by Titanium JavaScript or it won't be recognized as edited)
+      if (Titanium.App.Properties.hasProperty('settings-dir')
+          && !Titanium.App.Properties.hasProperty(BACKUP_PROP)) {
+        Titanium.App.Properties.setString(BACKUP_PROP, Titanium.App.Properties.getString('settings-dir'));
+      }
+      var testSubDir = 'sample-many-repos';
+      var settingsDir = Titanium.Filesystem.getFile(Titanium.App.getHome(), testSubDir).toString();
+      Titanium.App.Properties.setString('settings-dir', settingsDir);
+
+      window.p2pdoc_test_many(testSubDir);
+      alert("All set for test environment for many libraries.");
+    } catch (e) {
+      p2pdocsHandleError(e);
+    }
+  }
+
   $(document).ready(function() {
     try {
       $('#everything').show('slide', { direction: "down" }, 500);
@@ -90,6 +110,7 @@
       $('#setup-test-env-for-new-install').click(function(){ setupTestForNewInstall(); });
       $('#restart').click(function(){ Titanium.App.restart(); });
       $('#setup-test-env-for-versioned-files').click(function(){ setupTestForVersionedFiles(); });
+      $('#setup-test-env-for-many-repos').click(function(){ setupTestForManyRepos(); });
       $('#open-inspector').click(function(){ Titanium.UI.getWindows()[0].showInspector(true); });
     } catch (e) {
       p2pdocsHandleError(e);
@@ -117,6 +138,11 @@
   <span id="setup-test-env-for-versioned-files">Switch to test for versioned files.</span>
   <br/>
   This test has versioned files.
+  
+  <br/>
+  <br/>
+  <span id="setup-test-env-for-many-repos">Switch to test for many libraries.</span>
+  <br/>
   
   <br/>
   <br/>
