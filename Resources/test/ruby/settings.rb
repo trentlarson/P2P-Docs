@@ -59,7 +59,7 @@ class SettingsTest
   end
   
   def test_repo_creation()
-    setup_settings({'repositories' => []})
+    setup_settings({'repositories'=>[]})
     repo = @settings.add_repo("", @test_data_dir + "/anywhere/for/fail")
     puts "fail: added repo with blank name" if repo != nil
     
