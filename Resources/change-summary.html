@@ -206,7 +206,8 @@ $(document).ready(function() {
               addedDiff.find("#diffCount_").attr("id", "diffCount_" + diffNum).html(numFiles);
               // show a link to open in the browser
               repoData = window.p2pdoc_settings.get_repo_by_name(repoName);
-              addedDiff.find("#sourceView a").html("(open file browser)").click(viewFileWrapperFunc(repoData.incoming_loc, diffSet.path)).show();
+              directory = repoData.incoming_loc + Titanium.Filesystem.getSeparator() + diffSet.path;
+              addedDiff.find("#sourceView a").html("(open file browser)").click(viewFileWrapperFunc(directory, Titanium.Filesystem.getSeparator())).show();
               // populate the contents
               var fileList = "";
               for (var fileNum = 0, fileCount = diffSet.contents.length; fileNum < fileCount; fileNum++) {

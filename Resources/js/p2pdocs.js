@@ -43,7 +43,7 @@ function viewFileWrapperFunc(sourceDir, path) {
     if (path == Titanium.Filesystem.getSeparator()) {
       file = sourceDir + Titanium.Filesystem.getSeparator();
     } else {
-      file = Titanium.Filesystem.getFile(sourceDir, path); // note that this doesn't append path if path is "/"
+      file = Titanium.Filesystem.getFile(sourceDir, path); // note that getFile doesn't append path if path is "/"
     }
     try {
       var result = Titanium.Platform.openApplication(file);

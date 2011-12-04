@@ -15,6 +15,7 @@
 </script>
 <script type="text/javascript">
   //Titanium.UI.getWindows()[0].showInspector(true);
+  //Titanium.API.print("to console\n");
   var settingsFile = Titanium.Filesystem.getFile(window.p2pdoc_settings.settings_file());
   if (settingsFile.exists()) {
     window.location.href= "change-summary.html?redirectIfNoUpdates=";
