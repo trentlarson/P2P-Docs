@@ -29,13 +29,23 @@ function p2pdocsHandleError(err, extras) {
 }
 
 /**
+ * 
  * Returns a function that will open the given location in the system's default opener.
  * To open a directory, pass a path of Titanium.FileSystem.getSeparator() (because other things don't work, such as ending the sourceDir with the separator).
  * 
  * requires Titanium, stacktrace.js
  */
 function viewFileWrapperFunc(sourceDir, path) {
+  // This indirect path to the function is so that the values are saved
+  // (and we don't have to refer to other variables which can cause Titanium crashes/errors).
   var viewFileFunc = function() {
+    // We use another method so that its name shows in the stack trace (instead of just anonymous).
+    viewFile(sourceDir, path);
+  }
+  return viewFileFunc;
+}
+
+function viewFile(sourceDir, path) {
     if (path == null) {
       path = "";
     }
@@ -55,8 +65,6 @@ function viewFileWrapperFunc(sourceDir, path) {
       p2pdocsHandleError(e, {"file":file});
     }
     return false;
-  }
-  return viewFileFunc;
 }
 
 // from http://www.netlobo.com/url_query_string_javascript.html
