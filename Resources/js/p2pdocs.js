@@ -46,25 +46,25 @@ function viewFileWrapperFunc(sourceDir, path) {
 }
 
 function viewFile(sourceDir, path) {
-    if (path == null) {
-      path = "";
+  if (path == null) {
+    path = "";
+  }
+  var file;
+  if (path == Titanium.Filesystem.getSeparator()) {
+    file = sourceDir + Titanium.Filesystem.getSeparator();
+  } else {
+    file = Titanium.Filesystem.getFile(sourceDir, path); // note that getFile doesn't append path if path is "/"
+  }
+  try {
+    var result = Titanium.Platform.openApplication(file);
+    if (result !== "true"     // The API says that the result is a string...
+        && result !== true) { // ... but I'm getting a boolean result.
+      alert("Sorry!  We had a problem opening that file.  If you report this problem, the following info will help.\nfile: " + file + "\nresult: " + result);
     }
-    var file;
-    if (path == Titanium.Filesystem.getSeparator()) {
-      file = sourceDir + Titanium.Filesystem.getSeparator();
-    } else {
-      file = Titanium.Filesystem.getFile(sourceDir, path); // note that getFile doesn't append path if path is "/"
-    }
-    try {
-      var result = Titanium.Platform.openApplication(file);
-      if (result !== "true"     // The API says that the result is a string...
-          && result !== true) { // ... but I'm getting a boolean result.
-        alert("Sorry!  We had a problem opening that file.  If you report this problem, the following info will help.\nfile: " + file + "\nresult: " + result);
-      }
-    } catch (e) {
-      p2pdocsHandleError(e, {"file":file});
-    }
-    return false;
+  } catch (e) {
+    p2pdocsHandleError(e, {"file":file});
+  }
+  return false;
 }
 
 // from http://www.netlobo.com/url_query_string_javascript.html
