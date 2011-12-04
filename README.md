@@ -40,7 +40,7 @@ are some common locations:
 
   * In AeroFS, click on the AeroFS icon and look at "Browse Library".
 
-  * In uTorrent, lood for a "uTorrent Downloads" folder under "Documents".
+  * In uTorrent, look for a "uTorrent Downloads" folder under "Documents".
 
   * In AllianceP2P, go to "View" then "My share" then "Shared files".
 
