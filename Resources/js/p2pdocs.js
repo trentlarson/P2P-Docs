@@ -3,10 +3,10 @@ function errorProps(err) {
   var errorDebug = "";
   if (typeof(err) != "string") {
     for (var prop in err) {
-       errorDebug += "property: " + prop + " value: [" + err[prop] + "]\n";
+       errorDebug += "property '" + prop + "' value: " + err[prop] + "\n";
     }
   }
-  errorDebug += "toString(): [" + err.toString() + "]\n";
+  errorDebug += "toString(): " + err.toString() + "\n";
   return errorDebug;
 }
 
