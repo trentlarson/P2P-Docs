@@ -30,8 +30,8 @@ function p2pdocsHandleError(err, extras) {
 
 /**
  * 
- * Returns a function that will open the given location in the system's default opener.
- * To open a directory, pass a path of Titanium.FileSystem.getSeparator() (because other things don't work, such as ending the sourceDir with the separator).
+ * Returns a function that will open the given location in the system's default application for that file extension.
+ * To open a directory, pass an empty path.
  * 
  * requires Titanium, stacktrace.js
  */
@@ -49,12 +49,7 @@ function viewFile(sourceDir, path) {
   if (path == null) {
     path = "";
   }
-  var file;
-  if (path == Titanium.Filesystem.getSeparator()) {
-    file = sourceDir + Titanium.Filesystem.getSeparator();
-  } else {
-    file = Titanium.Filesystem.getFile(sourceDir, path); // note that getFile doesn't append path if path is "/"
-  }
+  var file = Titanium.Filesystem.getFile(sourceDir, path).toString();
   try {
     var result = Titanium.Platform.openApplication(file);
     if (result !== "true"     // The API says that the result is a string...
