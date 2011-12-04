@@ -183,7 +183,10 @@ $(document).ready(function() {
               .attr("previousPath", diffSet.target_path_previous_version);
             
             addedDiff.find("#diffPath_").attr("id", "diffPath_" + diffNum).html(diffSet.path);
-            if (diffSet.source_type === "file") {
+            if (diffSet.source_type == null) {
+              addedDiff.find("#removed").show();
+              
+            } else if (diffSet.source_type === "file") {
               if (diffSet.target_type == null) {
                 repoData = window.p2pdoc_settings.get_repo_by_name(repoName);
                 addedDiff.find("#sourceView a").click(viewFileWrapperFunc(repoData.incoming_loc, diffSet.path)).show();
@@ -199,8 +202,9 @@ $(document).ready(function() {
                   addedDiff.find("#strangeView a").show();
                 }
               }
-            }
-            if (diffSet.contents != null) {
+              
+            } else if (diffSet.source_type === "directory"
+                       && diffSet.contents != null) {
               // show the count
               numFiles = diffSet.contents.length + " " + (diffSet.contents.length == 1 ? "file" : "files");
               addedDiff.find("#diffCount_").attr("id", "diffCount_" + diffNum).html(numFiles);
@@ -299,6 +303,7 @@ $(document).ready(function() {
         <div id="diff_" style="display:none;">
           <input type="checkbox" id="reviewed_" repo="_" path="_" previousPath="_">
           <span id="diffPath_">path</span>
+          <span id="removed" style="display:none;">(removed)</span>
           <span id="sourceView"><a href="#" style="display:none;">(open)</a></span>
           <span id="changeView"><a href="#" style="display:none;">(see changes)</a></span>
           <span id="strangeView"><a href="#" style="display:none;" onClick="javascript: alert('The source is an object of a different type, so something very strange happened to this thing.');">(strange)</a></span>
