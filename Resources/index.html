@@ -4,15 +4,30 @@
 </head>
 <script type="text/ruby" src="ruby/settings.rb"></script>
 <script type="text/javascript">
+function setupApp() {
   // Initialize the basic setup.
   if (!Titanium.App.Properties.hasProperty('settings-dir')) {
     // Titanium.App.Properties pulls from the application.properties file.  Note that lines in it beginning with # sometimes disappear; I use // for commentary.
     Titanium.App.Properties.setString('settings-dir', Titanium.Filesystem.getApplicationDataDirectory().toString());
   }
+  // Initialize a DB table for passing around actions.
+  var sessionDB = Titanium.Database.open("sessionDB");
+  var exec = asessionDB.execute('CREATE TABLE IF NOT EXISTS action (data TEXT)');
+  sessionDB.close();
+}
+
+try {
+  // giving it a name for potential stack traces
+  setupApp();
+} catch (e) {
+  p2pdocsHandleError(e);
+}  
 </script>
+
 <script type="text/ruby">
   window.p2pdoc_settings = Settings.new(Titanium.App.Properties.getString("settings-dir"))
 </script>
+
 <script type="text/javascript">
   //Titanium.UI.getWindows()[0].showInspector(true);
   //Titanium.API.print("to console\n");

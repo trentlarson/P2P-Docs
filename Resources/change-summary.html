@@ -45,6 +45,52 @@
 
 <script type="text/ruby">
   window.p2pdoc_settings = Settings.new(Titanium.App.Properties.getString("settings-dir"))
+  window.p2pdoc_mark_reviewed = lambda { |repo_name, path, previous_path| Updates.mark_reviewed(window.p2pdoc_settings, repo_name, path, previous_path) }
+  window.p2pdoc_mark_reviewed2 = lambda { |repo_name, path, previous_path| Titanium.API.print("got into method\n") }
+  def p2pdoc_mark_reviewed3(repo_name, path, previous_path)
+    Titanium.API.print("got into method #{repo_name} #{path} #{previous_path}.\n")
+  end
+</script>
+
+<script type="text/javascript">
+
+//Titanium.UI.getWindows()[0].showInspector()
+//Titanium.API.print("to console\n");
+
+function initializeChangeSummary() {
+  if (urlParam("dbAction") != null) {
+    // from example here: http://developer.appcelerator.com/apidoc/desktop/latest/Titanium.Database.DB.execute-method.html
+    var sessionDB = Titanium.Database.open("sessionDB");
+    var rows = sessionDB.execute("SELECT * FROM action");
+    if (rows.rowCount() > 0) {
+      var actionData = Titanium.JSON.parse(rows.fieldByName('data'));
+      exec = sessionDB.execute("DELETE FROM action");
+      //{'action':'markReviewedBulk', 'reviewed':[{'name':'Bohemia', 'path':'Tao', 'previousPath':'Hedonism'}]}];
+      if (actionData.action === 'markReviewedBulk') {
+        var fileInfo;
+        for (var i = actionData.reviewed.length - 1; i >= 0; i--) {
+          fileInfo = actionData.reviewed[i];
+          window.p2pdoc_mark_reviewed(fileInfo.name, fileInfo.path, fileInfo.previousPath);
+        }
+      }
+    }
+    sessionDB.close();
+  }
+}
+
+try {
+  // calling a named method so there's something in the stack trace
+  initializeChangeSummary();
+} catch (e) {
+  p2pdocsHandleError(e);
+}
+
+</script>
+
+
+
+
+<script type="text/ruby">
   window.p2pdoc_all_diffs_json = Updates.strings_arrays_hashes_json(Updates.all_repo_diffs(window.p2pdoc_settings))
   window.p2pdoc_all_out_diffs_json = Updates.strings_arrays_hashes_json(Updates.all_outgoing_diffs(window.p2pdoc_settings))
   def copy_to_outgoing(out_diffs)
@@ -55,21 +101,20 @@
     }
   end
   window.p2pdoc_copy_to_outgoing = lambda { |all_diffs| all_diffs.each { |name_diff| Updates.copy_all_to_outgoing(window.p2pdoc_settings, name_diff['name'], name_diff['diffs']) } }
-  window.p2pdoc_mark_reviewed = lambda { |repo_name, path, previous_path| Updates.mark_reviewed(window.p2pdoc_settings, repo_name, path, previous_path) }
 </script>
 
 <script type="text/javascript">
 
-//Titanium.UI.getWindows()[0].showInspector()
-//Titanium.API.print("to console\n");
 var Ti = {fs: Titanium.Filesystem, api:Titanium.API};
 
-function allProps(the_obj) {
-  var str = "";
-  for (prop in the_obj) {
-    str += prop + " value: "+ the_obj[prop]+"\n";
-  }
-  return str;
+function setupMarkAction(reviewedList) {
+  // from example here: http://developer.appcelerator.com/apidoc/desktop/latest/Titanium.Database.DB.execute-method.html
+  var sessionDB = Titanium.Database.open("sessionDB");
+  exec = sessionDB.execute("DELETE FROM action");
+  //{'action':'markReviewedBulk', 'reviewed':[{'name':'Bohemia', 'path':'Tao', 'previousPath':'Hedonism'}]}];
+  var actionData = {'action':'markReviewedBulk', 'reviewed':reviewedList};
+  exec = sessionDB.execute("INSERT INTO action (data) VALUES (?)", Titanium.JSON.stringify(actionData));
+  sessionDB.close();
 }
 
 function markAccepted() {
@@ -77,12 +122,23 @@ function markAccepted() {
   if (checkedBoxes.length == 0) {
     alert("If you really want to accept something, you'll have to select it first.");
   } else {
+    
+    // gather the data for their reviewed choices (which I'd love to do inline, but the app often breaks when calling Ruby when it's not the initial page load)
+    var reviewedList = [];
     checkedBoxes.each(function() {
-      var repoName, path;
-      repoName = $(this).attr("repoName");
-      path = $(this).attr("path");
-      previousPath = $(this).attr("previousPath");
-      window.p2pdoc_mark_reviewed(repoName, path, previousPath);
+      var repoName = $(this).attr("repoName");
+      var path = $(this).attr("path");
+      var previousPath = $(this).attr("previousPath");
+      reviewedList.push({'name':repoName, 'path':path, 'previousPath':previousPath});
+    });
+    setupMarkAction(reviewedList);
+    
+    // now smoothly adjust the display according to their choices
+    var count = checkedBoxes.length;
+    checkedBoxes.each(function(boxNum) {
+      var repoName = $(this).attr("repoName");
+      var path = $(this).attr("path");
+      var previousPath = $(this).attr("previousPath");
       var repoDiv = $(this).parent().parent().parent();
       $(this).parent().hide(500, function() {
         $(this).remove();
@@ -93,17 +149,24 @@ function markAccepted() {
             // now revert to default display if that was the last repo
             if ($('#inChanges #repoList').children().length == 1) {
               $('#inChanges').hide(500);
-              $('#noDiffs').show(500);
+              $('#noDiffs').show(500, function() {
+                if (--count === 0) { window.location.href = "change-summary.html?dbAction="; } // and refresh if this was the last step
+              });
+            } else {
+              if (--count === 0) { window.location.href = "change-summary.html?dbAction="; } // and refresh if this was the last step
             }
           });
+        } else {
+          if (--count === 0) { window.location.href = "change-summary.html?dbAction="; } // and refresh if this was the last step
         }
       });
     });
+
   }
 }
 
 $(document).ready(function() {
-
+  
   try {
     
     if (window.p2pdoc_settings.properties().repositories.length > 0) {
@@ -263,6 +326,9 @@ $(document).ready(function() {
 });
 </script>
 </head>
+
+
+
 <body>
 
   <div style="float:right;">
