@@ -17,6 +17,7 @@
   cursor: pointer;
 }
 .repoInfo {
+  font-weight:bold;
 }
 .repoAdd {
   cursor: pointer;
@@ -204,31 +205,35 @@ $(document).ready(function() {
 <div id="repoList">
   <h2>Libraries</h2>
   <div id="repoItem_" class="repoItem">
-    <span id="repoName_"><strong><span class="repoInfo"></span></strong></span>
-    <img src="images/button-red-x.16.png" title="Remove" alt="Remove" id="repoRemove_" class="repoRemove">
+    <span id="repoName_">
+      <h3>
+        <span></span>
+        <img src="images/button-red-x.16.png" title="Remove" alt="Remove" id="repoRemove_" class="repoRemove">
+      </h3>
+    </span>
     <table>
       <tr>
-        <td><span class="repoInfo">Incoming</span></td>
+        <td><h4><span>Incoming</span></h4></td>
         <td>
-          <span id="repoInPath_" class="repoInfo"></span>
+          <span id="repoInPath_"></span>
           <a href="#" id="inFolderChooser_" class="repoAct">(change)</a>
           <a href="#" id="inFolderRemover_" class="repoAct">(remove)</a>
           <a href="#" id="inFolderOpener_" class="repoAct">(open)</a>
         </td>
       </tr>
       <tr>
-        <td><span class="repoInfo">My Copy</span></td>
+        <td><h4><span>My Copy</span></h4></td>
         <td>
-          <span id="repoMyLocPath_" class="repoInfo"></span>
+          <span id="repoMyLocPath_"></span>
           <a href="#" id="myLocFolderChooser_" class="repoAct">(change)</a>
           <a href="#" id="myLocFolderRemover_" class="repoAct">(remove)</a>
           <a href="#" id="myLocFolderOpener_" class="repoAct">(open)</a>
         </td>
       </tr>
       <tr>
-        <td><span class="repoInfo">Outgoing</span></td>
+        <td><h4><span>Outgoing</span></h4></td>
         <td>
-          <span id="repoOutPath_" class="repoInfo"></span>
+          <span id="repoOutPath_"></span>
           <a href="#" id="outFolderChooser_" class="repoAct">(change)</a>
           <a href="#" id="outFolderRemover_" class="repoAct">(remove)</a>
           <a href="#" id="outFolderOpener_" class="repoAct">(open)</a>
