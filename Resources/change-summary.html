@@ -167,13 +167,17 @@ function markAccepted() {
 
 $(document).ready(function() {
   
+  var errorDetails = {};
   try {
     
     if (window.p2pdoc_settings.properties().repositories.length > 0) {
       $('#noRepos').hide();
       
       // show the copy-to-outgoing action
+      var errorDetails = window.p2pdoc_all_out_diffs_json;
       var allOutDiffs = JSON.parse(window.p2pdoc_all_out_diffs_json);
+      var errorDetails = {};
+      
       var changesExist = false;
       if (allOutDiffs.length > 0) {
         changesExist = true;
@@ -320,7 +324,7 @@ $(document).ready(function() {
     }
 
   } catch (e) {
-    p2pdocsHandleError(e);
+    p2pdocsHandleError(e, errorDetails);
   }
 
 });
