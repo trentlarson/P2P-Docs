@@ -1,4 +1,4 @@
-# make many repositories
+# make many repositories (setup, not real tests)
 
 require 'fileutils'
 

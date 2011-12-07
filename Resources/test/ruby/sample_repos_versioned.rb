@@ -1,4 +1,4 @@
-# make different combinations of versioned files
+# make different combinations of versioned files (setup, not real tests)
 
 require 'fileutils'
 

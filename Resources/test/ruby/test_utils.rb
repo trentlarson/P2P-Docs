@@ -1,3 +1,5 @@
+# helper functions (setup, not real tests)
+
 require "fileutils"
 
 class TestUtils

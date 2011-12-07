@@ -44,11 +44,13 @@ class Updates
     elsif (arg.class.name == "Hash")
       hashes = arg.to_a.map { |key, val| "\"#{key}\":#{strings_arrays_hashes_json(val)}" }
       "{" + hashes.join(", ") + "}"
+    else
+      "#{arg}"
     end
   end
   
   # return the diffs of the incoming files and reviewed files;
-  # format is an array of { 'name' => REPO_NAME, 'diffs' => RESULT_OF_VERSIONED_DIFFS }
+  # format is an array of { 'id' => REPO_ID, 'name' => REPO_NAME, 'diffs' => RESULT_OF_VERSIONED_DIFFS }
   def self.all_repo_diffs(settings)
     result = settings.properties['repositories']
     if (result == nil) 
@@ -56,7 +58,8 @@ class Updates
     else
       result = 
         result.collect do |repo|
-        { 'name' => repo['name'], 
+        { 'id' => repo['id'],
+          'name' => repo['name'], 
           'diffs' => versioned_diffs(repo['incoming_loc'], settings.reviewed_dir(repo['name']))
         }
       end
@@ -65,7 +68,7 @@ class Updates
   end
   
   # return the diffs of my copies of files and outgoing files;
-  # format is an array of { 'name' => REPO_NAME, 'diffs' => RESULT_OF_VERSIONED_DIFFS }
+  # format is an array of { 'id' => REPO_ID, 'name' => REPO_NAME, 'diffs' => RESULT_OF_VERSIONED_DIFFS }
   def self.all_outgoing_diffs(settings)
     result = settings.properties['repositories']
     if (result == nil) 
@@ -73,7 +76,8 @@ class Updates
     else
       result = 
         result.collect do |repo|
-        { 'name' => repo['name'],
+        { 'id' => repo['id'],
+          'name' => repo['name'],
           'diffs' => versioned_diffs_out(repo['my_loc'], repo['outgoing_loc'], repo['not_versioned'])
         }
       end
