@@ -52,38 +52,35 @@ var insertRepo = function(repo, showSlowly) {
     addedItem.show();
   }
   addedItem.attr("id", "repoItem_" + dom_suffix);
+  addedItem.find("a").attr("name", "repoAnchor_" + dom_suffix);
   addedItem.find("#repoRemove_").attr("id", "repoRemove_" + dom_suffix);
   addedItem.find("#repoName_")  .attr("id", "repoName_"   + dom_suffix).find("span").html(repo.name);
   addedItem.find("#repoInPath_").attr("id", "repoInPath_" + dom_suffix).html(repo.incoming_loc);
   addedItem.find("#repoMyLocPath_") .attr("id", "repoMyLocPath_"  + dom_suffix).html(repo.my_loc);
   addedItem.find("#repoOutPath_") .attr("id", "repoOutPath_"  + dom_suffix).html(repo.outgoing_loc);
   addedItem.find("#inFolderChooser_").attr("id", "inFolderChooser_" + dom_suffix).click(function() {
+    location.hash = "repoAnchor_" + dom_suffix;
     Titanium.UI.getCurrentWindow().openFolderChooserDialog(function(selectionResponse) {
       if (selectionResponse.length > 0) {
-        window.p2pdoc_settings.change_repo_incoming(repo.name, selectionResponse[0]);
-        window.p2pdoc_settings.save();
-        $("#repoInPath_" + dom_suffix).html(selectionResponse[0]);
-        $("#inFolderRemover_" + dom_suffix).html("(remove)");
+        window.location.href = "?changeRepoDir=&repoId=" + repo.id + "&repoName=" + escape(repo.name) + "&inOutMine=in&directory=" + escape(selectionResponse[0]);
       }
     });
+    // After this click finishes, it jumps to the top of the page, and I can't stop it (even with the following).  Ug.
+    location.hash = "repoAnchor_" + dom_suffix;
   });
   addedItem.find("#myLocFolderChooser_").attr("id", "myLocFolderChooser_" + dom_suffix).click(function() {
+    location.hash = "repoAnchor_" + dom_suffix;
     Titanium.UI.getCurrentWindow().openFolderChooserDialog(function(selectionResponse) {
       if (selectionResponse.length > 0) {
-        window.p2pdoc_settings.change_repo_my_loc(repo.name, selectionResponse[0]);
-        window.p2pdoc_settings.save();
-        $("#repoMyLocPath_" + dom_suffix).html(selectionResponse[0]);
-        $("#myLocFolderRemover_" + dom_suffix).html("(remove)");
+        window.location.href = "?changeRepoDir=&repoId=" + repo.id + "&repoName=" + escape(repo.name) + "&inOutMine=mine&directory=" + escape(selectionResponse[0]);
       }
     });
   });
   addedItem.find("#outFolderChooser_").attr("id", "outFolderChooser_" + dom_suffix).click(function() {
+    location.hash = "repoAnchor_" + dom_suffix;
     Titanium.UI.getCurrentWindow().openFolderChooserDialog(function(selectionResponse) {
       if (selectionResponse.length > 0) {
-        window.p2pdoc_settings.change_repo_outgoing(repo.name, selectionResponse[0]);
-        window.p2pdoc_settings.save();
-        $("#repoOutPath_" + dom_suffix).html(selectionResponse[0]);
-        $("#outFolderRemover_" + dom_suffix).html("(remove)");
+        window.location.href = "?changeRepoDir=&repoId=" + repo.id + "&repoName=" + escape(repo.name) + "&inOutMine=out&directory=" + escape(selectionResponse[0]);
       }
     });
   });
@@ -152,11 +149,37 @@ $(document).ready(function() {
 
   try {
     
+    var afterLoadShow = null;
+    
     // Wouldn't it be nice if we could just do this inside the removeRepo function?  But then Titanium crashes.
     if (urlParam("removeRepo") != null) {
       name = urlParam("removeRepo");
       window.p2pdoc_settings.remove_repo(name);
       window.p2pdoc_settings.save();
+    }
+    if (urlParam("changeRepoDir") != null) {
+      var repoId = urlParam("repoId");
+      var repoName = urlParam("repoName");
+      var inOutMine = urlParam("inOutMine");
+      var directory = urlParam("directory");
+      if (directory == "") {
+        directory = null;
+      }
+      if (inOutMine === "in") {
+        window.p2pdoc_settings.change_repo_incoming(repoName, directory);
+        window.p2pdoc_settings.save();
+        afterLoadShow = {"jumpToAnchor":"repoAnchor_" + repoId, "showElement":"repoInPath_"+repoId};
+      } else if (inOutMine === "mine") {
+        window.p2pdoc_settings.change_repo_my_loc(repoName, directory);
+        window.p2pdoc_settings.save();
+        afterLoadShow = {"jumpToAnchor":"repoAnchor_" + repoId, "showElement":"repoMyLocPath_"+repoId};
+      } else if (inOutMine === "out") {
+        window.p2pdoc_settings.change_repo_outgoing(repoName, directory);
+        window.p2pdoc_settings.save();
+        afterLoadShow = {"jumpToAnchor":"repoAnchor_" + repoId, "showElement":"repoOutPath_"+repoId};
+      } else {
+        throw {"badChange":inOutMine};
+      }
     }
 
     $('#settingsDir').html(window.p2pdoc_settings.data_dir());
@@ -171,13 +194,16 @@ $(document).ready(function() {
     }
   
     $('#repoAdd_').bind('click', function() {
-      
       $('#everything').hide('slide', { direction: "up"}, 500, function() {
         location.href = "repository.html";
       });
     });
     
-    
+    if (afterLoadShow != null) {
+      location.hash = afterLoadShow.jumpToAnchor;
+      $("#" + afterLoadShow.showElement).hide();
+      $("#" + afterLoadShow.showElement).show(1000);
+    }
     
   } catch (e) {
     p2pdocsHandleError(e);
@@ -201,6 +227,7 @@ $(document).ready(function() {
 <div id="repoList">
   <h2>Libraries</h2>
   <div id="repoItem_" class="repoItem">
+    <a name="repoAnchor_"/>
     <span id="repoName_">
       <h3>
         <span></span>
