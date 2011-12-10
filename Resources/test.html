@@ -34,12 +34,12 @@
       }
       
       // restore if the settings file was backed-up
-      var settingsFile = Titanium.Filesystem.getFile(window.p2pdoc_settings.settings_file());
-      if (settingsFile.exists()) {
-        settingsFile.deleteFile();
-      }
       var backupFile = Titanium.Filesystem.getFile(window.p2pdoc_settings.data_dir(), BACKUP_FILE);
       if (backupFile.exists()) {
+        var settingsFile = Titanium.Filesystem.getFile(window.p2pdoc_settings.settings_file());
+        if (settingsFile.exists()) {
+          settingsFile.deleteFile();
+        }
         // note that 'rename' threw an error
         backupFile.move(settingsFile.toString());
       }
@@ -55,11 +55,10 @@
       var settingsFile = Titanium.Filesystem.getFile(window.p2pdoc_settings.settings_file());
       if (settingsFile.exists()) {
         var backupFile = Titanium.Filesystem.getFile(window.p2pdoc_settings.data_dir(), BACKUP_FILE);
-        if (backupFile.exists()) {
-          backupFile.deleteFile();
+        if (!backupFile.exists()) {
+          // note that 'rename' threw an error
+          settingsFile.move(backupFile.toString());
         }
-        // note that 'rename' threw an error
-        settingsFile.move(backupFile.toString());
       }
       alert("All set to test environment for new install.");
     } catch (e) {
