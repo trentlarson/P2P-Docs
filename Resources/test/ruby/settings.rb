@@ -1035,7 +1035,7 @@ class SettingsTest
     
     
     # now test when the outgoing location is the same as an incoming location
-    @settings.change_repo_outgoing('test out 0', repo_test0['incoming_loc'])
+    @settings.change_repo_outgoing('0', repo_test0['incoming_loc'])
     # ... with a file that has some new text
     File.rename(File.join(repo_test0['my_loc'], 'my_sample.txt'), File.join(repo_test0['my_loc'], 'sample.txt'))
     result = Updates.all_outgoing_diffs(@settings)

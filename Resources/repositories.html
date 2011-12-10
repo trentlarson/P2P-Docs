@@ -152,7 +152,7 @@ $(document).ready(function() {
         directory = null;
       }
       if (inOutMine === "in") {
-        window.p2pdoc_settings.change_repo_incoming(repoName, directory);
+        window.p2pdoc_settings.change_repo_incoming(repoId, directory);
         window.p2pdoc_settings.save();
         afterLoadShow = {"jumpToAnchor":"repoAnchor_" + repoId, "showElement":"repoInPath_"+repoId};
       } else if (inOutMine === "mine") {

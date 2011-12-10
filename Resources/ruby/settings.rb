@@ -179,37 +179,40 @@ settings: initial settings; if nil, @@settings will not be reset
     end
   end
 
-  def change_repo_incoming(name, incoming_loc)
-    if (name.class.name == "RubyKObject") # for method results from Titanium
-      name = name.toString()
+  def change_repo_incoming(id, incoming_loc)
+    if (id.class.name == "RubyKObject") # for method results from Titanium
+      id = id.toString()
     end
+    id = id.to_i
     if (incoming_loc != nil &&
         incoming_loc.class.name == "RubyKObject") # for method results from Titanium
       incoming_loc = incoming_loc.toString()
     end
-    get_repo_by_name(name)['incoming_loc'] = incoming_loc
+    get_repo_by_id(id)['incoming_loc'] = incoming_loc
   end
 
-  def change_repo_my_loc(name, my_loc)
-    if (name.class.name == "RubyKObject") # for method results from Titanium
-      name = name.toString()
+  def change_repo_my_loc(id, my_loc)
+    if (id.class.name == "RubyKObject") # for method results from Titanium
+      id = id.toString()
     end
+    id = id.to_i
     if (my_loc != nil &&
         my_loc.class.name == "RubyKObject") # for method results from Titanium
       my_loc = my_loc.toString()
     end
-    get_repo_by_name(name)['my_loc'] = my_loc
+    get_repo_by_id(id)['my_loc'] = my_loc
   end
 
-  def change_repo_outgoing(name, outgoing_loc)
-    if (name.class.name == "RubyKObject") # for method results from Titanium
-      name = name.toString()
+  def change_repo_outgoing(id, outgoing_loc)
+    if (id.class.name == "RubyKObject") # for method results from Titanium
+      id = id.toString()
     end
+    id = id.to_i
     if (outgoing_loc != nil &&
         outgoing_loc.class.name == "RubyKObject") # for method results from Titanium
       outgoing_loc = outgoing_loc.toString()
     end
-    get_repo_by_name(name)['outgoing_loc'] = outgoing_loc
+    get_repo_by_id(id)['outgoing_loc'] = outgoing_loc
   end
 
 end
