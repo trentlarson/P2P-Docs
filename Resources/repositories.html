@@ -120,7 +120,7 @@ var insertRepo = function(repo, showSlowly) {
   addedItem.find("#repoRemove_" + dom_suffix).click(function() {
     if (confirm("This will stop tracking the repository '" + repo.name + "', but it will leave all the files.  Are you sure you want to stop tracking it?")) {
       $("#repoItem_" + dom_suffix).hide(500, function() {
-        window.location.href = "?removeRepo=" + escape(repo.name);
+        window.location.href = "?removeRepo=&repoId=" + escape(repo.id);
       });
     }
   });
@@ -139,8 +139,8 @@ $(document).ready(function() {
     
     // Wouldn't it be nice if we could just do this inside an anonymous function?  But then Titanium crashes.
     if (urlParam("removeRepo") != null) {
-      name = urlParam("removeRepo");
-      window.p2pdoc_settings.remove_repo(name);
+      var repoId = urlParam("repoId");
+      window.p2pdoc_settings.remove_repo(repoId);
       window.p2pdoc_settings.save();
     }
     if (urlParam("changeRepoDir") != null) {

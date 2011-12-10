@@ -157,12 +157,13 @@ settings: initial settings; if nil, @@settings will not be reset
   end
 
   # side-effects: renames the reviewed directory (but does no other file system checks or saves)
-  def remove_repo(name)
-    if (name.class.name == "RubyKObject") # for method results from Titanium
-      name = name.toString()
+  def remove_repo(id)
+    if (id.class.name == "RubyKObject") # for method results from Titanium
+      id = name.toString()
     end
+    id = id.to_i
     # archive the reviewed directory
-    repo = get_repo_by_name(name)
+    repo = get_repo_by_id(id)
     if (repo != nil)
       if (File.exist? reviewed_dir(repo))
         # move the old directory so that it's not lost and/or overridden
@@ -174,7 +175,7 @@ settings: initial settings; if nil, @@settings will not be reset
         File.rename(reviewed_dir(repo), archive_base_name + "_" + count.to_s)
       end
       # remove it from settings
-      @@settings['repositories'].delete_if{ |repo| repo['name'] == name }
+      @@settings['repositories'].delete_if{ |repo| repo['id'] == id }
     end
   end
 
