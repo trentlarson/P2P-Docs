@@ -159,7 +159,7 @@ settings: initial settings; if nil, @@settings will not be reset
   # side-effects: renames the reviewed directory (but does no other file system checks or saves)
   def remove_repo(id)
     if (id.class.name == "RubyKObject") # for method results from Titanium
-      id = name.toString()
+      id = id.toString()
     end
     id = id.to_i
     # archive the reviewed directory
