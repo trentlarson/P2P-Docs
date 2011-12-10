@@ -117,7 +117,13 @@ var insertRepo = function(repo, showSlowly) {
   .click(viewFileWrapperFunc(repo.outgoing_loc, Titanium.Filesystem.getSeparator()));
   
   // attach methods to the visuals
-  addedItem.find("#repoRemove_" + dom_suffix).click(removeRepo(dom_suffix, repo.name));
+  addedItem.find("#repoRemove_" + dom_suffix).click(function() {
+    if (confirm("This will stop tracking the repository '" + repo.name + "', but it will leave all the files.  Are you sure you want to stop tracking it?")) {
+      $("#repoItem_" + dom_suffix).hide(500, function() {
+        window.location.href = "?removeRepo=" + escape(repo.name);
+      });
+    }
+  });
   
   
   if (showSlowly) {
@@ -125,24 +131,13 @@ var insertRepo = function(repo, showSlowly) {
   }
 }
 
-var removeRepo = function(dom_suffix, name) {
-  function removeIt() {
-    if (confirm("This will stop tracking the repository '" + name + "', but it will leave all the files.  Are you sure you want to stop tracking it?")) {
-      $("#repoItem_" + dom_suffix).hide(500, function() {
-        window.location.href = "?removeRepo=" + escape(name);
-      });
-    }
-  }
-  return removeIt;
-};
-
 $(document).ready(function() {
 
   try {
     
     var afterLoadShow = null;
     
-    // Wouldn't it be nice if we could just do this inside the removeRepo function?  But then Titanium crashes.
+    // Wouldn't it be nice if we could just do this inside an anonymous function?  But then Titanium crashes.
     if (urlParam("removeRepo") != null) {
       name = urlParam("removeRepo");
       window.p2pdoc_settings.remove_repo(name);
