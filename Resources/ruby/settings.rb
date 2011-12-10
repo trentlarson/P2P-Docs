@@ -19,6 +19,7 @@ class Settings
   #   where incoming_loc / my_loc / outgoing_loc values may be nil
   # see test settings.rb for example structures
   BLANK_SETTINGS = {'repositories' => []}
+  # Well, this is bogus: the static stuff isn't really static across pages; I guess it's a new Ruby environment every time.  So this caching is useless.  Must eliminate it.
   @@settings = BLANK_SETTINGS
 
 
