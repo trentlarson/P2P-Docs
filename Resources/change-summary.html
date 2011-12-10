@@ -18,12 +18,12 @@
 
 #repoList {
   float: left;
-  width: 450px;
+  width: 500px;
 }
 
 #sideActionWrapper { /* required to avoid jumping */
-  left: 450px;
-  position: absolute;
+  left: 500px;
+  position: fixed;
   margin-left: 35px;
   width: 280px;
 }
@@ -183,7 +183,7 @@ $(document).ready(function() {
         changesExist = true;
         var outCount = allOutDiffs.length;
         for (var outRepoNum = 0; outRepoNum < outCount; outRepoNum++) {
-          $('#outChangeList').append(allOutDiffs[outRepoNum].name);
+          $('#outChangeList').append("<h4>" + allOutDiffs[outRepoNum].name + "</h4>");
           $('#outChangeList').append("<ul>\n");
           var outChangeCount = allOutDiffs[outRepoNum].diffs.length;
           for (var outChangeNum = 0; outChangeNum < outChangeCount; outChangeNum++) {
