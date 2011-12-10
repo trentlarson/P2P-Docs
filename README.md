@@ -81,7 +81,7 @@ A "-" means it's not done yet.
   * Libraries (AKA Repositories)
     * - manage folders/friends from the sharing tools
     * - allow individual files to be their own repository
-    * - allow outgoing to the same place as incoming
+    * allow outgoing to the same place as incoming
   * - Doc Alerts: notify when there's new content
   * Doc Changes (external?): display the new content
     * - set up trust for certain incoming files, to shortcut to my copy
@@ -120,6 +120,7 @@ Details, By Priority
 --------------------
 
  * Doc Changes
+ * only keep copies of selected files (not all of them)
  * default to versioned files, but allow to overwrite (both incoming and outgoing)
  * default to keep old reviewed versions, but allow deletion
  * default to keep old outgoing versions, but allow deletion
