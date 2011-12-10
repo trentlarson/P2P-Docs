@@ -23,7 +23,7 @@ class SampleManyRepos
     settings = Settings.new(test_content_dir, Settings::BLANK_SETTINGS)
 
     # make a bunch of repositories
-    (0..50).each do |num|
+    (0..100).each do |num|
       repo_name = "test #{num}"
       repo_dir_name = File.join(test_content_dir, settings.fixed_repo_name(repo_name))
       TestUtils.add_repo(settings, repo_name, repo_dir_name)

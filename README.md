@@ -101,21 +101,13 @@ Test Details:
 * Create different repository configurations
     * empty ones
     * - combinations: empty repo, repo w/ files, repo w/ dirs, repo w/ files & dirs, recursively
-    * - many repositories (eg. crashes on repositories page with 25 repos; see sample_repos test)
+    * - many repositories
     * - ones with thousands of dirs/files
     * - repo changes, mirroring the tests in SettingsTest
 * - test with blank incoming setting
 * Automated test: ruby Resources/test/ruby/settings.rb (and check that there is no output)
-* Test many repos in app:
-    * go to the test page: click on the gear at the top right (may require a 'Cancel' on first screen)
-    * scroll to the bottom, and move the mouse to the right, then down under the last text on the screen until the cursor shows something clickable
-    * click
-    * click on "Switch to test for many libraries."; you'll get an alert that the environment is set
-    * click on "Done"
-    * go to the 'feed' screen (orange button next to the gear)
-        * If you click on a repo name (eg. "test 0"), then mark the checkbox, then click "Accept Changes", it should disappear (rather than throw some JavaScript exception)
-        * If you click on "Configure" (gear icon), then click "change" next to "Outgoing", then select a directory and hit "Open", it should set it (rather than crash)
-          (Note that it may not crash if you go to another page and then come back and do it.)
+* Try things on the test page: click on the gear at the top right (may require a 'Cancel' on first screen),
+  scroll to the bottom, move the mouse to the right, then down under the last text on the screen until the cursor shows something clickable, then click, and select a test
 
 
 Development Setup:
@@ -128,9 +120,6 @@ Details, By Priority
 --------------------
 
  * Doc Changes
- * fix crashes on repo outgoing dir changes
- * fix unknown crashes on repositories page when accepting a change too many (100) repos
-   ... though if you go to repo create screen first it just stops on javascript at mark_reviewed on index.html
  * default to versioned files, but allow to overwrite (both incoming and outgoing)
  * default to keep old reviewed versions, but allow deletion
  * default to keep old outgoing versions, but allow deletion
@@ -142,7 +131,6 @@ Details, By Priority
  * make the configuration a menu (medium)
  * transitions between screens (small)
  * documentation and/or help (medium)
-   * FAQ: on repo crashes, go to add a repo and cancel and then it works
  * program auto-update (medium)
  * use repo ID numbers everywhere (instead of names)
  * fix the new-repo transition to slide whole screen (not half)
