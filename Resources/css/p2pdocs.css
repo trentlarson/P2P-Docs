@@ -2,5 +2,5 @@ body
 {
   /* Titanium's default.css turns user select to none */
   -webkit-user-select: text;
-  background-color: #cccccc;
+  background-color: #eeeeee;
 }
