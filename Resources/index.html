@@ -31,6 +31,35 @@ try {
 <script type="text/javascript">
   //Titanium.UI.getWindows()[0].showInspector(true);
   //Titanium.API.print("to console\n");
+  
+  // supposedly we should use Ti.include for globals http://developer.appcelerator.com/question/1651/global-variable
+  // ... but the app complains that it's not a function
+  Titanium.p2pdocs = function() {
+    
+    var test = "";
+    var setTest = function(newTest) {
+      test = newTest;
+    };
+    var getTest = function() {
+      return test;
+    };
+    var thread = Titanium.Worker.createWorker('js/p2pdocs-app.js');
+    thread.onmessage = function(e) {
+      if (e.message && e.message.status) {
+        Titanium.API.print("Main UI got status: " + e.message.status + "\n");
+        setTest(e.message.status);
+      }
+    };
+    // Here's an interesting use of createWorker, pointing to other files:
+    // https://geoserver.org/suite/changeset/1282/trunk/dashboard/OpenGeo%20Dashboard/Resources
+    
+    return {
+      setTest: setTest,
+      getTest: getTest,
+      thread: thread
+    };
+  }();
+    
   var settingsFile = Titanium.Filesystem.getFile(window.p2pdoc_settings.settings_file());
   if (settingsFile.exists()) {
     window.location.href= "change-summary.html?redirectIfNoUpdates=";

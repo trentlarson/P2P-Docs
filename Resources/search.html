@@ -57,6 +57,9 @@ function openFile(filename, filepos) {
 
 $(document).ready(function() {
   try {
+
+    Titanium.p2pdocs.thread.start();
+    Titanium.p2pdocs.thread.postMessage("some message to thread");
     
     // check files for the search results.
     var term = urlParam("term");
