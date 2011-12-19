@@ -3,6 +3,8 @@
 <head>
 </head>
 <script type="text/ruby" src="ruby/settings.rb"></script>
+<script type="text/javascript" src="js/stacktrace.js"></script>
+<script type="text/javascript" src="js/p2pdocs.js"></script>
 <script type="text/javascript">
 function setupApp() {
   // Initialize the basic setup.
@@ -12,7 +14,7 @@ function setupApp() {
   }
   // Initialize a DB table for passing around actions.
   var sessionDB = Titanium.Database.open("sessionDB");
-  var exec = asessionDB.execute('CREATE TABLE IF NOT EXISTS action (data TEXT)');
+  var exec = sessionDB.execute('CREATE TABLE IF NOT EXISTS action (data TEXT)');
   sessionDB.close();
 }
 
