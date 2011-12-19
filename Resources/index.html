@@ -6,7 +6,7 @@
 <script type="text/javascript" src="js/stacktrace.js"></script>
 <script type="text/javascript" src="js/p2pdocs.js"></script>
 <script type="text/javascript">
-function setupApp() {
+function configApp() {
   // Initialize the basic setup.
   if (!Titanium.App.Properties.hasProperty('settings-dir')) {
     // Titanium.App.Properties pulls from the application.properties file.  Note that lines in it beginning with # sometimes disappear; I use // for commentary.
@@ -20,10 +20,10 @@ function setupApp() {
 
 try {
   // giving it a name for potential stack traces
-  setupApp();
+  configApp();
 } catch (e) {
   p2pdocsHandleError(e);
-}  
+}
 </script>
 
 <script type="text/ruby">
@@ -31,6 +31,9 @@ try {
 </script>
 
 <script type="text/javascript">
+
+function startApp() {
+  
   //Titanium.UI.getWindows()[0].showInspector(true);
   //Titanium.API.print("to console\n");
   
@@ -60,6 +63,14 @@ try {
   } else {
     window.location.href= "repository.html";
   }
-  
+}
+
+try {
+  // giving it a name for potential stack traces
+  startApp();
+} catch (e) {
+  p2pdocsHandleError(e);
+}
+
 </script>
 </html>
