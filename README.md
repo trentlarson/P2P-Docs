@@ -120,6 +120,7 @@ Details, By Priority
 --------------------
 
  * Doc Changes
+ * remove the static Ruby class variable that's not static (in settings.rb)
  * only keep copies of selected files (not all of them)
  * default to versioned files, but allow to overwrite (both incoming and outgoing)
  * default to keep old reviewed versions, but allow deletion
