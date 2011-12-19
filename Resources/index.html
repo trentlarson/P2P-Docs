@@ -50,6 +50,7 @@ function startApp() {
     Titanium.Filesystem.getFile(nodeBinary).setExecutable();
   }
   var nodeProcess = Titanium.Process.createProcess(["nohup", nodeBinary, appServerPath]);
+  // I'd like to attach to all the pipes (eg. stdout, stderr) in the subprocess, but I can't find the handles to the pipes in the main app.
   nodeProcess.setOnRead(function(data) {
     // This will fire on console.log, warn, and trace; all others will go directly to output.
     Titanium.API.info("node console.log: " + data.getData());
