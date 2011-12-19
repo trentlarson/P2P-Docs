@@ -50,6 +50,10 @@ function startApp() {
     Titanium.Filesystem.getFile(nodeBinary).setExecutable();
   }
   var nodeProcess = Titanium.Process.createProcess(["nohup", nodeBinary, appServerPath]);
+  nodeProcess.setOnRead(function(data) {
+    // This will fire on console.log, warn, and trace; all others will go directly to output.
+    Titanium.API.info("node console.log: " + data.getData());
+  });
   nodeProcess.launch(); // they say this is deprecated, but mine doesn't run without it
   Titanium.API.addEventListener(Titanium.EXIT, function(e) {
     nodeProcess.kill();
