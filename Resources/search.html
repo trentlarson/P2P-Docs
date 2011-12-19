@@ -9,12 +9,6 @@
   height: 30px;
 }
 
-.openApp {
-  cursor: pointer;
-  color: #0000ff;
-  text-decoration: underline;
-}
-
 </style>
 
 <script type="text/javascript" src="js/jquery-1.5.1.min.js"></script>
@@ -63,7 +57,7 @@ $(document).ready(function() {
     if (term != null) {
       
       if (term.length < 2) {
-        alert("Sorry, I'm not going to even try for fear I'll choke on the massive set of data.");
+        alert("Sorry, I'm not going to even try for fear I'll choke on all the data.");
       } else {
         var moreInfo = window.p2pdocs_searcher.main(window.p2pdocs_settings, term);
         var nothing = moreInfo.toString(); // this is just to avoid crashes, eg. on searches for "Robert"
@@ -87,8 +81,8 @@ $(document).ready(function() {
               $("#files").append("<div fileNum='" + fileIndex + "'><strong>" + moreInfo[i].file + "</strong></div>");
             }
             
-            $("#files div[fileNum=\"" + fileIndex + "\"]").append("<div class='blurb'><span class='openApp'>" + moreInfo[i].context + "</span></div>");
-            $("#files div[fileNum=\"" + fileIndex + "\"] .openApp").last().click(function(file, pos) {
+            $("#files div[fileNum=\"" + fileIndex + "\"]").append("<div class='blurb'><span class='link'>" + moreInfo[i].context + "</span></div>");
+            $("#files div[fileNum=\"" + fileIndex + "\"] span").last().click(function(file, pos) {
               return function(e) { openFile(file, pos); };
             }(moreInfo[i].file, moreInfo[i].position));
           }

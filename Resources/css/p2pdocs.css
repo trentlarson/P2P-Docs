@@ -4,3 +4,9 @@ body
   -webkit-user-select: text;
   background-color: #eeeeee;
 }
+
+.link {
+  cursor: pointer;
+  color: #0000ff;
+  text-decoration: underline;
+}
