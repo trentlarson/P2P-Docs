@@ -47,10 +47,7 @@ try {
     Titanium.Filesystem.getFile(nodeBinary).setExecutable();
   }
   var nodeProcess = Titanium.Process.createProcess(["nohup", nodeBinary, appServerPath]);
-  nodeProcess.launch();
-  setInterval(function() {
-    Titanium.API.print("node server running: " + nodeProcess.isRunning() + "\n");
-  }, 1000);
+  nodeProcess.launch(); // they say this is deprecated, but mine doesn't run without it
   Titanium.API.addEventListener(Titanium.EXIT, function(e) {
     nodeProcess.kill();
   });

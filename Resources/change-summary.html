@@ -170,10 +170,6 @@ $(document).ready(function() {
   var errorDetails = {};
   try {
     
-    $.get('http://127.0.0.1:1338/get_repos', function(data) {
-      Titanium.API.print("Got something from appcelerator GitHub: " + data + "\n");
-    });
-  
     if (window.p2pdoc_settings.properties().repositories.length > 0) {
       $('#noRepos').hide();
       
