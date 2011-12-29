@@ -168,7 +168,7 @@ settings: initial settings; if nil, @@settings will not be reset
     if (repo != nil)
       if (File.exist? reviewed_dir(repo))
         # move the old directory so that it's not lost and/or overridden
-        archive_base_name = reviewed_dir(repo) + "_archive"
+        archive_base_name = "archive_" + reviewed_dir(repo)
         count = 0
         while (File.exist? archive_base_name + "_" + count.to_s)
           count = count + 1
