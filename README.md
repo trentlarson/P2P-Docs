@@ -95,7 +95,7 @@ A "-" means it's not done yet.
       maintenance and duplication that this tool imposes
 
 
-Test Details:
+Tests:
 
 * Register & unregister repos: add/remove funny names; add/remove duplicate names
 * Create different repository configurations
@@ -116,7 +116,7 @@ Development Setup:
   <analytics>false</analytics>
 
 
-Details, By Priority
+User Story Details, By Priority
 --------------------
 
  * Doc Changes
@@ -134,6 +134,7 @@ Details, By Priority
  * transitions between screens (small)
  * documentation and/or help (medium)
  * program auto-update (medium)
+ * show an appropriate error if two apps are running... or something to avoid clashing node processes (small)
  * use repo ID numbers everywhere (instead of names)
  * fix the new-repo transition to slide whole screen (not half)
  * make a consistent styling for the whole app

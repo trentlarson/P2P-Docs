@@ -1,7 +1,6 @@
 <!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
 <html>
 <head>
-</head>
 <script type="text/ruby" src="ruby/settings.rb"></script>
 <script type="text/javascript" src="js/stacktrace.js"></script>
 <script type="text/javascript" src="js/p2pdocs.js"></script>
@@ -37,11 +36,24 @@ function startApp() {
   //Titanium.UI.getWindows()[0].showInspector(true);
   //Titanium.API.print("to console\n");
   
+  if (parseFloat(Titanium.App.getVersion()) < 8.0) {
+    settingsFile = window.p2pdoc_settings.settings_file().toString();
+    reviewedDir = window.p2pdoc_settings.reviewed_base_dir().toString();
+    message = 
+      "Congratulations, Early Adopter!  Unfortunately, your reward is a manual task: "
+      + "\n\nOpen this file in a text editor: " + settingsFile 
+      + "\n\nOpen this directory: " + reviewedDir 
+      + "\n\nRename each folder in the directory to the 'id' number in the file.\n\nClick 'OK' to continue.";
+    if (!confirm(message)) {
+      Titanium.App.exit();
+    }
+  }
+  
   // run the node server
   var platform = Titanium.getPlatform();
-  if (platform === 'win') {
-    alert("Many functions will not work because the Windows platform is not supported yet.  I wouldn't even try.");
-  }
+  //if (platform === 'win') {
+  //  alert("Many functions will not work because the Windows platform is not supported yet.  I wouldn't even try.");
+  //}
   var sep = Titanium.Filesystem.getSeparator();
   var binRoot = Titanium.App.getHome() + sep + 'Resources';
   var nodeBinary = binRoot + sep + 'nodejs' + sep + 'builds' + sep + platform + sep + 'node' + sep + 'bin' + sep + 'node';
@@ -78,4 +90,5 @@ try {
 }
 
 </script>
+</head>
 </html>

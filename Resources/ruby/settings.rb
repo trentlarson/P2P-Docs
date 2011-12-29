@@ -98,14 +98,22 @@ settings: initial settings; if nil, @@settings will not be reset
     name.gsub(/./){ |c| char_allowed_in_name(c) ? c : "_" }
   end
   
+  # repo: if nil, return the base reviewed directory; otherwise if a full repo hash, return the reviewed directory; otherwise if a repo name, return the reviewed directory if a matching one found; otherwise, nil 
   def reviewed_dir(repo = nil)
     if (repo == nil)
       reviewed_base_dir
-    elsif (repo.class.name == "String")
-      # allow the raw name
-      File.join(reviewed_base_dir, fixed_repo_name(repo))
     else
-      File.join(reviewed_base_dir, fixed_repo_name(repo['name']))
+      if (repo.class.name == "String")
+        # allow the raw name
+        repo = get_repo_by_name(repo)
+      elsif (repo.class.name == "Fixnum")
+        repo = get_repo_by_id(repo)
+      end
+      if (repo)
+        File.join(reviewed_base_dir, fixed_repo_name(repo['name']))
+      else
+        nil
+      end
     end
   end
 
