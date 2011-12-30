@@ -125,7 +125,7 @@ settings: initial settings; if nil, @@settings will not be reset
     @@settings['repositories'].find{ |repo| repo['name'] == name }
   end
 
-  # return repo if the repo was added; otherwise, nil (eg. name blank or duplicate)
+  # return repo if the repo was added; otherwise, nil (eg. if all locations are the same as an existing one)
   # side-effects: creates the reviewed directory for the repo (but no other file system checks or saves)
   def add_repo(name, incoming_loc, my_loc = nil, outgoing_loc = nil, not_versioned = false)
     begin
@@ -144,11 +144,11 @@ settings: initial settings; if nil, @@settings will not be reset
           outgoing_loc.class.name == "RubyKObject") # for method results from Titanium
         outgoing_loc = outgoing_loc.toString()
       end
-      fixed_name = fixed_repo_name(name)
-      if ((name.nil?) ||
-          (name == "") ||
-          (@@settings['repositories'].find{ |repo| repo['name'] == name || fixed_repo_name(repo['name']) == name || repo['name'] == fixed_name } != nil))
+      if (@@settings['repositories'].find{ |repo| repo['incoming_loc'] == incoming_loc && repo['my_loc'] == my_loc && repo['outgoing_loc'] == outgoing_loc } != nil)
         return nil
+      end
+      if (name.nil?)
+        name = ""
       end
       maxRepo = @@settings['repositories'].max { |repo1,repo2| repo1['id'] <=> repo2['id'] }
       if (maxRepo == nil)
