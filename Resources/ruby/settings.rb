@@ -167,16 +167,18 @@ settings: initial settings; if nil, @@settings will not be reset
     # archive the reviewed directory
     repo = get_repo_by_id(id)
     if (repo != nil)
-      if (File.exist? reviewed_dir(repo))
+      rev_dir = reviewed_dir(repo)
+      if (File.exist? rev_dir)
         # move the old directory so that it's not lost and/or overridden
-        archive_base_name = reviewed_dir(repo) + "_archive"
-        #archive_base_name = File.join(File.dirname(rev_dir), "archive_" + File.basename(rev_dir) + "_" + fixed_repo_name(repo['name'])
-        #if (File.exist? archive_base_name)
-        count = 0
-        while (File.exist? archive_base_name + "_" + count.to_s)
-          count = count + 1
+        archive_name = File.join(File.dirname(rev_dir), "archive_" + File.basename(rev_dir) + "_" + fixed_repo_name(repo['name']))
+        if (File.exist? archive_name)
+          count = 0
+          while (File.exist? archive_name + "_" + count.to_s)
+            count = count + 1
+          end
+          archive_name = archive_name + "_" + count.to_s
         end
-        File.rename(reviewed_dir(repo), archive_base_name + "_" + count.to_s)
+        File.rename(rev_dir, archive_name)
       end
       # remove it from settings
       @@settings['repositories'].delete_if{ |repo| repo['id'] == id }
