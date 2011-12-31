@@ -35,6 +35,7 @@ class SettingsTest
   # and delete the old test directories and create new ones based on the given data.
   def setup_settings(settings_data)
 
+    @settings.properties['repositories'].each{ |repo| @settings.remove_repo(repo['id']) }
     @settings.replace(settings_data)
 
     # set up the directory structure
@@ -78,9 +79,9 @@ class SettingsTest
     puts "fail: didn't add test repo after removal" if repo == nil
     puts "fail: repo doesn't have ID of 0 after removal" if repo['id'] != 0
     repo = @settings.add_repo(repo_name, @test_data_dir + "/another/funky/dir")
-    puts "fail: no reviewed folder for duplicate name" if !File.exist? @settings.reviewed_dir(repo_name)
+    puts "fail: no reviewed folder for duplicate name" if !File.exist? @settings.reviewed_dir(repo_id)
     @settings.remove_repo(repo_id)
-    puts "fail: didn't remove reviewed folder for duplicate name" if @settings.reviewed_dir(repo_name) && File.exist?(@settings.reviewed_dir(repo_name))
+    puts "fail: didn't remove reviewed folder for ID #{repo_id}" if @settings.reviewed_dir(repo_id) && File.exist?(@settings.reviewed_dir(repo_id))
     
     repo = @settings.add_repo(repo_name, @test_data_dir + "/some/funky/dir")
     puts "fail: didn't add test repo after 2nd removal" if repo == nil
