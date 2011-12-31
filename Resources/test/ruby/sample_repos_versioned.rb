@@ -56,7 +56,7 @@ class SampleReposVersioned
         out.write("... is in your future\n")
       end
       
-      Updates.mark_reviewed(settings, repo_name, "test_2.txt")
+      Updates.mark_reviewed(settings, added['id'], "test_2.txt")
       
     end
 

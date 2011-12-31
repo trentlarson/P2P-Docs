@@ -45,10 +45,10 @@
 
 <script type="text/ruby">
   window.p2pdoc_settings = Settings.new(Titanium.App.Properties.getString("settings-dir"))
-  window.p2pdoc_mark_reviewed = lambda { |repo_name, path, previous_path| Updates.mark_reviewed(window.p2pdoc_settings, repo_name, path, previous_path) }
-  window.p2pdoc_mark_reviewed2 = lambda { |repo_name, path, previous_path| Titanium.API.print("got into method\n") }
-  def p2pdoc_mark_reviewed3(repo_name, path, previous_path)
-    Titanium.API.print("got into method #{repo_name} #{path} #{previous_path}.\n")
+  window.p2pdoc_mark_reviewed = lambda { |repo_id, path, previous_path| Updates.mark_reviewed(window.p2pdoc_settings, repo_id, path, previous_path) }
+  window.p2pdoc_mark_reviewed2 = lambda { |repo_id, path, previous_path| Titanium.API.print("got into method\n") }
+  def p2pdoc_mark_reviewed3(repo_id, path, previous_path)
+    Titanium.API.print("got into method #{repo_id} #{path} #{previous_path}.\n")
   end
 </script>
 
@@ -65,12 +65,12 @@ function initializeChangeSummary() {
     if (rows.rowCount() > 0) {
       var actionData = Titanium.JSON.parse(rows.fieldByName('data'));
       exec = sessionDB.execute("DELETE FROM action");
-      //{'action':'markReviewedBulk', 'reviewed':[{'name':'Bohemia', 'path':'Tao', 'previousPath':'Hedonism'}]}];
+      //{'action':'markReviewedBulk', 'reviewed':[{'id':0, 'name':'Bohemia', 'path':'Tao', 'previousPath':'Hedonism'}]}];
       if (actionData.action === 'markReviewedBulk') {
         var fileInfo;
         for (var i = actionData.reviewed.length - 1; i >= 0; i--) {
           fileInfo = actionData.reviewed[i];
-          window.p2pdoc_mark_reviewed(fileInfo.name, fileInfo.path, fileInfo.previousPath);
+          window.p2pdoc_mark_reviewed(fileInfo.id, fileInfo.path, fileInfo.previousPath);
         }
       }
     }
@@ -96,11 +96,11 @@ try {
   def copy_to_outgoing(out_diffs)
     out_diffs.each { |name_diff|
       name_diff.diffs.each { |diff|
-        Updates.copy_to_outgoing(window.p2pdoc_settings, name_diff.name, diff.path)
+        Updates.copy_to_outgoing(window.p2pdoc_settings, name_diff.repoId, diff.path)
       }
     }
   end
-  window.p2pdoc_copy_to_outgoing = lambda { |all_diffs| all_diffs.each { |name_diff| Updates.copy_all_to_outgoing(window.p2pdoc_settings, name_diff['name'], name_diff['diffs']) } }
+  window.copy_to_outgoing2 = lambda { |all_diffs| all_diffs.each { |name_diff| Updates.copy_all_to_outgoing(window.p2pdoc_settings, name_diff.repoId, name_diff.diffs) } }
 </script>
 
 <script type="text/javascript">
@@ -111,7 +111,7 @@ function setupMarkAction(reviewedList) {
   // from example here: http://developer.appcelerator.com/apidoc/desktop/latest/Titanium.Database.DB.execute-method.html
   var sessionDB = Titanium.Database.open("sessionDB");
   exec = sessionDB.execute("DELETE FROM action");
-  //{'action':'markReviewedBulk', 'reviewed':[{'name':'Bohemia', 'path':'Tao', 'previousPath':'Hedonism'}]}];
+  //{'action':'markReviewedBulk', 'reviewed':[{'id':0, 'name':'Bohemia', 'path':'Tao', 'previousPath':'Hedonism'}]}];
   var actionData = {'action':'markReviewedBulk', 'reviewed':reviewedList};
   exec = sessionDB.execute("INSERT INTO action (data) VALUES (?)", Titanium.JSON.stringify(actionData));
   sessionDB.close();
@@ -126,10 +126,11 @@ function markAccepted() {
     // gather the data for their reviewed choices (which I'd love to do inline, but the app often breaks when calling Ruby when it's not the initial page load)
     var reviewedList = [];
     checkedBoxes.each(function() {
+      var repoId = parseInt($(this).attr("repoId"));
       var repoName = $(this).attr("repoName");
       var path = $(this).attr("path");
       var previousPath = $(this).attr("previousPath");
-      reviewedList.push({'name':repoName, 'path':path, 'previousPath':previousPath});
+      reviewedList.push({'id':repoId, 'name':repoName, 'path':path, 'previousPath':previousPath});
     });
     setupMarkAction(reviewedList);
     
@@ -192,7 +193,13 @@ $(document).ready(function() {
           $('#outChangeList').append("</ul>\n");
         }
         $('#exportOutChanges').click(function() {
-            copy_to_outgoing(allOutDiffs);
+            // This unfortunate necessity is because I cannot grab a simple "id" when calling Ruby (because it's deprecated and now called "object_id"), and I cannot figure out how to dig into Kroll and grab the 'id' field.
+            allOutDiffsForRuby = []
+            for (var index = allOutDiffs.length - 1; index >= 0; index--) {
+              outDiff = allOutDiffs[index];
+              allOutDiffsForRuby.push({'repoId':outDiff.id, 'name':outDiff.name, 'diffs':outDiff.diffs})
+            }
+            copy_to_outgoing(allOutDiffsForRuby);
             $('#outChanges').hide(500);
             return false;
         });
@@ -223,6 +230,7 @@ $(document).ready(function() {
         
         for (var repoNum = 0; repoNum < repoCount; repoNum++) {
           oneRepoDiffs = all_diffs[repoNum];
+          repoId = parseInt(oneRepoDiffs.id);
           repoName = oneRepoDiffs.name;
           repoDiffList = oneRepoDiffs.diffs;
           repoDiffCount = repoDiffList.length;
@@ -245,6 +253,7 @@ $(document).ready(function() {
             addedDiff.show();
             addedDiff.attr("id", "diff_" + diffNum);
             addedDiff.find("#reviewed_").attr("id", "reviewed_" + diffNum)
+              .attr("repoId", repoId)
               .attr("repoName", repoName)
               .attr("path", diffSet.path)
               .attr("previousPath", diffSet.target_path_previous_version);
@@ -255,12 +264,12 @@ $(document).ready(function() {
               
             } else if (diffSet.source_type === "file") {
               if (diffSet.target_type == null) {
-                repoData = window.p2pdoc_settings.get_repo_by_name(repoName);
+                repoData = window.p2pdoc_settings.get_repo_by_id(repoId);
                 addedDiff.find("#sourceView a").click(viewFileWrapperFunc(repoData.incoming_loc, diffSet.path)).show();
               } else {
                 // there's another file or something that's been reviewed
                 if (diffSet.target_type === "file") {
-                  repoData = window.p2pdoc_settings.get_repo_by_name(repoName);
+                  repoData = window.p2pdoc_settings.get_repo_by_id(repoId);
                   file1 = repoData.incoming_loc + Titanium.Filesystem.getSeparator() + diffSet.path;
                   file2 = window.p2pdoc_settings.reviewed_dir(repoName) + Titanium.Filesystem.getSeparator() + diffSet.target_path_previous_version;
                   addedDiff.find("#changeView a").attr("href", "file-diff.html?file1=" + file1 + "&file2=" + file2).show();
@@ -276,7 +285,7 @@ $(document).ready(function() {
               numFiles = diffSet.contents.length + " " + (diffSet.contents.length == 1 ? "file" : "files");
               addedDiff.find("#diffCount_").attr("id", "diffCount_" + diffNum).html(numFiles);
               // show a link to open in the browser
-              repoData = window.p2pdoc_settings.get_repo_by_name(repoName);
+              repoData = window.p2pdoc_settings.get_repo_by_Id(repoId);
               addedDiff.find("#sourceView a").html("(open file browser)").click(viewFileWrapperFunc(repoData.incoming_loc, diffSet.path)).show();
               // populate the contents
               var fileList = "";
@@ -370,7 +379,7 @@ $(document).ready(function() {
       </h3>
       <div id="diffList">
         <div id="diff_" style="display:none;">
-          <input type="checkbox" id="reviewed_" repo="_" path="_" previousPath="_">
+          <input type="checkbox" id="reviewed_" repoId="_" repoName="_" path="_" previousPath="_">
           <span id="diffPath_">path</span>
           <span id="removed" style="display:none;">(removed)</span>
           <span id="sourceView"><a href="#" style="display:none;">(open)</a></span>

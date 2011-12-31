@@ -103,14 +103,11 @@ settings: initial settings; if nil, @@settings will not be reset
     if (repo == nil)
       reviewed_base_dir
     else
-      if (repo.class.name == "String")
-        # allow the raw name
-        repo = get_repo_by_name(repo)
-      elsif (repo.class.name == "Fixnum")
+      if (repo.class.name == "Fixnum")
         repo = get_repo_by_id(repo)
       end
       if (repo)
-        File.join(reviewed_base_dir, fixed_repo_name(repo['id'].to_s))
+        File.join(reviewed_base_dir, repo['id'].to_s)
       else
         nil
       end
@@ -119,10 +116,6 @@ settings: initial settings; if nil, @@settings will not be reset
 
   def get_repo_by_id(id)
     @@settings['repositories'].find{ |repo| repo['id'] == id }
-  end
-
-  def get_repo_by_name(name)
-    @@settings['repositories'].find{ |repo| repo['name'] == name }
   end
 
   # return repo if the repo was added; otherwise, nil (eg. if all locations are the same as an existing one)
@@ -177,6 +170,8 @@ settings: initial settings; if nil, @@settings will not be reset
       if (File.exist? reviewed_dir(repo))
         # move the old directory so that it's not lost and/or overridden
         archive_base_name = reviewed_dir(repo) + "_archive"
+        #archive_base_name = File.join(File.dirname(rev_dir), "archive_" + File.basename(rev_dir) + "_" + fixed_repo_name(repo['name'])
+        #if (File.exist? archive_base_name)
         count = 0
         while (File.exist? archive_base_name + "_" + count.to_s)
           count = count + 1

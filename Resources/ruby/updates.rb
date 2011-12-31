@@ -60,7 +60,7 @@ class Updates
         result.collect do |repo|
         { 'id' => repo['id'],
           'name' => repo['name'], 
-          'diffs' => versioned_diffs(repo['incoming_loc'], settings.reviewed_dir(repo['name']))
+          'diffs' => versioned_diffs(repo['incoming_loc'], settings.reviewed_dir(repo['id']))
         }
       end
       result.select { |hash| hash['diffs'] != [] }
@@ -464,8 +464,8 @@ class Updates
 
   # marks the subpath in repo['incoming_loc'] as reviewed
   # remove is the previous file, and it will be removed
-  def self.mark_reviewed(settings, repo_name, subpath = nil, remove = nil)
-    repo = settings.get_repo_by_name(repo_name)
+  def self.mark_reviewed(settings, repo_id, subpath = nil, remove = nil)
+    repo = settings.get_repo_by_id(repo_id)
     copy_all_contents(repo['incoming_loc'], settings.reviewed_dir(repo), subpath)
     if (remove != nil)
       FileUtils::remove_entry_secure(File.join(settings.reviewed_dir(repo), remove), true)
@@ -474,8 +474,8 @@ class Updates
 
 
   # copies the subpath in repo['my_loc'] to outgoing
-  def self.copy_to_outgoing(settings, repo_name, source_subpath = nil, target_subpath = nil)
-    repo = settings.get_repo_by_name(repo_name)
+  def self.copy_to_outgoing(settings, repo_id, source_subpath = nil, target_subpath = nil)
+    repo = settings.get_repo_by_id(repo_id)
     copy_all_contents(repo['my_loc'], repo['outgoing_loc'], source_subpath, target_subpath)
     if (repo['outgoing_loc'] == repo['incoming_loc'])
       copy_all_contents(repo['outgoing_loc'], settings.reviewed_dir(repo), target_subpath, target_subpath)

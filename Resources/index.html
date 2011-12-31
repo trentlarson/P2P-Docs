@@ -36,6 +36,7 @@ function startApp() {
   //Titanium.UI.getWindows()[0].showInspector(true);
   //Titanium.API.print("to console\n");
   
+  /** This doesn't work: gotta save and retrieve the version from our settings.
   if (parseFloat(Titanium.App.getVersion()) < 8.0) {
     settingsFile = window.p2pdoc_settings.settings_file().toString();
     reviewedDir = window.p2pdoc_settings.reviewed_base_dir().toString();
@@ -48,6 +49,7 @@ function startApp() {
       Titanium.App.exit();
     }
   }
+  **/
   
   // run the node server
   var platform = Titanium.getPlatform();

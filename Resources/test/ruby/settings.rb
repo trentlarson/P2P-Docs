@@ -35,13 +35,13 @@ class SettingsTest
   # and delete the old test directories and create new ones based on the given data.
   def setup_settings(settings_data)
 
-    @settings.properties['repositories'].each{ |repo| @settings.remove_repo(repo['id']) }
-    @settings.replace(settings_data)
-
     # set up the directory structure
     if (settings_data['repositories'] != nil)
+      
+      @settings.properties['repositories'].each{ |repo| @settings.remove_repo(repo['id']) }
+      
       settings_data['repositories'].each do |repo|
-        TestUtils.make_repo_dirs(repo)
+        TestUtils.add_repo2(@settings, repo)
       end
     end
   end
@@ -72,7 +72,7 @@ class SettingsTest
     puts "fail: didn't create reviewed folder" if !(File.exist? @settings.reviewed_dir(repo))
     puts "fail: didn't get reviewed folder for ID" if !@settings.reviewed_dir(repo_id)
     @settings.remove_repo(repo_id)
-    puts "fail: didn't remove reviewed folder" if @settings.reviewed_dir(repo_name) && File.exist?(@settings.reviewed_dir(repo_name))
+    puts "fail: didn't remove reviewed folder" if @settings.reviewed_dir(repo_id) && File.exist?(@settings.reviewed_dir(repo_id))
     
     repo = @settings.add_repo(repo_name, @test_data_dir + "/some/funky/dir")
     repo_id = repo['id']
@@ -146,6 +146,14 @@ class SettingsTest
 
 
   def test_versioned_diffs
+    
+    file = "0"
+    match = Updates.match_numeric_suffix(file)
+    puts "fail: bad match: #{file} => #{match}" if match != nil
+    
+    file = "123.txt"
+    match = Updates.match_numeric_suffix(file)
+    puts "fail: bad match: #{file} => #{match}" if match != nil
     
     file = "file_abc.txt"
     match = Updates.match_numeric_suffix(file)
@@ -473,7 +481,7 @@ class SettingsTest
     # This test shows how it doesn't work yet to point to a file as the source repo.
     # The problem is strange: the File.exist? check fails on the reviewed directory.
     repo_test_file = {'name'=>'test file', 'incoming_loc'=>File.join(@test_data_dir, 'sources', 'a_file.txt')}
-    @settings.replace({'repositories'=>[repo_test_file]})
+    setup_settings({'repositories'=>[repo_test_file]})
     puts "fail: repo file, where neither exists: #{all_repo_diffs}" if all_repo_diffs != []
     File.open(repo_test_file['incoming_loc'], 'w') do |out|
       out.write "Hey batta batta!\n"
@@ -491,14 +499,14 @@ class SettingsTest
 
 
     repo_test0 = {'id' => 0, 'name'=>'test 0', 'incoming_loc'=>nil}
-    @settings.replace({'repositories'=>[repo_test0]})
+    setup_settings({'repositories'=>[repo_test0]})
     all_repo_diffs = Updates.all_repo_diffs(@settings)
     puts "fail: diffs on repo w/o incoming: #{all_repo_diffs.inspect}" if all_repo_diffs != []
 
 
 
     repo_test0 = {'id' => 0, 'name'=>'test 0', 'incoming_loc'=>File.join(@test_data_dir, 'sources', 'hacked')}
-    @settings.replace({'repositories'=>[repo_test0]})
+    setup_settings({'repositories'=>[repo_test0]})
     FileUtils.mkdir_p(repo_test0['incoming_loc'])
     FileUtils.mkdir_p(@settings.reviewed_dir(repo_test0))
     all_repo_diffs = Updates.all_repo_diffs(@settings)
@@ -507,7 +515,7 @@ class SettingsTest
 
 
     repo_test1 = {'id' => 1, 'name'=>'test 1', 'incoming_loc'=>File.join(@test_data_dir, 'sources', 'hacked-again')}
-    @settings.replace({'repositories'=>[repo_test0, repo_test1]})
+    setup_settings({'repositories'=>[repo_test0, repo_test1]})
     FileUtils.mkdir_p(repo_test1['incoming_loc'])
     FileUtils.mkdir_p(@settings.reviewed_dir(repo_test1))
     all_repo_diffs = Updates.all_repo_diffs(@settings)
@@ -521,9 +529,10 @@ class SettingsTest
     puts "fail: not one empty file: #{all_repo_diffs.inspect}" if all_repo_diffs !=
       [{"id"=>0, "name"=>"test 0", "diffs"=>[{"path"=>"sample.txt", "source_type"=>"file", "target_type"=>nil, "target_path_previous_version"=>nil, "target_path_next_version"=>"sample.txt", "contents"=>nil}]}]
 
-    Updates.mark_reviewed(@settings, 'test 0', 'sample.txt')
+    Updates.mark_reviewed(@settings, 0, 'sample.txt')
     all_repo_diffs = Updates.all_repo_diffs(@settings)
-    puts "fail: after review: #{all_repo_diffs.inspect}" if all_repo_diffs != []
+    puts "fail: after review #{@settings.properties}: #{all_repo_diffs.inspect}" if all_repo_diffs != []
+exit 1
 
 
 
@@ -534,7 +543,7 @@ class SettingsTest
     puts "fail: one file with different content size: #{all_repo_diffs.inspect}" if all_repo_diffs !=
       [{"id"=>0, "name"=>"test 0", "diffs"=>[{"path"=>"sample.txt", "source_type"=>"file", "target_type"=>"file", "target_path_previous_version"=>"sample.txt", "target_path_next_version"=>"sample.txt", "contents"=>nil}]}]
 
-    Updates.mark_reviewed(@settings, 'test 0', 'sample.txt')
+    Updates.mark_reviewed(@settings, 0, 'sample.txt')
     all_repo_diffs = Updates.all_repo_diffs(@settings)
     puts "fail: different files: #{all_repo_diffs.inspect}" if all_repo_diffs != []
 
@@ -549,7 +558,7 @@ class SettingsTest
     puts "fail: one file with same size but different mtime: #{all_repo_diffs.inspect}" if all_repo_diffs !=
       [{"id"=>0, "name"=>"test 0", "diffs"=>[{"path"=>"sample.txt", "source_type"=>"file", "target_type"=>"file", "target_path_previous_version"=>"sample.txt", "target_path_next_version"=>"sample.txt", "contents"=>nil}]}]
 
-    Updates.mark_reviewed(@settings, 'test 0', 'sample.txt')
+    Updates.mark_reviewed(@settings, 0, 'sample.txt')
     all_repo_diffs = Updates.all_repo_diffs(@settings)
     puts "fail: different files: #{all_repo_diffs.inspect}" if all_repo_diffs != []
     source_mtime = File.mtime(File.join(repo_test0['incoming_loc'], "sample.txt"))
@@ -562,7 +571,7 @@ class SettingsTest
       out.write "mitch\n"
     end
     File.new(File.join(repo_test1['incoming_loc'], '1_sample.txt'), 'w')
-    Updates.mark_reviewed(@settings, 'test 1', '1_sample.txt')
+    Updates.mark_reviewed(@settings, 1, '1_sample.txt')
     File.open(File.join(repo_test1['incoming_loc'], '1_sample.txt'), 'w') do |out|
       out.write "yabba dabba doo\n"
     end
@@ -571,8 +580,8 @@ class SettingsTest
       [{"id"=>0, "name"=>"test 0", "diffs"=>[{"path"=>"sample.txt", "source_type"=>"file", "target_type"=>"file", "target_path_previous_version"=>"sample.txt", "target_path_next_version"=>"sample.txt", "contents"=>nil}]},
        {"id"=>1, "name"=>"test 1", "diffs"=>[{"path"=>"1_sample.txt", "source_type"=>"file", "target_type"=>"file", "target_path_previous_version"=>"1_sample.txt", "target_path_next_version"=>"1_sample.txt", "contents"=>nil}]}]
 
-    Updates.mark_reviewed(@settings, 'test 0', 'sample.txt')
-    Updates.mark_reviewed(@settings, 'test 1', '1_sample.txt')
+    Updates.mark_reviewed(@settings, 0, 'sample.txt')
+    Updates.mark_reviewed(@settings, 1, '1_sample.txt')
     all_repo_diffs = Updates.all_repo_diffs(@settings)
     puts "fail: no different files: #{all_repo_diffs.inspect}" if all_repo_diffs != []
 
@@ -595,7 +604,7 @@ class SettingsTest
          [{"path"=>"a_sub_dir", "source_type"=>"directory", "target_type"=>nil,
             "target_path_previous_version"=>nil, "target_path_next_version"=>'a_sub_dir', "contents"=>['a_sample.txt']}]}]
 
-    Updates.mark_reviewed(@settings, 'test 0', a_filename)
+    Updates.mark_reviewed(@settings, 0, a_filename)
     all_repo_diffs = Updates.all_repo_diffs(@settings)
     puts "fail: all synched up again: #{all_repo_diffs.inspect}" if all_repo_diffs != []
 
@@ -624,8 +633,8 @@ class SettingsTest
                          File.join("11_sub_dir", "111_sub_dir", '1_sample2.txt'),
                          File.join("11_sub_dir", "112_sub_dir", '1121_sub_dir', '1_sample3.txt')]}]}]
 
-    Updates.mark_reviewed(@settings, 'test 1', File.join(deeper1, "1_sample.txt"))
-    Updates.mark_reviewed(@settings, 'test 1', File.join(deeper1, "1_sample2.txt"))
+    Updates.mark_reviewed(@settings, 1, File.join(deeper1, "1_sample.txt"))
+    Updates.mark_reviewed(@settings, 1, File.join(deeper1, "1_sample2.txt"))
     all_repo_diffs = Updates.all_repo_diffs(@settings)
     puts "fail: source files in deep sources: #{all_repo_diffs.inspect}" if all_repo_diffs !=
       [{"id"=>1, "name"=>"test 1",
@@ -654,11 +663,11 @@ class SettingsTest
             "target_path_next_version"=>File.join("1_sub_dir", "11_sub_dir", "sample.txt"),
             "contents"=>nil}]}]
 
-    Updates.mark_reviewed(@settings, 'test 1', File.join('1_sub_dir', '11_sub_dir'))
+    Updates.mark_reviewed(@settings, 1, File.join('1_sub_dir', '11_sub_dir'))
     all_repo_diffs = Updates.all_repo_diffs(@settings)
     puts "fail: reviewed directory in deep sources: #{all_repo_diffs.inspect}" if all_repo_diffs != []
 
-    Updates.mark_reviewed(@settings, 'test 1', File.join('1_sub_dir', '11_sub_dir', 'sample.txt'))
+    Updates.mark_reviewed(@settings, 1, File.join('1_sub_dir', '11_sub_dir', 'sample.txt'))
     all_repo_diffs = Updates.all_repo_diffs(@settings)
     puts "fail: reviewed removed file: #{all_repo_diffs.inspect}" if all_repo_diffs != []
 
@@ -678,7 +687,7 @@ class SettingsTest
                          "111_sub_dir/1_sample2.txt",
                          "112_sub_dir/1121_sub_dir/1_sample3.txt"]}]}]
 
-    Updates.mark_reviewed(@settings, 'test 1', File.join('1_sub_dir', '11_sub_dir'))
+    Updates.mark_reviewed(@settings, 1, File.join('1_sub_dir', '11_sub_dir'))
     all_repo_diffs = Updates.all_repo_diffs(@settings)
     puts "fail: reviewed entire subdirectory: #{all_repo_diffs.inspect}" if all_repo_diffs != []
 
@@ -692,7 +701,7 @@ class SettingsTest
       [{"id"=>1, "name"=>"test 1",
          "diffs"=>[{"path"=>"1_sub_dir", "source_type"=>"file", "target_type"=>"directory", "target_path_previous_version"=>"1_sub_dir", "target_path_next_version"=>"1_sub_dir", "contents"=>[]}]}]
 
-    Updates.mark_reviewed(@settings, 'test 1', '1_sub_dir')
+    Updates.mark_reviewed(@settings, 1, '1_sub_dir')
     all_repo_diffs = Updates.all_repo_diffs(@settings)
     puts "fail: reviewed file replaced dir: #{all_repo_diffs.inspect}" if all_repo_diffs != []
 
@@ -708,7 +717,7 @@ class SettingsTest
          "diffs"=>
          [{"path"=>"1_sub_dir", "source_type"=>"directory", "target_type"=>"file", "target_path_previous_version"=>"1_sub_dir", "target_path_next_version"=>"1_sub_dir", "contents"=>["1_sample.txt"]}]}]
 
-    Updates.mark_reviewed(@settings, 'test 1', '1_sub_dir')
+    Updates.mark_reviewed(@settings, 1, '1_sub_dir')
     all_repo_diffs = Updates.all_repo_diffs(@settings)
     puts "fail: reviewed dir replaced file: #{all_repo_diffs.inspect}" if all_repo_diffs != []
 
@@ -745,7 +754,7 @@ class SettingsTest
       [{"id"=>1, "name"=>"test 1",
          "diffs"=>[{"path"=>"1_sub_dir/1_sample.txt", "source_type"=>"file", "target_type"=>"link", "target_path_previous_version"=>"1_sub_dir/1_sample.txt", "target_path_next_version"=>"1_sub_dir/1_sample.txt", "contents"=>nil}]}]
 
-    Updates.mark_reviewed(@settings, 'test 1', '1_sub_dir')
+    Updates.mark_reviewed(@settings, 1, '1_sub_dir')
     all_repo_diffs = Updates.all_repo_diffs(@settings)
     puts "fail: reviewed dir replaced file: #{all_repo_diffs.inspect}" if all_repo_diffs != []
     
@@ -793,7 +802,7 @@ class SettingsTest
     puts "fail: added incoming: #{all_repo_diffs.inspect}" if all_repo_diffs !=
       [{"id"=>0, "name"=>"test out 0", "diffs"=>[{"path"=>"sample.txt", "source_type"=>"file", "target_type"=>nil, "target_path_previous_version"=>nil, "target_path_next_version"=>"sample.txt", "contents"=>nil}]}]
     
-    Updates.mark_reviewed(@settings, 'test out 0')
+    Updates.mark_reviewed(@settings, 0)
     all_repo_diffs = Updates.all_repo_diffs(@settings)
     puts "fail: all reviewed: #{all_repo_diffs.inspect}" if all_repo_diffs != []
     
@@ -805,7 +814,7 @@ class SettingsTest
     puts "fail: must copy out: #{all_out_diffs.inspect}" if all_out_diffs !=
       [{"id"=>0, "name"=>"test out 0", "diffs"=>[{"path"=>"sample.txt", "source_type"=>"file", "target_type"=>nil, "target_path_previous_version"=>nil, "target_path_next_version"=>"sample_0.txt", "contents"=>nil}]}]
 
-    Updates.copy_to_outgoing(@settings, 'test out 0')
+    Updates.copy_to_outgoing(@settings, 0)
     all_out_diffs = Updates.all_outgoing_diffs(@settings)
     puts "fail: all copied out: #{all_out_diffs.inspect}" if all_out_diffs != []
     
@@ -825,8 +834,8 @@ class SettingsTest
          [{"path"=>"sample_4", "source_type"=>"file", "target_type"=>nil, "target_path_previous_version"=>nil, "target_path_next_version"=>'sample_4', "contents"=>nil},
           {"path"=>"sample5", "source_type"=>"file", "target_type"=>nil, "target_path_previous_version"=>nil, "target_path_next_version"=>'sample5', "contents"=>nil}]}]
     
-    Updates.mark_reviewed(@settings, 'test out 0', "sample_4")
-    Updates.mark_reviewed(@settings, 'test out 0', "sample5")
+    Updates.mark_reviewed(@settings, 0, "sample_4")
+    Updates.mark_reviewed(@settings, 0, "sample5")
     all_repo_diffs = Updates.all_repo_diffs(@settings)
     puts "fail: all synched up: #{all_repo_diffs.inspect}" if all_repo_diffs != []
     
@@ -845,8 +854,8 @@ class SettingsTest
          [{"path"=>"sample_4", "source_type"=>"file", "target_type"=>"file", "target_path_previous_version"=>"sample_4", "target_path_next_version"=>'sample_4', "contents"=>nil},
           {"path"=>"sample5", "source_type"=>"file", "target_type"=>"file", "target_path_previous_version"=>"sample5", "target_path_next_version"=>'sample5', "contents"=>nil}]}]
     
-    Updates.mark_reviewed(@settings, 'test out 0', "sample_4")
-    Updates.mark_reviewed(@settings, 'test out 0', "sample5")
+    Updates.mark_reviewed(@settings, 0, "sample_4")
+    Updates.mark_reviewed(@settings, 0, "sample5")
     all_repo_diffs = Updates.all_repo_diffs(@settings)
     puts "fail: all synched up again: #{all_repo_diffs.inspect}" if all_repo_diffs != []
     
@@ -862,7 +871,7 @@ class SettingsTest
         "diffs" =>
          [{"path"=>"sample_5", "source_type"=>"file", "target_type"=>nil, "target_path_previous_version"=>"sample_4", "target_path_next_version"=>'sample_5', "contents"=>nil}]}]
     
-    Updates.mark_reviewed(@settings, 'test out 0', "sample_5", "sample_4")
+    Updates.mark_reviewed(@settings, 0, "sample_5", "sample_4")
     all_repo_diffs = Updates.all_repo_diffs(@settings)
     puts "fail: all synched up again, too: #{all_repo_diffs.inspect}" if all_repo_diffs != []
     
@@ -898,7 +907,7 @@ class SettingsTest
     
     
     # ... and then let's review one
-    Updates.mark_reviewed(@settings, 'test out 0', 'sample_2.txt', 'sample.txt')
+    Updates.mark_reviewed(@settings, 0, 'sample_2.txt', 'sample.txt')
     all_repo_diffs = Updates.all_repo_diffs(@settings)
     puts "fail: versioned incoming 4 reviewed: #{all_repo_diffs.inspect}" if all_repo_diffs !=
       [{"id"=>0, "name"=>"test out 0",
@@ -954,8 +963,8 @@ class SettingsTest
     puts "fail: versioned incoming 16: #{result.inspect}" if result != expected
     
     
-    Updates.mark_reviewed(@settings, 'test out 0', 'sample_4.txt')
-    Updates.mark_reviewed(@settings, 'test out 0', 'sample2_4.txt')
+    Updates.mark_reviewed(@settings, 0, 'sample_4.txt')
+    Updates.mark_reviewed(@settings, 0, 'sample2_4.txt')
     result = Updates.all_repo_diffs(@settings)
     expected = 
       [{"id"=>0, "name"=>"test out 0", 
@@ -966,7 +975,7 @@ class SettingsTest
     puts "fail: versioned incoming accepted 4: #{result.inspect}" if result != expected
     
     
-    Updates.mark_reviewed(@settings, 'test out 0', 'sample_8.txt', 'sample_4.txt')
+    Updates.mark_reviewed(@settings, 0, 'sample_8.txt', 'sample_4.txt')
     result = Updates.all_repo_diffs(@settings)
     expected = 
       [{"id"=>0, "name"=>"test out 0", 
@@ -977,7 +986,7 @@ class SettingsTest
     
     
     
-    FileUtils.cp_r(File.join(@settings.reviewed_dir('test out 0'), 'sample_8.txt'), File.join(repo_test0['my_loc'], 'my_sample.txt'))
+    FileUtils.cp_r(File.join(@settings.reviewed_dir(0), 'sample_8.txt'), File.join(repo_test0['my_loc'], 'my_sample.txt'))
     all_repo_diffs = Updates.all_outgoing_diffs(@settings)
     puts "fail: versioned outgoing: #{all_repo_diffs.inspect}" if all_repo_diffs !=
       [{"id"=>0, "name"=>"test out 0", "diffs"=>
@@ -985,27 +994,27 @@ class SettingsTest
     
     
     # in the program this will copy to my_sample_0.txt, but we'll do my_sample.txt just for testing
-    Updates.copy_to_outgoing(@settings, 'test out 0', 'my_sample.txt')
+    Updates.copy_to_outgoing(@settings, 0, 'my_sample.txt')
     all_repo_diffs = Updates.all_outgoing_diffs(@settings)
     puts "fail: versioned outgoing after copy 8: #{all_repo_diffs.inspect}" if all_repo_diffs != []
     
     
-    Updates.mark_reviewed(@settings, 'test out 0', 'sample_16.txt', 'sample_8.txt')
+    Updates.mark_reviewed(@settings, 0, 'sample_16.txt', 'sample_8.txt')
     result = Updates.all_repo_diffs(@settings)
     expected = []
     puts "fail: versioned incoming accepted 16: #{result.inspect}" if result != expected
-    puts "fail: versioned incoming reviewed not gone" if File.exist? File.join(@settings.reviewed_dir('test out 0'), "sample_8.txt")
+    puts "fail: versioned incoming reviewed not gone" if File.exist? File.join(@settings.reviewed_dir(0), "sample_8.txt")
     
     
     # copy that reviewed info into my own copy
-    FileUtils.cp_r(File.join(@settings.reviewed_dir('test out 0'), 'sample_16.txt'), File.join(repo_test0['my_loc'], 'my_sample.txt'))
+    FileUtils.cp_r(File.join(@settings.reviewed_dir(0), 'sample_16.txt'), File.join(repo_test0['my_loc'], 'my_sample.txt'))
     all_repo_diffs = Updates.all_outgoing_diffs(@settings)
     puts "fail: versioned outgoing after copy 16: #{all_repo_diffs.inspect}" if all_repo_diffs !=
       [{"id"=>0, "name"=>"test out 0", "diffs"=>
         [{"path"=>"my_sample.txt", "source_type"=>"file", "target_type"=>"file", "target_path_previous_version"=>"my_sample.txt", "target_path_next_version"=>"my_sample_0.txt", "contents"=>nil}]}]
     
     
-    Updates.copy_to_outgoing(@settings, 'test out 0', 'my_sample.txt', 'my_sample_0.txt')
+    Updates.copy_to_outgoing(@settings, 0, 'my_sample.txt', 'my_sample_0.txt')
     all_repo_diffs = Updates.all_outgoing_diffs(@settings)
     puts "fail: versioned outgoing after 16 pushed out: #{all_repo_diffs.inspect}" if all_repo_diffs != []
     puts "fail: versioned outgoing after 16 pushed out not created" if not File.exist? File.join(repo_test0['outgoing_loc'], 'my_sample_0.txt')
@@ -1024,7 +1033,7 @@ class SettingsTest
          {"path"=>"our_sample_3.txt", "source_type"=>"file", "target_type"=>nil, "target_path_previous_version"=>nil, "target_path_next_version"=>"our_sample_3_0.txt", "contents"=>nil}]}]
     
     
-    Updates.copy_to_outgoing(@settings, 'test out 0', 'our_sample_3.txt')
+    Updates.copy_to_outgoing(@settings, 0, 'our_sample_3.txt')
     result = Updates.all_outgoing_diffs(@settings)
     puts "fail: versioned outgoing pushed after another change: #{result.inspect}" if result !=
       [{"id"=>0, "name"=>"test out 0", "diffs"=>
@@ -1040,7 +1049,7 @@ class SettingsTest
       [{"id"=>0, "name"=>"test out 0",
         "diffs"=>[{"path"=>"our_sample_3.txt", "source_type"=>"file", "target_type"=>nil, "target_path_previous_version"=>nil, "target_path_next_version"=>"our_sample_3_0.txt", "contents"=>nil},
                   {"path"=>"sample.txt", "source_type"=>"file", "target_type"=>"file", "target_path_previous_version"=>"sample_16.txt", "target_path_next_version"=>"sample_17.txt", "contents"=>nil}]}]
-    Updates.copy_to_outgoing(@settings, 'test out 0', 'sample.txt', 'sample_17.txt')
+    Updates.copy_to_outgoing(@settings, 0, 'sample.txt', 'sample_17.txt')
     result = Updates.all_repo_diffs(@settings)
     puts "fail: versioned incoming after outgoing pushed: #{result.inspect}" if result != []
     
@@ -1062,8 +1071,8 @@ class SettingsTest
         "diffs"=>[{"path"=>"second.txt", "source_type"=>"file", "target_type"=>nil, "target_path_previous_version"=>nil, "target_path_next_version"=>"second.txt", "contents"=>nil}]}]
     
     
-    Updates.copy_to_outgoing(@settings, 'test out 0', 'our_sample_3.txt', 'our_sample_3_0.txt')
-    Updates.copy_to_outgoing(@settings, 'test out 2nd', 'second.txt')
+    Updates.copy_to_outgoing(@settings, 0, 'our_sample_3.txt', 'our_sample_3_0.txt')
+    Updates.copy_to_outgoing(@settings, 1, 'second.txt')
     result = Updates.all_outgoing_diffs(@settings)
     puts "fail: second repo changes accepted: #{result}" if result != []
     puts "fail: first repo version doesn't exist" if not File.exist? File.join(repo_test0['outgoing_loc'], 'our_sample_3_0.txt')
@@ -1091,10 +1100,10 @@ class SettingsTest
                   {"path"=>"third_3", "source_type"=>"file", "target_type"=>nil, "target_path_previous_version"=>nil, "target_path_next_version"=>"third_3", "contents"=>nil}]}]
     
     
-    Updates.copy_to_outgoing(@settings, 'test out 0', 'our_sample_3.txt', 'our_sample_3_1.txt')
-    Updates.copy_to_outgoing(@settings, 'test out 2nd', 'second.txt')
-    Updates.copy_to_outgoing(@settings, 'test out 2nd', 'third_3')
-    Updates.copy_to_outgoing(@settings, 'test out 2nd', 'fourth')
+    Updates.copy_to_outgoing(@settings, 0, 'our_sample_3.txt', 'our_sample_3_1.txt')
+    Updates.copy_to_outgoing(@settings, 1, 'second.txt')
+    Updates.copy_to_outgoing(@settings, 1, 'third_3')
+    Updates.copy_to_outgoing(@settings, 1, 'fourth')
     result = Updates.all_outgoing_diffs(@settings)
     puts "fail: later first & second repo more changes accepted #{result}" if result != []
     puts "fail: later first repo version doesn't exist" if not File.exist? File.join(repo_test0['outgoing_loc'], 'our_sample_3_0.txt')
@@ -1116,9 +1125,9 @@ class SettingsTest
     
 end
 
-SettingsTest.new.run # run all test_* methods
 #SettingsTest.new.test_simple_json
 #SettingsTest.new.test_versioned_diffs
 #SettingsTest.new.test_repo_creation
 #SettingsTest.new.test_basic_diffs
 #SettingsTest.new.test_full_workflow
+SettingsTest.new.run # run all test_* methods
