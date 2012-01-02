@@ -1,6 +1,8 @@
 var server,
   http      = require('http'),
   sys       = require("sys"),
+  urlLib    = require("url"),
+  sqliteLib = require("sqlite-osx"),
   GitHubApi = require("github").GitHubApi,
   github    = new GitHubApi(true),
   githubUserOfConcern = 'appcelerator';
@@ -85,22 +87,66 @@ var getProfile = function(req, resp) {
   }
 };
 
+
+var checkDatabase = function(req, resp) {
+  var urlElems = urlLib.parse(req.url, true);
+  if (urlElems.query.path) {
+    var db = new sqliteLib.Database();
+    var dbPath = urlElems.query.path;
+    db.open(dbPath, function(error) {
+      if (error) { throw "Error opening genealogy DB: " + error; }
+      db.prepare("SELECT id, father_id, mother_id, ext_ids FROM genealogy", function(error, statement) {
+        if (error) { throw "Error selecting from genealogy: " + error; }
+        statement.fetchAll(function (error, rows) {
+          if (error) { throw "Error fetching from genealogy: " + error; }
+          //console.log("Yep, got your stuff " + rows[0].id + " " + rows[0].father_id + " " + rows[0].mother_id + " " + rows[0].ext_ids);
+          resp.write(JSON.stringify(rows));
+          resp.end();
+          statement.finalize(function(error) {
+            if (error) { throw "Error finalizing genealogy statement: " + error; }
+            db.close(function(error) {
+              if (error) { throw "Error closing genealogy DB: " + error; }
+            });
+          });
+        });
+      });
+    });
+  } else {
+    resp.writeHead(400, {"Content-Type": "text/plain"});  
+    resp.write("400 Bad Request\n");
+    resp.end(); 
+  }
+}
+
 server = http.createServer(function (req, resp) {
   resp.writeHead(200, {'Content-Type': 'text/plain'});
   
   if (req.url === '/get_followers') {
+    // This is just from the node sample.
     getFollowers(req, resp);
   } else if (req.url === '/get_repos') {
+    // This is just from the node sample.
     getRepos(req, resp);
   } else if (req.url.indexOf('/get_repo_watchers') === 0) {
+    // This is just from the node sample.
     getRepoWatchers(req, resp);
   } else if (req.url.indexOf('/get_profile') === 0) {
+    // This is just from the node sample.
     getProfile(req, resp);
+
+  } else if (req.url.indexOf('/check_database') === 0) {
+    try {
+      checkDatabase(req, resp);
+    } catch (e) {
+      resp.writeHead(500, {"Content-Type": "text/plain"});  
+      resp.write("500 Server Error: " + e + "\n");  
+      resp.end();
+    }
+    
   } else {
     resp.writeHead(404, {"Content-Type": "text/plain"});  
-        resp.write("404 Not Found\n");  
-        resp.end(); 
-        return;
+    resp.write("404 Not Found\n");  
+    resp.end(); 
   }
 }).listen(1338, "127.0.0.1");
 

@@ -119,6 +119,8 @@ Development Setup:
 User Story Details, By Priority
 --------------------
 
+ * import "tree-of-interest" (by GEDCOM file, or better one individual's ancestry GEDCOM file), then search incoming files for new matches
+ * store non-diffable (or ignored) files in DB rather than keeping copy of everything in reviewed
  * Doc Changes
  * remove the static Ruby class variable that's not static (in settings.rb)
  * only keep copies of selected files (not all of them)
