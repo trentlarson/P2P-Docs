@@ -119,9 +119,11 @@ Development Setup:
 User Story Details, By Priority
 --------------------
 
- * import "tree-of-interest" (by GEDCOM file, or better one individual's ancestry GEDCOM file), then search incoming files for new matches
+ * import "tree-of-interest" (by GEDCOM file, or, better, one individual's ancestry GEDCOM file), then search incoming files for new matches
+   * index tree-of-interest into DB
+   * search files for data within tree
+   * mark interesting files
  * store non-diffable (or ignored) files in DB rather than keeping copy of everything in reviewed
- * Doc Changes
  * remove the static Ruby class variable that's not static (in settings.rb)
  * only keep copies of selected files (not all of them)
  * default to versioned files, but allow to overwrite (both incoming and outgoing)
@@ -155,6 +157,8 @@ Externalities
  * binoculars-raw.32.png by DaPino; see http://www.iconarchive.com/show/fishing-equipment-icons-by-dapino/binoculars-icon.html
  * rss-feed-raw.jpg by Carl Newton: http://carlnewton.deviantart.com/art/RSS-Icon-37808083 via http://wonderful-tricks.blogspot.com/2009/05/collection-of-free-rss-feed-icons.html
  * rss-feed-raw2.jpg by burnsflipper: http://burnsflipper.deviantart.com/art/MyCircles-RSS-Icon-40357449 via http://wonderful-tricks.blogspot.com/2009/05/collection-of-free-rss-feed-icons.html
+ * anim-flower.gif by ajaxload.info
+ * button-green-solid.16.png by OCAL: http://www.clker.com/clipart-2590.html
 
 Other Commentary
 ----------------

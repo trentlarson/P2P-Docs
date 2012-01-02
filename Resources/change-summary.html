@@ -171,11 +171,6 @@ $(document).ready(function() {
   var errorDetails = {};
   try {
     
-    $.get('http://127.0.0.1:1338/check_database?path=' + escape(Titanium.App.Properties.getString("genealogy_db_path")), function(data) {
-      Titanium.API.print("Got something from database: " + data + "\n");
-    }).error(function(error){p2pdocsHandleError(error, {"path": Titanium.App.Properties.getString("genealogy_db_path")});});
-  
-    
     if (window.p2pdoc_settings.properties().repositories.length > 0) {
       $('#noRepos').hide();
       
@@ -337,6 +332,11 @@ $(document).ready(function() {
       });
     }
 
+    $.get('http://127.0.0.1:1338/check_database?path=' + escape(Titanium.App.Properties.getString("genealogy_db_path")), function(data) {
+      $('#incomingSearchProgress').hide(1000, function() { $('#incomingSearchDone').show(1000); });
+      Titanium.API.print("Got something from database: " + data + "\n");
+    }).error(function(error){p2pdocsHandleError(error, {"path": Titanium.App.Properties.getString("genealogy_db_path")});});
+  
   } catch (e) {
     p2pdocsHandleError(e, errorDetails);
   }
@@ -374,6 +374,8 @@ $(document).ready(function() {
 <div id="inChanges" style="display:none;">
   <span><strong>Here are incoming changes that you haven't reviewed.</strong></span>
   <br/>
+  <span id="incomingSearchProgress">&nbsp;&nbsp;&nbsp;Searching for references in your tree-of-interest... <img src="images/anim-flower.gif"></span>
+  <span id="incomingSearchDone" style="display:none;">&nbsp;&nbsp;&nbsp;<img src="images/button-green-solid.16.png"> - Files that contain info for you</span>
   <div id="repoList">
     <div id="repo_" style="display:none;">
       <h3 class="panelHeader">
