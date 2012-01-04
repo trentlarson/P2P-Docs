@@ -333,12 +333,8 @@ $(document).ready(function() {
     }
 
     $.get('http://127.0.0.1:1338/check_database?path=' + escape(Titanium.App.Properties.getString("genealogy_db_path")), function(data) {
-      Titanium.API.print("Got something from database: " + data + "\n");
-    }).error(function(error){p2pdocsHandleError(error, {"path": Titanium.App.Properties.getString("genealogy_db_path")});});
-  
-    $.post("http://127.0.0.1:1339/check_database", {"path": Titanium.App.Properties.getString("genealogy_db_path"), "incomingFiles":"/Users/tlarson/dl/music.html"}, function(data) {
       $('#incomingSearchProgress').hide(1000, function() { $('#incomingSearchDone').show(1000); });
-      Titanium.API.print("Got something from database 2: " + data + "\n");
+      Titanium.API.print("Got something from database: " + data + "\n");
     }).error(function(error){p2pdocsHandleError(error, {"path": Titanium.App.Properties.getString("genealogy_db_path")});});
   
   } catch (e) {

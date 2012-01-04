@@ -1,5 +1,4 @@
 var server,
-  express   = require("express"),
   http      = require('http'),
   sys       = require("sys"),
   urlLib    = require("url"),
@@ -119,35 +118,6 @@ var checkDatabase = function(req, resp) {
   }
 }
 
-var checkDatabase2 = function(req, resp) {
-  if (req.body.path
-      && req.body.incomingFiles) {
-    var db = new sqliteLib.Database();
-    var dbPath = req.body.path;
-    db.open(dbPath, function(error) {
-      if (error) { throw "Error opening genealogy DB: " + error; }
-      db.prepare("SELECT id, father_id, mother_id, ext_ids FROM genealogy", function(error, statement) {
-        if (error) { throw "Error selecting from genealogy: " + error; }
-        statement.fetchAll(function (error, rows) {
-          if (error) { throw "Error fetching from genealogy: " + error; }
-          //console.log("Yep, got your stuff " + rows[0].id + " " + rows[0].father_id + " " + rows[0].mother_id + " " + rows[0].ext_ids);
-          resp.send(JSON.stringify(rows));
-          statement.finalize(function(error) {
-            if (error) { throw "Error finalizing genealogy statement: " + error; }
-            db.close(function(error) {
-              if (error) { throw "Error closing genealogy DB: " + error; }
-            });
-          });
-        });
-      });
-    });
-  } else {
-    resp.writeHead(400, {"Content-Type": "text/plain"});  
-    resp.write("400 Bad Request\n");
-    resp.end(); 
-  }
-}
-
 server = http.createServer(function (req, resp) {
   resp.writeHead(200, {'Content-Type': 'text/plain'});
   
@@ -168,23 +138,16 @@ server = http.createServer(function (req, resp) {
     try {
       checkDatabase(req, resp);
     } catch (e) {
-      resp.writeHead(500, {"Content-Type": "text/plain"});
-      resp.write("500 Server Error: " + e + "\n");
+      resp.writeHead(500, {"Content-Type": "text/plain"});  
+      resp.write("500 Server Error: " + e + "\n");  
       resp.end();
     }
     
   } else {
-    resp.writeHead(404, {"Content-Type": "text/plain"});
-    resp.write("404 Not Found\n");
-    resp.end();
+    resp.writeHead(404, {"Content-Type": "text/plain"});  
+    resp.write("404 Not Found\n");  
+    resp.end(); 
   }
 }).listen(1338, "127.0.0.1");
-
-var server2 = express.createServer();
-server2.use(express.bodyParser());
-server2.post('/check_database', function(req, res) {
-  checkDatabase2(req, res);
-});
-server2.listen(1339);
 
 console.log('NodeJS server now running at http://127.0.0.1:1338/');
