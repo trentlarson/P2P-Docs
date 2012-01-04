@@ -1,6 +1,7 @@
 var server,
   http      = require('http'),
   sys       = require("sys"),
+  qsLib     = require('querystring');
   urlLib    = require("url"),
   sqliteLib = require("sqlite-osx"),
   GitHubApi = require("github").GitHubApi,
@@ -87,25 +88,29 @@ var getProfile = function(req, resp) {
   }
 };
 
-
 var checkDatabase = function(req, resp) {
-  var urlElems = urlLib.parse(req.url, true);
-  if (urlElems.query.path) {
-    var db = new sqliteLib.Database();
-    var dbPath = urlElems.query.path;
-    db.open(dbPath, function(error) {
-      if (error) { throw "Error opening genealogy DB: " + error; }
-      db.prepare("SELECT id, father_id, mother_id, ext_ids FROM genealogy", function(error, statement) {
-        if (error) { throw "Error selecting from genealogy: " + error; }
-        statement.fetchAll(function (error, rows) {
-          if (error) { throw "Error fetching from genealogy: " + error; }
-          //console.log("Yep, got your stuff " + rows[0].id + " " + rows[0].father_id + " " + rows[0].mother_id + " " + rows[0].ext_ids);
-          resp.write(JSON.stringify(rows));
-          resp.end();
-          statement.finalize(function(error) {
-            if (error) { throw "Error finalizing genealogy statement: " + error; }
-            db.close(function(error) {
-              if (error) { throw "Error closing genealogy DB: " + error; }
+  if (req.method == 'POST') {
+    var body = '';
+    req.on('data', function (data) {
+      body += data;
+    });
+    req.on('end', function () {
+      var postData = qsLib.parse(body);
+      var db = new sqliteLib.Database();
+      db.open(postData['sqliteFile'], function(error) {
+        if (error) { throw "Error opening genealogy DB: " + error; }
+        db.prepare("SELECT id, father_id, mother_id, ext_ids FROM genealogy", function(error, statement) {
+          if (error) { throw "Error selecting from genealogy: " + error; }
+          statement.fetchAll(function (error, rows) {
+            if (error) { throw "Error fetching from genealogy: " + error; }
+            //console.log("Yep, got your stuff " + rows[0].id + " " + rows[0].father_id + " " + rows[0].mother_id + " " + rows[0].ext_ids);
+            resp.write(JSON.stringify(rows));
+            resp.end();
+            statement.finalize(function(error) {
+              if (error) { throw "Error finalizing genealogy statement: " + error; }
+              db.close(function(error) {
+                if (error) { throw "Error closing genealogy DB: " + error; }
+              });
             });
           });
         });
@@ -113,7 +118,7 @@ var checkDatabase = function(req, resp) {
     });
   } else {
     resp.writeHead(400, {"Content-Type": "text/plain"});  
-    resp.write("400 Bad Request\n");
+    resp.write("400 Bad Request (not a POST)\n");
     resp.end(); 
   }
 }
