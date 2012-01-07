@@ -3,6 +3,7 @@ var server,
   sys       = require("sys"),
   qsLib     = require('querystring');
   urlLib    = require("url"),
+  // note the pure-JS mysql client: https://github.com/felixge/node-mysql, listed here http://nodejs.org/docs/latest/api/appendix_1.html
   sqliteLib = require("sqlite-osx"),
   GitHubApi = require("github").GitHubApi,
   github    = new GitHubApi(true),
@@ -88,13 +89,16 @@ var getProfile = function(req, resp) {
   }
 };
 
-var checkDatabase = function(req, resp) {
-  if (req.method == 'POST') {
+/**
+ * request should have two parameters, 'sqliteFile' is the genealogy DB file, and 'incomingFiles' is a JSON-stringified array of file names to detect
+ */
+var checkDatabase = function(request, response) {
+  if (request.method == 'POST') {
     var body = '';
-    req.on('data', function (data) {
+    request.on('data', function (data) {
       body += data;
     });
-    req.on('end', function () {
+    request.on('end', function () {
       var postData = qsLib.parse(body);
       var db = new sqliteLib.Database();
       db.open(postData['sqliteFile'], function(error) {
@@ -104,8 +108,19 @@ var checkDatabase = function(req, resp) {
           statement.fetchAll(function (error, rows) {
             if (error) { throw "Error fetching from genealogy: " + error; }
             //console.log("Yep, got your stuff " + rows[0].id + " " + rows[0].father_id + " " + rows[0].mother_id + " " + rows[0].ext_ids);
-            resp.write(JSON.stringify(rows));
-            resp.end();
+            var allIds = [];
+            for (var i = rows.length - 1; i >= 0; i--) {
+              allIds = allIds.concat(JSON.parse(rows[i].ext_ids));
+            }
+            allIds.sort();
+            //console.log("Searching for these IDs: " + JSON.stringify(allIds));
+            // an array of file names
+            incomingFiles = JSON.parse(postData['incomingFiles']);
+            //console.log(" ... in these files: " + JSON.stringify(incomingFiles));
+            // an array of objects with: file, context, position (similar to main in search.rb)
+            var result = [{"file":incomingFiles[0], "context":"... had a little lamb...", "position":null}];
+            response.write(JSON.stringify(result));
+            response.end();
             statement.finalize(function(error) {
               if (error) { throw "Error finalizing genealogy statement: " + error; }
               db.close(function(error) {
@@ -117,9 +132,9 @@ var checkDatabase = function(req, resp) {
       });
     });
   } else {
-    resp.writeHead(400, {"Content-Type": "text/plain"});  
-    resp.write("400 Bad Request (not a POST)\n");
-    resp.end(); 
+    response.writeHead(400, {"Content-Type": "text/plain"});  
+    response.write("400 Bad Request (not a POST)\n");
+    response.end(); 
   }
 }
 

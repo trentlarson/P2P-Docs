@@ -332,7 +332,7 @@ $(document).ready(function() {
       });
     }
 
-    $.post('http://127.0.0.1:1338/check_database', {'sqliteFile':Titanium.App.Properties.getString("genealogy_db_path")}, function(data) {
+    $.post('http://127.0.0.1:1338/check_database', {'sqliteFile':Titanium.App.Properties.getString("genealogy_db_path"), "incomingFiles":JSON.stringify(["/Users/tlarson/tmp/junk.html", "hi"])}, function(data) {
       $('#incomingSearchProgress').hide(1000, function() { $('#incomingSearchDone').show(1000); });
       Titanium.API.print("Got something from database: " + data + "\n");
     }).error(function(error){p2pdocsHandleError(error, {"path": Titanium.App.Properties.getString("genealogy_db_path")});});
