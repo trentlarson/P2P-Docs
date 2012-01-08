@@ -109,16 +109,25 @@ var checkDatabase = function(request, response) {
             if (error) { throw "Error fetching from genealogy: " + error; }
             //console.log("Yep, got your stuff " + rows[0].id + " " + rows[0].father_id + " " + rows[0].mother_id + " " + rows[0].ext_ids);
             var allIds = [];
-            for (var i = rows.length - 1; i >= 0; i--) {
+            for (var i = 0, len = rows.length; i < len; i++) {
               allIds = allIds.concat(JSON.parse(rows[i].ext_ids));
             }
             allIds.sort();
             //console.log("Searching for these IDs: " + JSON.stringify(allIds));
-            // an array of file names
+            // an array of file diff info
             incomingFiles = JSON.parse(postData['incomingFiles']);
             //console.log(" ... in these files: " + JSON.stringify(incomingFiles));
             // an array of objects with: file, context, position (similar to main in search.rb)
-            var result = [{"file":incomingFiles[0], "context":"... had a little lamb...", "position":null}];
+            //var result = [incomingFiles[incomingFiles.length - 1]];
+            var result = [];
+            for (i = 0, len = incomingFiles.length; i < len; i++) {
+              if (i % 5 == 0) {
+                var aresult = incomingFiles[i];
+                result.push(aresult);
+                aresult.context = "... had a little lamb...";
+                aresult.position = null;
+              }
+            }
             response.write(JSON.stringify(result));
             response.end();
             statement.finalize(function(error) {

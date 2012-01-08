@@ -117,6 +117,15 @@ function setupMarkAction(reviewedList) {
   sessionDB.close();
 }
 
+function getRepoById(allRepos, repoId) {
+  for (var i = 0, len = allRepos.length; i < len; i++) {
+    if (allRepos[i].id === repoId) {
+      return allRepos[i];
+    }
+  }
+  return null;
+}
+
 function markAccepted() {
   var checkedBoxes = $('input[type="checkbox"]:checked');
   if (checkedBoxes.length == 0) {
@@ -171,7 +180,8 @@ $(document).ready(function() {
   var errorDetails = {};
   try {
     
-    if (window.p2pdoc_settings.properties().repositories.length > 0) {
+    var allRepos = window.p2pdoc_settings.properties().repositories;
+    if (allRepos.length > 0) {
       $('#noRepos').hide();
       
       // show the copy-to-outgoing action
@@ -224,6 +234,8 @@ $(document).ready(function() {
         // declare the diff variables for data and DOM elements
         var diffSet;
         var diffTemplate, addedDiff, numFiles;
+        // gather info for checking for info in the tree-of-interest
+        var interestCheckData = [];
         
         repoCount = all_diffs.length;
         repoTemplate = $('#inChanges #repoList #repo_');
@@ -234,6 +246,7 @@ $(document).ready(function() {
           repoName = oneRepoDiffs.name;
           repoDiffList = oneRepoDiffs.diffs;
           repoDiffCount = repoDiffList.length;
+          repoData = getRepoById(allRepos, repoId);
           
           addedRepo = repoTemplate.clone();
           addedRepo.insertBefore(repoTemplate);
@@ -247,6 +260,7 @@ $(document).ready(function() {
           
           for (var diffNum = 0; diffNum < repoDiffCount; diffNum++) {
             diffSet = repoDiffList[diffNum];
+            interestCheckData.push({"path":repoData.incoming_loc + Titanium.Filesystem.getSeparator() + diffSet.path, "repoNum":repoNum, "diffNum":diffNum});
             
             addedDiff = diffTemplate.clone();
             addedDiff.insertBefore(diffTemplate);
@@ -264,12 +278,10 @@ $(document).ready(function() {
               
             } else if (diffSet.source_type === "file") {
               if (diffSet.target_type == null) {
-                repoData = window.p2pdoc_settings.get_repo_by_id(repoId);
                 addedDiff.find("#sourceView a").click(viewFileWrapperFunc(repoData.incoming_loc, diffSet.path)).show();
               } else {
                 // there's another file or something that's been reviewed
                 if (diffSet.target_type === "file") {
-                  repoData = window.p2pdoc_settings.get_repo_by_id(repoId);
                   file1 = repoData.incoming_loc + Titanium.Filesystem.getSeparator() + diffSet.path;
                   file2 = window.p2pdoc_settings.reviewed_dir(repoName) + Titanium.Filesystem.getSeparator() + diffSet.target_path_previous_version;
                   addedDiff.find("#changeView a").attr("href", "file-diff.html?file1=" + file1 + "&file2=" + file2).show();
@@ -285,7 +297,6 @@ $(document).ready(function() {
               numFiles = diffSet.contents.length + " " + (diffSet.contents.length == 1 ? "file" : "files");
               addedDiff.find("#diffCount_").attr("id", "diffCount_" + diffNum).html(numFiles);
               // show a link to open in the browser
-              repoData = window.p2pdoc_settings.get_repo_by_id(repoId);
               addedDiff.find("#sourceView a").html("(open file browser)").click(viewFileWrapperFunc(repoData.incoming_loc, diffSet.path)).show();
               // populate the contents
               var fileList = "";
@@ -302,6 +313,19 @@ $(document).ready(function() {
             }
           }
         }
+        
+        // fire off a check for any info from the tree-of-interest
+        $.post('http://127.0.0.1:1338/check_database', {'sqliteFile':Titanium.App.Properties.getString("genealogy_db_path"), "incomingFiles":JSON.stringify(interestCheckData)}, function(data) {
+          $('#incomingSearchProgress').hide(1000, function() { $('#incomingSearchDone').show(1000); });
+          //Titanium.API.print("Got something from database: " + data + "\n");
+          var interestingData = JSON.parse(data);
+          var oneFile;
+          for (var i = 0, len = interestingData.length; i < len; i++) {
+            oneFile = interestingData[i];
+            $('#repo_' + oneFile.repoNum + ' #diffPath_' + oneFile.diffNum).before("<img src='images/button-green-solid.16.png'>");
+          }
+        }).error(function(error){p2pdocsHandleError(error, {"path": Titanium.App.Properties.getString("genealogy_db_path")});});
+        
       }
 
       if (urlParam("redirectIfNoUpdates") != null
@@ -332,11 +356,6 @@ $(document).ready(function() {
       });
     }
 
-    $.post('http://127.0.0.1:1338/check_database', {'sqliteFile':Titanium.App.Properties.getString("genealogy_db_path"), "incomingFiles":JSON.stringify(["/Users/tlarson/tmp/junk.html", "hi"])}, function(data) {
-      $('#incomingSearchProgress').hide(1000, function() { $('#incomingSearchDone').show(1000); });
-      Titanium.API.print("Got something from database: " + data + "\n");
-    }).error(function(error){p2pdocsHandleError(error, {"path": Titanium.App.Properties.getString("genealogy_db_path")});});
-  
   } catch (e) {
     p2pdocsHandleError(e, errorDetails);
   }
