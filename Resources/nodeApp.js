@@ -1,6 +1,7 @@
 var server,
   http      = require('http'),
   sys       = require("sys"),
+  apricotLib= require('apricot');
   qsLib     = require('querystring');
   urlLib    = require("url"),
   // note the pure-JS mysql client: https://github.com/felixge/node-mysql, listed here http://nodejs.org/docs/latest/api/appendix_1.html
@@ -89,6 +90,10 @@ var getProfile = function(req, resp) {
   }
 };
 
+function endsWith(str, suffix) {
+  return str.indexOf(suffix, str.length - suffix.length) !== -1;
+}
+
 /**
  * request should have two parameters, 'sqliteFile' is the genealogy DB file, and 'incomingFiles' is a JSON-stringified array of file names to detect
  */
@@ -113,29 +118,54 @@ var checkDatabase = function(request, response) {
               allIds = allIds.concat(JSON.parse(rows[i].ext_ids));
             }
             allIds.sort();
-            //console.log("Searching for these IDs: " + JSON.stringify(allIds));
-            // an array of file diff info
-            incomingFiles = JSON.parse(postData['incomingFiles']);
-            //console.log(" ... in these files: " + JSON.stringify(incomingFiles));
-            // an array of objects with: file, context, position (similar to main in search.rb)
-            //var result = [incomingFiles[incomingFiles.length - 1]];
-            var result = [];
-            for (i = 0, len = incomingFiles.length; i < len; i++) {
-              if (i % 5 == 0) {
-                var aresult = incomingFiles[i];
-                result.push(aresult);
-                aresult.context = "... had a little lamb...";
-                aresult.position = null;
-              }
-            }
-            response.write(JSON.stringify(result));
-            response.end();
+            
             statement.finalize(function(error) {
               if (error) { throw "Error finalizing genealogy statement: " + error; }
               db.close(function(error) {
                 if (error) { throw "Error closing genealogy DB: " + error; }
               });
             });
+            
+            //console.log("Searching for these IDs: " + JSON.stringify(allIds));
+            // an array of file diff info
+            incomingFiles = JSON.parse(postData['incomingFiles']);
+            //console.log(" ... in these files: " + JSON.stringify(incomingFiles));
+            // an array of objects with: file, context, position (similar to main in search.rb)
+            var resultsCollector = {
+              inProgress: 0,
+              results: [],
+              fillResult: function(interestingLocations) {
+                this.results = this.results.concat(interestingLocations);
+                this.inProgress--;
+                if (this.inProgress === 0) {
+                  response.write(JSON.stringify(this.results));
+                  response.end();
+                }
+              }
+            };
+            for (i = 0, len = incomingFiles.length; i < len; i++) {
+              if (endsWith(incomingFiles[i].path, ".htm")
+                  || endsWith(incomingFiles[i].path, ".html")) {
+                resultsCollector.inProgress++;
+                apricotLib.Apricot.parse("<p><h1 style='display:none;'>Test Header</h1><span id='one'>hi <img src='nada'></span><span id='two'>you</span></p>", function(fileInfo) {
+                //apricotLib.Apricot.open(incomingFiles[i].path, function(fileInfo) {
+                  return function(error, doc) {
+                    if (error) {
+                      console.log("Got this error parsing file " + fileInfo.path + ": " + error);
+                      resultsCollector.fillResult([]);
+                    } else {
+                      doc.find("#one");
+                      var matches = [];
+                      doc.each(function(element){ matches.push(element); });
+                      //console.log("Parsed through " + fileInfo.path + " and found: " + matches + " " + matches[0].text + " " + matches[0].textContent);
+                      fileInfo.context = matches[0].textContent; // textContent omits tag elements
+                      fileInfo.position = matches[0].id;
+                      resultsCollector.fillResult([fileInfo]);
+                    }
+                  };
+                }(incomingFiles[i]));
+              }
+            }
           });
         });
       });
