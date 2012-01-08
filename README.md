@@ -122,7 +122,6 @@ User Story Details, By Priority
  * import "tree-of-interest" (by GEDCOM file, or, better, one individual's ancestry GEDCOM file), then search incoming files for new matches
    * index tree-of-interest into DB
    * search files for data within tree
-   * mark interesting files
  * store non-diffable (or ignored) files in DB rather than keeping copy of everything in reviewed
  * remove the static Ruby class variable that's not static (in settings.rb)
  * only keep copies of selected files (not all of them)
