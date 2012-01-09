@@ -147,20 +147,21 @@ var checkDatabase = function(request, response) {
               if (endsWith(incomingFiles[i].path, ".htm")
                   || endsWith(incomingFiles[i].path, ".html")) {
                 resultsCollector.inProgress++;
-                apricotLib.Apricot.parse("<p><h1 style='display:none;'>Test Header</h1><span id='one'>hi <img src='nada'></span><span id='two'>you</span></p>", function(fileInfo) {
-                //apricotLib.Apricot.open(incomingFiles[i].path, function(fileInfo) {
+                apricotLib.Apricot.open(incomingFiles[i].path, function(fileInfo) {
                   return function(error, doc) {
                     if (error) {
                       console.log("Got this error parsing file " + fileInfo.path + ": " + error);
                       resultsCollector.fillResult([]);
                     } else {
-                      doc.find("#one");
+                      doc.find("span[itemscope][itemtype=\"http://historical-data.org/HistoricalPerson.html\"]");
                       var matches = [];
-                      doc.each(function(element){ matches.push(element); });
-                      //console.log("Parsed through " + fileInfo.path + " and found: " + matches + " " + matches[0].text + " " + matches[0].textContent);
-                      fileInfo.context = matches[0].textContent; // textContent omits tag elements
-                      fileInfo.position = matches[0].id;
-                      resultsCollector.fillResult([fileInfo]);
+                      doc.each(function(element) {
+                        //console.log("Parsed through " + fileInfo.path + " and found: " + matches + " " + matches[0].text + " " + matches[0].textContent);
+                        fileInfo.context = element.textContent; // textContent omits tag elements; text includes it all
+                        fileInfo.position = element.id;
+                        matches.push(fileInfo);
+                      });
+                      resultsCollector.fillResult(matches);
                     }
                   };
                 }(incomingFiles[i]));
