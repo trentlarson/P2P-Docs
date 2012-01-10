@@ -316,13 +316,16 @@ $(document).ready(function() {
         
         // fire off a check for any info from the tree-of-interest
         $.post('http://127.0.0.1:1338/check_database', {'sqliteFile':Titanium.App.Properties.getString("genealogy_db_path"), "incomingFiles":JSON.stringify(interestCheckData)}, function(data) {
-          $('#incomingSearchProgress').hide(1000, function() { $('#incomingSearchDone').show(1000); });
+          $('#incomingSearchProgress').hide();
           //Titanium.API.print("Got something from database: " + data + "\n");
           var interestingData = JSON.parse(data);
           var oneFile;
-          for (var i = 0, len = interestingData.length; i < len; i++) {
-            oneFile = interestingData[i];
-            $('#repo_' + oneFile.repoNum + ' #diffPath_' + oneFile.diffNum).before("<img src='images/button-green-solid.16.png'>");
+          if (interestingData.length > 0) {
+            $('#incomingSearchDone').show(1000);
+            for (var i = 0, len = interestingData.length; i < len; i++) {
+              oneFile = interestingData[i];
+              $('#repo_' + oneFile.repoNum + ' #diffPath_' + oneFile.diffNum).before("<img src='images/button-green-solid.16.png'>");
+            }
           }
         }).error(function(error){p2pdocsHandleError(error, {"path": Titanium.App.Properties.getString("genealogy_db_path")});});
         
