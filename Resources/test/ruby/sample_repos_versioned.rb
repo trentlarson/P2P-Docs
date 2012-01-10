@@ -60,6 +60,38 @@ class SampleReposVersioned
       
     end
 
+
+    repo_name = "test 2 - should see changes, including a difference"
+    repo_dir_name = File.join(test_content_dir, settings.fixed_repo_name(repo_name))
+    added = TestUtils.add_repo(settings, repo_name, repo_dir_name)
+    if (!added)
+      raise "I was unable to create the #{repo_name} repository."
+    else
+      File.open(File.join(repo_dir_name, "test.html"), 'w') do |out|
+        out.write("<html><body>\n")
+        out.write("Shopping List\n")
+        out.write("<ul>\n")
+        out.write("  <li>bananas</li>\n")
+        out.write("  <li>bread</li>\n")
+        out.write("  <li>milk</li>\n")
+        out.write("</ul>\n")
+        out.write("</body></html>\n")
+      end
+      Updates.mark_reviewed(settings, added['id'], 'test.html')
+      
+      File.open(File.join(repo_dir_name, "test.html"), 'w') do |out|
+        out.write("<html><body>\n")
+        out.write("Shopping List\n")
+        out.write("<ul>\n")
+        out.write("  <li>apples</li>\n")
+        out.write("  <li>bread</li>\n")
+        out.write("  <li>cookies</li>\n")
+        out.write("  <li>milk</li>\n")
+        out.write("</ul>\n")
+        out.write("</body></html>\n")
+      end
+    end
+    
   end
 
 end
