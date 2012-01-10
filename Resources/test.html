@@ -20,7 +20,7 @@
 </script>
 
 <script type="text/javascript">
-  var BACKUP_FILE = 'settings.yaml.bak';
+
   var BACKUP_PROP = '//settings-dir-bak';
 
   function restoreRegularOperation() {
@@ -33,17 +33,6 @@
         Titanium.App.Properties.setString('settings-dir', Titanium.Filesystem.getApplicationDataDirectory().toString());
       }
       
-      // restore if the settings file was backed-up
-      var backupFile = Titanium.Filesystem.getFile(window.p2pdoc_settings.data_dir(), BACKUP_FILE);
-      if (backupFile.exists()) {
-        var settingsFile = Titanium.Filesystem.getFile(window.p2pdoc_settings.settings_file());
-        if (settingsFile.exists()) {
-          settingsFile.deleteFile();
-        }
-        // note that 'rename' threw an error
-        backupFile.move(settingsFile.toString());
-      }
-      
       alert("All set to regular environment.");
     } catch (e) {
       p2pdocsHandleError(e);
@@ -52,14 +41,15 @@
 
   function setupTestForNewInstall() {
     try {
-      var settingsFile = Titanium.Filesystem.getFile(window.p2pdoc_settings.settings_file());
-      if (settingsFile.exists()) {
-        var backupFile = Titanium.Filesystem.getFile(window.p2pdoc_settings.data_dir(), BACKUP_FILE);
-        if (!backupFile.exists()) {
-          // note that 'rename' threw an error
-          settingsFile.move(backupFile.toString());
-        }
+      // backup the settings and create new test settings (must be done by Titanium JavaScript or it won't be recognized as edited)
+      if (Titanium.App.Properties.hasProperty('settings-dir')
+          && !Titanium.App.Properties.hasProperty(BACKUP_PROP)) {
+        Titanium.App.Properties.setString(BACKUP_PROP, Titanium.App.Properties.getString('settings-dir'));
       }
+      var testSubDir = 'test-clean-slate';
+      var settingsDir = Titanium.Filesystem.getFile(Titanium.App.getHome(), testSubDir).toString();
+      Titanium.App.Properties.setString('settings-dir', settingsDir);
+      
       alert("All set to test environment for new install.");
     } catch (e) {
       p2pdocsHandleError(e);
@@ -147,7 +137,6 @@
   <br/>
   <span id="open-inspector" class="link">Open inspector.</span>
   <br/>
-
   
   
 </div>
