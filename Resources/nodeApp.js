@@ -129,42 +129,49 @@ var checkDatabase = function(request, response) {
             //console.log("Searching for these IDs: " + JSON.stringify(allIds));
             // an array of file diff info
             incomingFiles = JSON.parse(postData['incomingFiles']);
-            //console.log(" ... in these files: " + JSON.stringify(incomingFiles));
-            // an array of objects with: file, context, position (similar to main in search.rb)
-            var resultsCollector = {
-              inProgress: 0,
-              results: [],
-              fillResult: function(interestingLocations) {
-                this.results = this.results.concat(interestingLocations);
-                this.inProgress--;
-                if (this.inProgress === 0) {
-                  response.write(JSON.stringify(this.results));
-                  response.end();
+            if (incomingFiles.length === 0) {
+              response.write("[]");
+              response.end();
+            } else {
+              //console.log(" ... in these files: " + JSON.stringify(incomingFiles));
+              // an array of objects with: file, context, position (similar to main in search.rb)
+              var resultsCollector = {
+                inProgress: incomingFiles.length,
+                results: [],
+                fillResult: function(interestingLocations) {
+                  //console.log("Decrementing " + this.inProgress + " for interestingLocations: " + JSON.stringify(interestingLocations));
+                  this.results = this.results.concat(interestingLocations);
+                  this.inProgress--;
+                  if (this.inProgress === 0) {
+                    response.write(JSON.stringify(this.results));
+                    response.end();
+                  }
                 }
-              }
-            };
-            for (i = 0, len = incomingFiles.length; i < len; i++) {
-              if (endsWith(incomingFiles[i].path, ".htm")
-                  || endsWith(incomingFiles[i].path, ".html")) {
-                resultsCollector.inProgress++;
-                apricotLib.Apricot.open(incomingFiles[i].path, function(fileInfo) {
-                  return function(error, doc) {
-                    if (error) {
-                      console.log("Got this error parsing file " + fileInfo.path + ": " + error);
-                      resultsCollector.fillResult([]);
-                    } else {
-                      doc.find("span[itemscope][itemtype=\"http://historical-data.org/HistoricalPerson.html\"]");
-                      var matches = [];
-                      doc.each(function(element) {
-                        //console.log("Parsed through " + fileInfo.path + " and found: " + matches + " " + matches[0].text + " " + matches[0].textContent);
-                        fileInfo.context = element.textContent; // textContent omits tag elements; text includes it all
-                        fileInfo.position = element.id;
-                        matches.push(fileInfo);
-                      });
-                      resultsCollector.fillResult(matches);
-                    }
-                  };
-                }(incomingFiles[i]));
+              };
+              for (i = 0, len = incomingFiles.length; i < len; i++) {
+                if (endsWith(incomingFiles[i].path, ".htm")
+                    || endsWith(incomingFiles[i].path, ".html")) {
+                  apricotLib.Apricot.open(incomingFiles[i].path, function(fileInfo) {
+                    return function(error, doc) {
+                      if (error) {
+                        //console.log("Got this error parsing file " + fileInfo.path + ": " + error);
+                        resultsCollector.fillResult([]);
+                      } else {
+                        doc.find("span[itemscope][itemtype=\"http://historical-data.org/HistoricalPerson.html\"]");
+                        var matches = [];
+                        doc.each(function(element) {
+                          //console.log("Parsed through " + fileInfo.path + " and found: " + matches + " " + matches[0].text + " " + matches[0].textContent);
+                          fileInfo.context = element.textContent; // textContent omits tag elements; text includes it all
+                          fileInfo.position = element.id;
+                          matches.push(fileInfo);
+                        });
+                        resultsCollector.fillResult(matches);
+                      }
+                    };
+                  }(incomingFiles[i]));
+                } else {
+                  resultsCollector.fillResult([]);
+                }
               }
             }
           });
