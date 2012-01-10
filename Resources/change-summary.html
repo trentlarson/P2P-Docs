@@ -327,7 +327,7 @@ $(document).ready(function() {
               $('#repo_' + oneFile.repoNum + ' #diffPath_' + oneFile.diffNum).before("<img src='images/button-green-solid.16.png'>");
             }
           }
-        }).error(function(error){p2pdocsHandleError(error, {"path": Titanium.App.Properties.getString("genealogy_db_path")});});
+        }).error(function(error){p2pdocsHandleError(error, {"sqliteFile":Titanium.App.Properties.getString("genealogy_db_path")});});
         
       }
 
