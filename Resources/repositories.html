@@ -29,8 +29,11 @@
 </style>
 
 <script type="text/ruby" src="ruby/settings.rb"></script>
+<script type="text/ruby" src="ruby/updates.rb"></script>
 <script type="text/ruby">
   window.p2pdoc_settings = Settings.new(Titanium.App.Properties.getString("settings-dir"))
+  # Unbelievable: it works elsewhere to access settings repositories, but it's crashing here when I access the identity the same way.  Unbelievable.  What a hack.
+  window.p2pdoc_identity_str = Updates.strings_arrays_hashes_json(window.p2pdoc_settings.properties()["identity"])
 </script>
 
 <script type="text/javascript">
@@ -185,6 +188,22 @@ $(document).ready(function() {
       });
     });
     
+    
+    
+    var identity = JSON.parse(window.p2pdoc_identity_str);
+    if (identity) {
+      $('#identity_').show();
+      $('#identityName_').html(identity.file + " " + identity.id);
+    }
+    
+    $('#identityAdd_').bind('click', function() {
+      $('#everything').hide('slide', { direction: "up"}, 500, function() {
+        location.href = "identity.html";
+      });
+    });
+    
+    
+    
     if (afterLoadShow != null) {
       location.hash = afterLoadShow.jumpToAnchor;
       $("#" + afterLoadShow.showElement).hide();
@@ -253,6 +272,17 @@ $(document).ready(function() {
 </div>
 
 <img src="images/button-green-plus.png" title="Add" alt="Add" id="repoAdd_" class="repoAdd">
+
+<br/>
+<br/>
+<br/>
+<div>
+  <h2>You</h2>
+  <div id="identity_" style="display:none;">
+    Identity <span id="identityName_"></span>
+  </div>
+  <img src="images/button-green-plus.png" title="Add" alt="Add" id="identityAdd_" class="identityAdd">
+</div>
 
 <br/>
 <br/>

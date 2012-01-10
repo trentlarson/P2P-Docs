@@ -78,7 +78,18 @@ settings: initial settings; if nil, @@settings will not be reset
   def properties()
     @@settings
   end
-
+  
+  def set_identity(file, id)
+    if (file.class.name == "RubyKObject") # for method results from Titanium
+      file = file.toString()
+    end
+    if (id.class.name == "RubyKObject") # for method results from Titanium
+      id = id.toString()
+    end
+    @@settings['identity'] = {'file'=>file, 'id'=>id}
+    save()
+  end
+  
   def reviewed_base_dir()
     File.join(@@settings_dir, "reviewed_files")
   end

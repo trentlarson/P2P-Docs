@@ -139,6 +139,7 @@ User Story Details, By Priority
  * documentation and/or help (medium)
  * program auto-update (medium)
  * show an appropriate error if two apps are running... or something to avoid clashing node processes (small)
+ * change links with JavaScript actions (eg. inFolderChooser in repositories.html) from "a" to "span" to avoid page jumps when clicking (small)
  * use repo ID numbers everywhere (instead of names)
  * fix the new-repo transition to slide whole screen (not half)
  * make a consistent styling for the whole app
