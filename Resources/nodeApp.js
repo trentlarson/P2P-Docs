@@ -159,11 +159,35 @@ var checkDatabase = function(request, response) {
                       } else {
                         doc.find("span[itemscope][itemtype=\"http://historical-data.org/HistoricalPerson.html\"]");
                         var matches = [];
+                        //if (matches.length>0) { console.log("Parsed through " + fileInfo.path + " and found: " + matches + ", eg. " + matches[0].text + " " + matches[0].textContent); }
                         doc.each(function(element) {
-                          //console.log("Parsed through " + fileInfo.path + " and found: " + matches + " " + matches[0].text + " " + matches[0].textContent);
-                          fileInfo.context = element.textContent; // textContent omits tag elements; text includes it all
-                          fileInfo.position = element.id;
-                          matches.push(fileInfo);
+                          // check for the first 'meta' tag that matches anyone in my ancestry
+                          var foundPersonId = null;
+                          metas = element.getElementsByTagName("meta");
+                          for (var j = 0; j < metas.length; j++) {
+                            if (!foundPersonId) {
+                              if (metas[j].getAttribute("itemprop").length > 0
+                                  && metas[j].getAttribute("content").length > 0) {
+                                metaId = metas[j].getAttribute("itemprop") + "/" + metas[j].getAttribute("content");
+                                var pastAlpha = false; // to shortcut more searching if we're past where the ID would be in our search of this sorted array
+                                allIds.forEach(function(value, index) {
+                                  if (!foundPersonId && !pastAlpha) {
+                                    var comparison = metaId.localeCompare(value);
+                                    if (comparison == 0) {
+                                      foundPersonId = metaId;
+                                    } else if (comparison > 0) {
+                                      pastAlpha = true;
+                                    }
+                                  }
+                                });
+                              }
+                            }
+                          }
+                          if (foundPersonId) {
+                            fileInfo.context = element.textContent; // textContent omits tag elements; text includes it all
+                            fileInfo.position = element.id;
+                            matches.push(fileInfo);
+                          }
                         });
                         resultsCollector.fillResult(matches);
                       }
