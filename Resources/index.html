@@ -1,9 +1,14 @@
 <!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
 <html>
 <head>
+
 <script type="text/ruby" src="ruby/settings.rb"></script>
 <script type="text/javascript" src="js/stacktrace.js"></script>
 <script type="text/javascript" src="js/p2pdocs.js"></script>
+<script type="text/javascript" src="js/jquery-1.5.1.min.js"></script>
+
+<link rel="stylesheet" type="text/css" href="css/p2pdocs.css" />
+
 <script type="text/javascript">
 function configApp() {
   // Initialize the basic setup.
@@ -39,7 +44,20 @@ try {
 
 <script type="text/javascript">
 
+var setupFinished = false;
+
+function redirectIfSetupFinished(url) {
+  if (setupFinished) {
+    window.location.href = url;
+  } else {
+    setTimeout('redirectIfSetupFinished("'+url+'")', 100);
+  }
+}
+
 function startApp() {
+  
+  // coordinate the version in nodeApp.js with this one
+  var thisVersion = parseFloat(Titanium.App.getVersion());
   
   //Titanium.UI.getWindows()[0].showInspector(true);
   //Titanium.API.print("to console\n");
@@ -81,14 +99,34 @@ function startApp() {
   Titanium.API.addEventListener(Titanium.EXIT, function(e) {
     nodeProcess.kill();
   });
-
+  
+  // detect a different version of the node server, which can happen when the app crashes and node keeps running
+  // (We have to wait, because if we do it immediately then the node server isn't 100% initialized.  It typically takes 1100 millis.)
+  setTimeout(function() {
+    $.ajax({
+      url:"http://127.0.0.1:1338/version",
+      error:function(err) {
+        // OK, this is very bad: why is there an error retrieving the version?
+        alert("Part of this service is not running correctly.  For best results, kill the 'node' program or restart your computer.");
+        setupFinished = true;
+      },
+      success:function(data) {
+        nodeVersion = JSON.parse(data);//parseFloat(JSON.parse(data));
+        if (nodeVersion < thisVersion) {
+          // Yep, we've got a node process running from a previous version of the app.  Ug.
+          alert("Part of this service is not running correctly.  For best results, kill the 'node' program or restart your computer.");
+        }
+        setupFinished = true;
+      }
+    });
+  }, 1500);
   
   // redirect to the correct first page
   var settingsFile = Titanium.Filesystem.getFile(window.p2pdoc_settings.settings_file());
   if (settingsFile.exists()) {
-    window.location.href= "change-summary.html?redirectIfNoUpdates=";
+    redirectIfSetupFinished("change-summary.html?redirectIfNoUpdates=");
   } else {
-    window.location.href= "repository.html";
+    redirectIfSetupFinished("repository.html");
   }
 }
 
@@ -101,4 +139,7 @@ try {
 
 </script>
 </head>
+<body>
+  <h1 style="text-align:center;">Loading...</h1>
+</body>
 </html>
