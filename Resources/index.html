@@ -46,11 +46,11 @@ try {
 
 var setupFinished = false;
 
-function redirectIfSetupFinished(url) {
+function redirectWhenSetupFinished(url) {
   if (setupFinished) {
     window.location.href = url;
   } else {
-    setTimeout('redirectIfSetupFinished("'+url+'")', 100);
+    setTimeout('redirectWhenSetupFinished("'+url+'")', 100);
   }
 }
 
@@ -107,14 +107,14 @@ function startApp() {
       url:"http://127.0.0.1:1338/version",
       error:function(err) {
         // OK, this is very bad: why is there an error retrieving the version?
-        alert("Part of this service is not running correctly.  For best results, kill the 'node' program or restart your computer.");
+        alert("Part of this service is not running correctly.  For best results, kill the 'node' program or restart your computer.  (Error Code: index.html 1)");
         setupFinished = true;
       },
       success:function(data) {
         nodeVersion = JSON.parse(data);//parseFloat(JSON.parse(data));
         if (nodeVersion < thisVersion) {
           // Yep, we've got a node process running from a previous version of the app.  Ug.
-          alert("Part of this service is not running correctly.  For best results, kill the 'node' program or restart your computer.");
+          alert("Part of this service is not running correctly.  For best results, kill the 'node' program or restart your computer.  (Error Code: index.html 2)");
         }
         setupFinished = true;
       }
@@ -124,9 +124,9 @@ function startApp() {
   // redirect to the correct first page
   var settingsFile = Titanium.Filesystem.getFile(window.p2pdoc_settings.settings_file());
   if (settingsFile.exists()) {
-    redirectIfSetupFinished("change-summary.html?redirectIfNoUpdates=");
+    redirectWhenSetupFinished("change-summary.html?redirectIfNoUpdates=");
   } else {
-    redirectIfSetupFinished("repository.html");
+    redirectWhenSetupFinished("repository.html");
   }
 }
 
