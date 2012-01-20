@@ -58,14 +58,10 @@
 //Titanium.API.print("to console\n");
 
 function initializeChangeSummary() {
-  if (urlParam("dbAction") != null) {
-    // from example here: http://developer.appcelerator.com/apidoc/desktop/latest/Titanium.Database.DB.execute-method.html
-    var sessionDB = Titanium.Database.open("sessionDB");
-    var rows = sessionDB.execute("SELECT * FROM action");
-    if (rows.rowCount() > 0) {
-      var actionData = Titanium.JSON.parse(rows.fieldByName('data'));
-      exec = sessionDB.execute("DELETE FROM action");
-      //{'action':'markReviewedBulk', 'reviewed':[{'id':0, 'name':'Bohemia', 'path':'Tao', 'previousPath':'Hedonism'}]}];
+  if (Titanium.App.Properties.hasProperty('post-param')) {
+    var actionData = Titanium.JSON.parse(Titanium.App.Properties.getString('post-param'));
+    if (actionData != null) {
+      //eg. {'action':'markReviewedBulk', 'reviewed':[{'id':0, 'name':'Bohemia', 'path':'Tao', 'previousPath':'Hedonism'}]}];
       if (actionData.action === 'markReviewedBulk') {
         var fileInfo;
         for (var i = actionData.reviewed.length - 1; i >= 0; i--) {
@@ -73,8 +69,8 @@ function initializeChangeSummary() {
           window.p2pdoc_mark_reviewed(fileInfo.id, fileInfo.path, fileInfo.previousPath);
         }
       }
+      Titanium.App.Properties.setString('post-param', "null");
     }
-    sessionDB.close();
   }
 }
 
@@ -108,13 +104,9 @@ try {
 var Ti = {fs: Titanium.Filesystem, api:Titanium.API};
 
 function setupMarkAction(reviewedList) {
-  // from example here: http://developer.appcelerator.com/apidoc/desktop/latest/Titanium.Database.DB.execute-method.html
-  var sessionDB = Titanium.Database.open("sessionDB");
-  exec = sessionDB.execute("DELETE FROM action");
-  //{'action':'markReviewedBulk', 'reviewed':[{'id':0, 'name':'Bohemia', 'path':'Tao', 'previousPath':'Hedonism'}]}];
+  //eg. {'action':'markReviewedBulk', 'reviewed':[{'id':0, 'name':'Bohemia', 'path':'Tao', 'previousPath':'Hedonism'}]}];
   var actionData = {'action':'markReviewedBulk', 'reviewed':reviewedList};
-  exec = sessionDB.execute("INSERT INTO action (data) VALUES (?)", Titanium.JSON.stringify(actionData));
-  sessionDB.close();
+  Titanium.App.Properties.setString('post-param', Titanium.JSON.stringify(actionData));
 }
 
 function getRepoById(allRepos, repoId) {
@@ -160,14 +152,14 @@ function markAccepted() {
             if ($('#inChanges #repoList').children().length == 1) {
               $('#inChanges').hide(500);
               $('#noDiffs').show(500, function() {
-                if (--count === 0) { window.location.href = "change-summary.html?dbAction="; } // and refresh if this was the last step
+                if (--count === 0) { window.location.href = "change-summary.html"; } // and refresh if this was the last step
               });
             } else {
-              if (--count === 0) { window.location.href = "change-summary.html?dbAction="; } // and refresh if this was the last step
+              if (--count === 0) { window.location.href = "change-summary.html"; } // and refresh if this was the last step
             }
           });
         } else {
-          if (--count === 0) { window.location.href = "change-summary.html?dbAction="; } // and refresh if this was the last step
+          if (--count === 0) { window.location.href = "change-summary.html"; } // and refresh if this was the last step
         }
       });
     });

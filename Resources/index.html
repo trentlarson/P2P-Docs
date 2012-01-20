@@ -16,11 +16,6 @@ function configApp() {
     // Titanium.App.Properties pulls from the application.properties file.  Note that lines in it beginning with # sometimes disappear; I use // for commentary.
     Titanium.App.Properties.setString('settings-dir', Titanium.Filesystem.getApplicationDataDirectory().toString());
   }
-  // Initialize a DB table for passing around actions.
-  // Um... this would be better as a simple Titanium.App.Properties string (which I didn't do initially because I thought it would be a richer structure).
-  var sessionDB = Titanium.Database.open("sessionDB");
-  var exec = sessionDB.execute('CREATE TABLE IF NOT EXISTS action (data TEXT)');
-  sessionDB.close();
   
   // Initialize a DB for genealogy tree-of-interest.
   var genealogyDB = Titanium.Database.open("genealogy");
