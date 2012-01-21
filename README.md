@@ -121,8 +121,10 @@ User Story Details, By Priority
 
  * import "tree-of-interest" (by GEDCOM file, or, better, one individual's ancestry GEDCOM file), then search incoming files for new matches
    * index tree-of-interest into DB
-   * search files for data within tree
-     * test that multiple files return all data
+     * get GEDCOM working
+     * accept other types of repositories: ancestry.com, familysearch.org, git-ged
+     * allow to remove(/disable?) identities
+   * search for data within tree, ie. restricted sets of files rather than all
  * store non-diffable (or ignored) files in DB rather than keeping copy of everything in reviewed
  * remove the static Ruby class variable that's not static (in settings.rb)
  * only keep copies of selected files (not all of them)
