@@ -190,10 +190,16 @@ $(document).ready(function() {
     
     
     
-    var identity = JSON.parse(window.p2pdoc_identity_str);
-    if (identity) {
-      $('#identity_').show();
-      $('#identityName_').html(identity.file + " " + identity.id);
+    var identities = JSON.parse(window.p2pdoc_identity_str);
+    if (identities
+        && identities.length > 0) {
+      identityTemplate = $("#identity_");
+      for (var idi = 0; idi < identities.length; idi++) {
+        addedIdentity = identityTemplate.clone();
+        addedIdentity.insertBefore(identityTemplate);
+        addedIdentity.attr("id", "identity_" + idi).show();
+        addedIdentity.html(identities[idi].file + " " + identities[idi].id);
+      }
     }
     
     $('#identityAdd_').bind('click', function() {
@@ -278,8 +284,8 @@ $(document).ready(function() {
 <br/>
 <div>
   <h2>You</h2>
-  <div id="identity_" style="display:none;">
-    Identity <span id="identityName_"></span>
+  <div id="identities">
+    <div id="identity_" style="display:none;"></div>
   </div>
   <img src="images/button-green-plus.png" title="Add" alt="Add" id="identityAdd_" class="identityAdd">
 </div>

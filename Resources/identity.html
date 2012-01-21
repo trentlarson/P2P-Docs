@@ -17,16 +17,37 @@
   <script>
     $(document).ready(function() {
       
-      if (urlParam("localFile")) {
-        window.p2pdoc_settings.set_identity(urlParam("localFile"), urlParam("idInFile"));
+      if (urlParam("idInFile")
+          && urlParam("genLocation")) {
+        window.p2pdoc_settings.add_identity(urlParam("genLocation"), urlParam("idInFile"));
         $('#everything').hide('slide', { direction: "down"}, 500, function() {
           location.href = "repositories.html";
         });
       }
       
+      $("#identityForm").submit(function() {
+        // only submit if both are filled in
+        if ($("#idInFile").val().length > 0
+            && $("#genLocation").val().length > 0) {
+          // allow submit
+          return true;
+        } else {
+          alert("Please choose a name along with a file or site.");
+          return false;
+        }
+      });
+      
       $('#cancel').bind('click', function() {
         $('#everything').hide('slide', { direction: "down"}, 500, function() {
           location.href = "repositories.html";
+        });
+      });
+      
+      $("#chooseFile").click(function() {
+        Titanium.UI.getCurrentWindow().openFileChooserDialog(function(selectionResponse) {
+          if (selectionResponse.length > 0) {
+            $("#genLocation").val(selectionResponse[0]);
+          }
         });
       });
       
@@ -40,8 +61,12 @@
     
     <span id="cancel" class="link">Cancel</span>
     <br/>
-    <form action="identity.html">
-      <input name="localFile"> <input name="idInFile"> <input type="submit" value="submit"/>
+    <form action="identity.html" id="identityForm">
+      Enter the name of yourself or your closest ancestor: <input type="text" name="idInFile" id="idInFile">
+      <br/>
+       ... from the genealogy file: <input type="text" name="genLocation" id="genLocation"> <span id="chooseFile" class="link">(select file)</span>
+      <br/>
+      <input type="submit" value="add identity">
     </form>
     
   </div>
