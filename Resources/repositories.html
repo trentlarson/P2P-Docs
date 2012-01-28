@@ -173,6 +173,7 @@ $(document).ready(function() {
 
     $('#settingsDir').html(window.p2pdoc_settings.data_dir());
     $('#openSettings').click(viewFileWrapperFunc(window.p2pdoc_settings.data_dir(), Titanium.Filesystem.getSeparator()));
+    $('#aboutPage').click(function(){Titanium.Platform.openURL(Titanium.App.getURL());});
     
     var repos = window.p2pdoc_settings.properties().repositories;
     var repo;
@@ -296,6 +297,11 @@ $(document).ready(function() {
 <h2>Other</h2>
 <div id="settings">
   <strong>Settings Directory</strong>: <span id="settingsDir"></span> <a href="" id="openSettings">(open)</a>
+</div>
+
+<br/>
+<div id="about">
+  <strong>About Us</strong>: <span id="aboutPage" class="link">Visit our web page.</span>
 </div>
 
 <br/>
