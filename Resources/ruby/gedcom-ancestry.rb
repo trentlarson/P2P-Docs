@@ -69,20 +69,3 @@ def newSimilarNameExtractor()
   return SimilarNameExtracter.new
 end
 
-# Uncomment these to run tests via command-line.
-
-#parser = SimilarNameExtracter.new
-
-# either grab command-line arguments
-#if ARGV.length < 2
-#  puts "Please specify the name of a GEDCOM file and a person's name."
-#  exit(0)
-#end
-#parser.setNamesToMatch ARGV[1]
-#parser.parse ARGV[0]
-
-# ... or get defaults
-#parser.setNamesToMatch "victoria"
-#parser.parse "Resources/test/royal.ged"
-
-#parser.showSimilarPeople()
