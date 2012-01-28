@@ -1,6 +1,6 @@
 
 #require 'gedcom'
-require File.join(File.expand_path(File.dirname(__FILE__)), "../../ruby/lib/gedcom.rb")
+#require File.join(File.expand_path(File.dirname(__FILE__)), "lib", "gedcom.rb")
 
 class Individual
   attr_accessor :id
@@ -64,9 +64,16 @@ class SimilarNameExtracter < GEDCOM::Parser
 
 end
 
+# Titanium gives an error if I try to create a new SimilarNameExtractor in a page... thus this method.
+def newSimilarNameExtractor()
+  return SimilarNameExtracter.new
+end
 
-parser = SimilarNameExtracter.new
+# Uncomment these to run tests via command-line.
 
+#parser = SimilarNameExtracter.new
+
+# either grab command-line arguments
 #if ARGV.length < 2
 #  puts "Please specify the name of a GEDCOM file and a person's name."
 #  exit(0)
@@ -74,7 +81,8 @@ parser = SimilarNameExtracter.new
 #parser.setNamesToMatch ARGV[1]
 #parser.parse ARGV[0]
 
-parser.setNamesToMatch "victoria"
-parser.parse "Resources/test/royal.ged"
+# ... or get defaults
+#parser.setNamesToMatch "victoria"
+#parser.parse "Resources/test/royal.ged"
 
-parser.showSimilarPeople()
+#parser.showSimilarPeople()

@@ -20,7 +20,8 @@
 # -------------------------------------------------------------------------
 #
 #require 'gedcom_date_parser'
-require File.join(File.expand_path(File.dirname(__FILE__)), "gedcom_date_parser.rb")
+#require File.join(File.expand_path(File.dirname(__FILE__)), "gedcom_date_parser.rb")
+
 module GEDCOM
 
     class DatePart < GEDCOM_DATE_PARSER::GEDDate

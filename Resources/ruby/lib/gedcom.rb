@@ -20,7 +20,7 @@
 # -------------------------------------------------------------------------
 
 #require '_gedcom'
-require File.join(File.expand_path(File.dirname(__FILE__)), "gedcom_date.rb")
+#require File.join(File.expand_path(File.dirname(__FILE__)), "gedcom_date.rb")
 require 'stringio'
 
 module GEDCOM

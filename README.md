@@ -130,6 +130,8 @@ User Story Details, By Priority
  * import "tree-of-interest" (by GEDCOM file, or, better, one individual's ancestry GEDCOM file), then search incoming files for new matches
    * index tree-of-interest into DB
      * get GEDCOM working
+       * show potential matches
+       * add search ancestry to DB
      * accept other types of repositories: ancestry.com, familysearch.org, git-ged
      * allow to remove(/disable?) identities
    * search for data within tree, ie. restricted sets of files rather than all
