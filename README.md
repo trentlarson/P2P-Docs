@@ -133,6 +133,7 @@ User Story Details, By Priority
      * accept other types of repositories: ancestry.com, familysearch.org, git-ged
      * allow to remove(/disable?) identities
    * search for data within tree, ie. restricted sets of files rather than all
+ * add node for Windows; possibly add sqlite for Windows/Linux
  * store non-diffable (or ignored) files in DB rather than keeping copy of everything in reviewed
  * remove the static Ruby class variable that's not static (in settings.rb)
  * only keep copies of selected files (not all of them)
