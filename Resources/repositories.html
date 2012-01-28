@@ -159,11 +159,11 @@ $(document).ready(function() {
         window.p2pdoc_settings.save();
         afterLoadShow = {"jumpToAnchor":"repoAnchor_" + repoId, "showElement":"repoInPath_"+repoId};
       } else if (inOutMine === "mine") {
-        window.p2pdoc_settings.change_repo_my_loc(repoName, directory);
+        window.p2pdoc_settings.change_repo_my_loc(repoId, directory);
         window.p2pdoc_settings.save();
         afterLoadShow = {"jumpToAnchor":"repoAnchor_" + repoId, "showElement":"repoMyLocPath_"+repoId};
       } else if (inOutMine === "out") {
-        window.p2pdoc_settings.change_repo_outgoing(repoName, directory);
+        window.p2pdoc_settings.change_repo_outgoing(repoId, directory);
         window.p2pdoc_settings.save();
         afterLoadShow = {"jumpToAnchor":"repoAnchor_" + repoId, "showElement":"repoOutPath_"+repoId};
       } else {
@@ -238,7 +238,7 @@ $(document).ready(function() {
 <div id="repoList">
   <h2>Libraries</h2>
   <div id="repoItem_" class="repoItem">
-    <a name="repoAnchor_"/>
+    <a name="repoAnchor_"></a>
     <span id="repoName_">
       <h3>
         <span></span>
