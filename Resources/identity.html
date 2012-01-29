@@ -14,6 +14,7 @@
   <script type="text/ruby"       src="ruby/lib/gedcom_date.rb"></script>
   <script type="text/ruby"       src="ruby/lib/gedcom.rb"></script>
   <script type="text/ruby"       src="ruby/gedcom-ancestry.rb"></script>
+  <script type="text/ruby"       src="ruby/p2pdocs_utils.rb"></script>
   
   <script type="text/ruby">
     window.p2pdoc_settings = Settings.new(Titanium.App.Properties.getString("settings-dir"))
@@ -25,7 +26,9 @@
       
       if (urlParam("nameInFile")
           && urlParam("genLocation")) {
-        alert("value: " + window.p2pdoc_ancestor_search);
+        window.p2pdoc_ancestor_search.setNamesToMatch(urlParam("nameInFile"));
+        window.p2pdoc_ancestor_search.parse(urlParam("genLocation"));
+        alert(window.p2pdoc_ancestor_search.similarPeopleFoundJson());
       }
       
       if (urlParam("idInFile")

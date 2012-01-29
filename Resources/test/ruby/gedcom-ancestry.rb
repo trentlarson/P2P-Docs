@@ -12,4 +12,11 @@ parser = SimilarNameExtracter.new
 parser.setNamesToMatch names_to_match
 parser.parse file_name
 
-parser.showSimilarPeople()
+parser.similarPeopleFound().each{ |elem| puts elem.to_s + "\n" }
+
+
+
+
+require File.join(File.expand_path(File.dirname(__FILE__)), "../../ruby/p2pdocs_utils.rb")
+
+puts parser.similarPeopleFoundJson()

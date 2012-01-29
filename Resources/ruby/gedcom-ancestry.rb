@@ -1,6 +1,7 @@
 
 #require 'gedcom'
 #require File.join(File.expand_path(File.dirname(__FILE__)), "lib", "gedcom.rb")
+#require File.join(File.expand_path(File.dirname(__FILE__)), "p2pdocs_utils.rb")
 
 class Individual
   attr_accessor :id
@@ -55,11 +56,14 @@ class SimilarNameExtracter < GEDCOM::Parser
     @namesToMatch = names.upcase.split(" ")
   end
 
-  def showSimilarPeople( )
-    puts "=- none -=" if @allSimilar.size == 0
-    @allSimilar.sort.each do |ind|
-      puts "#{ind.id}\t #{ind.name} #{ind.birth_date}"
+  def similarPeopleFound()
+    @allSimilar.sort.map do |ind|
+      {'id'=>ind.id, 'name'=>ind.name, 'birth_date'=>ind.birth_date.to_s}
     end
+  end
+
+  def similarPeopleFoundJson()
+    P2PDocsUtils.strings_arrays_hashes_json similarPeopleFound()
   end
 
 end

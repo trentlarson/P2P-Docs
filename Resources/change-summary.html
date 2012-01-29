@@ -42,6 +42,7 @@
 
 <script type="text/ruby"       src="ruby/settings.rb"></script>
 <script type="text/ruby"       src="ruby/updates.rb"></script>
+<script type="text/ruby"       src="ruby/p2pdocs_utils.rb"></script>
 
 <script type="text/ruby">
   window.p2pdoc_settings = Settings.new(Titanium.App.Properties.getString("settings-dir"))
@@ -87,8 +88,8 @@ try {
 
 
 <script type="text/ruby">
-  window.p2pdoc_all_diffs_json = Updates.strings_arrays_hashes_json(Updates.all_repo_diffs(window.p2pdoc_settings))
-  window.p2pdoc_all_out_diffs_json = Updates.strings_arrays_hashes_json(Updates.all_outgoing_diffs(window.p2pdoc_settings))
+  window.p2pdoc_all_diffs_json = P2PDocsUtils.strings_arrays_hashes_json(Updates.all_repo_diffs(window.p2pdoc_settings))
+  window.p2pdoc_all_out_diffs_json = P2PDocsUtils.strings_arrays_hashes_json(Updates.all_outgoing_diffs(window.p2pdoc_settings))
   def copy_to_outgoing(out_diffs)
     out_diffs.each { |name_diff|
       name_diff.diffs.each { |diff|

@@ -29,11 +29,11 @@
 </style>
 
 <script type="text/ruby" src="ruby/settings.rb"></script>
-<script type="text/ruby" src="ruby/updates.rb"></script>
+<script type="text/ruby" src="ruby/p2pdocs_utils.rb"></script>
 <script type="text/ruby">
   window.p2pdoc_settings = Settings.new(Titanium.App.Properties.getString("settings-dir"))
   # Unbelievable: it works elsewhere to access settings repositories, but it's crashing here when I access the identity the same way.  Unbelievable.  What a hack.
-  window.p2pdoc_identity_str = Updates.strings_arrays_hashes_json(window.p2pdoc_settings.properties()["identity"])
+  window.p2pdoc_identity_str = P2PDocsUtils.strings_arrays_hashes_json(window.p2pdoc_settings.properties()["identity"])
 </script>
 
 <script type="text/javascript">
