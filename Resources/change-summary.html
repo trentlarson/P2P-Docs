@@ -44,8 +44,14 @@
 <script type="text/ruby"       src="ruby/updates.rb"></script>
 <script type="text/ruby"       src="ruby/p2pdocs_utils.rb"></script>
 
+<script type="text/javascript">
+  var appPropsStr = Titanium.App.Properties.getString("appPropsJson");
+  var appProps = JSON.parse(appPropsStr);
+  window.settingsDir = appProps['settings-dir'];
+</script>
+
 <script type="text/ruby">
-  window.p2pdoc_settings = Settings.new(Titanium.App.Properties.getString("settings-dir"))
+  window.p2pdoc_settings = Settings.new(window.settingsDir)
   window.p2pdoc_mark_reviewed = lambda { |repo_id, path, previous_path| Updates.mark_reviewed(window.p2pdoc_settings, repo_id, path, previous_path) }
   window.p2pdoc_mark_reviewed2 = lambda { |repo_id, path, previous_path| Titanium.API.print("got into method\n") }
   def p2pdoc_mark_reviewed3(repo_id, path, previous_path)
@@ -59,8 +65,8 @@
 //Titanium.API.print("to console\n");
 
 function initializeChangeSummary() {
-  if (Titanium.App.Properties.hasProperty('post-param')) {
-    var actionData = Titanium.JSON.parse(Titanium.App.Properties.getString('post-param'));
+  if (typeof appProps['post-param'] != "undefined") {
+    var actionData = appProps['post-param'];
     if (actionData != null) {
       //eg. {'action':'markReviewedBulk', 'reviewed':[{'id':0, 'name':'Bohemia', 'path':'Tao', 'previousPath':'Hedonism'}]}];
       if (actionData.action === 'markReviewedBulk') {
@@ -70,7 +76,8 @@ function initializeChangeSummary() {
           window.p2pdoc_mark_reviewed(fileInfo.id, fileInfo.path, fileInfo.previousPath);
         }
       }
-      Titanium.App.Properties.setString('post-param', "null");
+      appProps['post-param'] = null;
+      Titanium.App.Properties.setString('appPropsJson', JSON.stringify(appProps));
     }
   }
 }
@@ -107,7 +114,8 @@ var Ti = {fs: Titanium.Filesystem, api:Titanium.API};
 function setupMarkAction(reviewedList) {
   //eg. {'action':'markReviewedBulk', 'reviewed':[{'id':0, 'name':'Bohemia', 'path':'Tao', 'previousPath':'Hedonism'}]}];
   var actionData = {'action':'markReviewedBulk', 'reviewed':reviewedList};
-  Titanium.App.Properties.setString('post-param', Titanium.JSON.stringify(actionData));
+  appProps['post-param'] = actionData;
+  Titanium.App.Properties.setString('appPropsJson', JSON.stringify(appProps));
 }
 
 function getRepoById(allRepos, repoId) {

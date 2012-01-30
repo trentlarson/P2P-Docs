@@ -30,8 +30,15 @@
 
 <script type="text/ruby" src="ruby/settings.rb"></script>
 <script type="text/ruby" src="ruby/p2pdocs_utils.rb"></script>
+
+<script type="text/javascript">
+  var appPropsStr = Titanium.App.Properties.getString("appPropsJson");
+  var appProps = JSON.parse(appPropsStr);
+  window.settingsDir = appProps['settings-dir'];
+</script>
+
 <script type="text/ruby">
-  window.p2pdoc_settings = Settings.new(Titanium.App.Properties.getString("settings-dir"))
+  window.p2pdoc_settings = Settings.new(window.settingsDir)
   # Unbelievable: it works elsewhere to access settings repositories, but it's crashing here when I access the identity the same way.  Unbelievable.  What a hack.
   window.p2pdoc_identity_str = P2PDocsUtils.strings_arrays_hashes_json(window.p2pdoc_settings.properties()["identity"])
 </script>

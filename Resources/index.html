@@ -10,11 +10,25 @@
 <link rel="stylesheet" type="text/css" href="css/p2pdocs.css" />
 
 <script type="text/javascript">
+var appProps = {};
 function configApp() {
+  
+  if (Titanium.App.Properties.hasProperty('appPropsJson')) {
+    // Titanium loads and savs properties with backslashes ("\") incorrectly: I think it's on the initial load that it loses them, and then all backslashes get dropped in any property other than the one you're setting.  Yes.  This is very bad for Windows paths.
+    // Se we're going to use a single property.
+    // Looks like the very first property load (ie. only in this initial file) is where we have to replace backslashes; doing it in other property loads will add too many more of them.
+    var appPropsStr = Titanium.App.Properties.getString("appPropsJson").replace(/\\/g, "\\\\");
+    appProps = JSON.parse(appPropsStr);
+  } else {
+    Titanium.App.Properties.setString('appPropsJson', JSON.stringify({}));
+    // that has the side-effect of saving the property
+  }
+  
   // Initialize the basic setup.
-  if (!Titanium.App.Properties.hasProperty('settings-dir')) {
-    // Titanium.App.Properties pulls from the application.properties file.  Note that lines in it beginning with # sometimes disappear; I use // for commentary.
-    Titanium.App.Properties.setString('settings-dir', Titanium.Filesystem.getApplicationDataDirectory().toString());
+  // Titanium.App.Properties pulls from the application.properties file.  Note that lines in it beginning with # sometimes disappear; I use // for commentary.
+  if (typeof appProps['settings-dir'] == "undefined") {
+    appProps['settings-dir'] = Titanium.Filesystem.getApplicationDataDirectory().toString();
+    Titanium.App.Properties.setString('appPropsJson', JSON.stringify(appProps));
   }
   
   // Initialize a DB for genealogy tree-of-interest.
@@ -22,7 +36,8 @@ function configApp() {
   // ext_ids is a JSON-encoded array of IDs
   var exec = genealogyDB.execute('CREATE TABLE IF NOT EXISTS genealogy (id INTEGER PRIMARY KEY AUTOINCREMENT, father_id INTEGER, mother_id INTEGER, ext_ids TEXT)');
   genealogyDB.close();
-  Titanium.App.Properties.setString('genealogy_db_path', genealogyDB.getPath());
+  appProps.genealogy_db_path = genealogyDB.getPath();
+  Titanium.App.Properties.setString('appPropsJson', JSON.stringify(appProps));
 }
 
 try {
@@ -31,10 +46,12 @@ try {
 } catch (e) {
   p2pdocsHandleError(e);
 }
+
+window.settingsDir = appProps['settings-dir'];
 </script>
 
 <script type="text/ruby">
-  window.p2pdoc_settings = Settings.new(Titanium.App.Properties.getString("settings-dir"))
+  window.p2pdoc_settings = Settings.new(window.settingsDir)
 </script>
 
 <script type="text/javascript">

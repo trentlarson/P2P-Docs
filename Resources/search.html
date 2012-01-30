@@ -18,8 +18,14 @@
 <script type="text/ruby"       src="ruby/settings.rb"></script>
 <script type="text/ruby"       src="ruby/search.rb"></script>
 
+<script type="text/javascript">
+  var appPropsStr = Titanium.App.Properties.getString("appPropsJson");
+  var appProps = JSON.parse(appPropsStr);
+  window.settingsDir = appProps['settings-dir'];
+</script>
+
 <script type="text/ruby">
-  window.p2pdocs_settings = Settings.new(Titanium.App.Properties.getString("settings-dir"))
+  window.p2pdocs_settings = Settings.new(window.settingsDir)
   window.p2pdocs_searcher = Search.new
 </script>
 
