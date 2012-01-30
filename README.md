@@ -135,7 +135,7 @@ User Story Details, By Priority
      * accept other types of repositories: ancestry.com, familysearch.org, git-ged
      * allow to remove(/disable?) identities
    * search for data within tree, ie. restricted sets of files rather than all
- * error in versioned-repo test environment when we mark files as reviewed
+ * error in versioned-repo test environment when we mark files as reviewed... because it's removing the previous_path, where it should be replacing it (and why am I removing again?)
  * add node for Windows; possibly add sqlite for Windows/Linux
  * store non-diffable (or ignored) files in DB rather than keeping copy of everything in reviewed
  * remove the static Ruby class variable that's not static (in settings.rb)

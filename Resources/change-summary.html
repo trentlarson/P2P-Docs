@@ -73,7 +73,7 @@ function initializeChangeSummary() {
         var fileInfo;
         for (var i = actionData.reviewed.length - 1; i >= 0; i--) {
           fileInfo = actionData.reviewed[i];
-          window.p2pdoc_mark_reviewed(fileInfo.id, fileInfo.path, fileInfo.previousPath);
+          window.p2pdoc_mark_reviewed(fileInfo.repoId, fileInfo.path, fileInfo.previousPath);
         }
       }
       appProps['post-param'] = null;
@@ -140,7 +140,7 @@ function markAccepted() {
       var repoName = $(this).attr("repoName");
       var path = $(this).attr("path");
       var previousPath = $(this).attr("previousPath");
-      reviewedList.push({'id':repoId, 'name':repoName, 'path':path, 'previousPath':previousPath});
+      reviewedList.push({'repoId':repoId, 'name':repoName, 'path':path, 'previousPath':previousPath});
     });
     setupMarkAction(reviewedList);
     
