@@ -58,7 +58,7 @@ class SimilarNameExtracter < GEDCOM::Parser
 
   def similarPeopleFound()
     @allSimilar.sort.map do |ind|
-      {'id'=>ind.id, 'name'=>ind.name, 'birth_date'=>ind.birth_date.to_s}
+      {'indId'=>ind.id, 'name'=>ind.name, 'birth_date'=>ind.birth_date.to_s}
     end
   end
 

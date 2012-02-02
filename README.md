@@ -127,14 +127,20 @@ Development Setup:
 User Story Details, By Priority
 --------------------
 
- * import "tree-of-interest" (by GEDCOM file, or, better, one individual's ancestry GEDCOM file), then search incoming files for new matches
-   * index tree-of-interest into DB
+ * import "tree-of-interest"
+   * find matching people in existing GEDCOM file
      * get GEDCOM working
        * show potential matches
        * add search ancestry to DB
+       * show birthdate (tiny)
      * accept other types of repositories: ancestry.com, familysearch.org, git-ged
      * allow to remove(/disable?) identities
+   * find matching people on website (eg. FamilySearch.org, Ancestry.com)
+ * search for stories (locally)
    * search for data within tree, ie. restricted sets of files rather than all
+     * if match has children, suggest browsing down to find closest ancestor
+   * terms
+   * semantic data
  * error in versioned-repo test environment when we mark files as reviewed... because it's removing the previous_path, where it should be replacing it (and why am I removing again?)
  * add node for Windows; possibly add sqlite for Windows/Linux
  * store non-diffable (or ignored) files in DB rather than keeping copy of everything in reviewed

@@ -44,6 +44,12 @@
       <input type="submit" value="find matches">
     </form>
     
+    <div style="text-align:left;">
+      <ul>
+        <li id="match" style="display:none;"><span id="matchName"></span>  <span id="acceptMatch" class="link">Yes!  This is me or a close ancestor.</span></li>
+      </ul>
+    </div>
+    
     <h2>Raw Data</h2>
     <form action="identity.html" id="identityDataForm">
       Enter the ID of yourself or your closest ancestor: <input type="text" name="idInFile" id="idInFile">
@@ -61,9 +67,32 @@
       
       if (urlParam("nameInFile")
           && urlParam("genLocation")) {
+        var genLocation = urlParam("genLocation")
         window.p2pdoc_ancestor_search.setNamesToMatch(urlParam("nameInFile"));
-        window.p2pdoc_ancestor_search.parse(urlParam("genLocation"));
-        alert(window.p2pdoc_ancestor_search.similarPeopleFoundJson());
+        window.p2pdoc_ancestor_search.parse(genLocation);
+        var resultString = window.p2pdoc_ancestor_search.similarPeopleFoundJson();
+        var resultJson = JSON.parse(resultString);
+        var matchTemplate = $('#match');
+        var newMatch;
+        for (var i = 0; i < resultJson.length; i++) {
+          newMatch = matchTemplate.clone();
+          newMatch.insertBefore(matchTemplate);
+          newMatch.find('#matchName').html(resultJson[i].name);
+          newMatch.show();
+          newMatch.find('#acceptMatch').click(function(file, indId) {
+            return function() {
+              location.href = "identity.html?gedcomFile=" + escape(file) + "&indId=" + escape(indId);
+            };
+          }(genLocation, resultJson[i].indId));
+        }
+      }
+      
+      if (urlParam("indId")
+          && urlParam("gedcomFile")) {
+        window.p2pdoc_settings.add_identity(urlParam("gedcomFile"), urlParam("indId"));
+        $('#everything').hide('slide', { direction: "down"}, 500, function() {
+          location.href = "repositories.html";
+        });
       }
       
       if (urlParam("idInFile")
