@@ -27,7 +27,36 @@
     window.p2pdoc_ancestor_search = newSimilarNameExtractor()
   </script>
   
+</head>
+<body>
+  
+  <div id="everything" style="text-align:center; height:100%;">
+    
+    <span id="cancel" class="link">Cancel</span>
+    <br/>
+    
+    <h2>Search</h2>
+    <form action="identity.html" id="identitySearchForm">
+      Enter the name of yourself or your closest ancestor: <input type="text" name="nameInFile" id="nameInFile">
+      <br/>
+       ... from the genealogy file: <input type="text" name="genLocation" id="genLocation"> <span id="chooseFile" class="link">(select file)</span>
+      <br/>
+      <input type="submit" value="find matches">
+    </form>
+    
+    <h2>Raw Data</h2>
+    <form action="identity.html" id="identityDataForm">
+      Enter the ID of yourself or your closest ancestor: <input type="text" name="idInFile" id="idInFile">
+      <br/>
+       ... from the genealogy file: <input type="text" name="genLocation" id="genLocation"> <span id="chooseFile" class="link">(select file)</span>
+      <br/>
+      <input type="submit" value="add identity">
+    </form>
+    
+  </div>
+  
   <script>
+    
     $(document).ready(function() {
       
       if (urlParam("nameInFile")
@@ -84,34 +113,8 @@
       });
       
     });
+    
   </script>
-
-</head>
-<body>
   
-  <div id="everything" style="text-align:center; height:100%;">
-    
-    <span id="cancel" class="link">Cancel</span>
-    <br/>
-    
-    <h2>Search</h2>
-    <form action="identity.html" id="identitySearchForm">
-      Enter the name of yourself or your closest ancestor: <input type="text" name="nameInFile" id="nameInFile">
-      <br/>
-       ... from the genealogy file: <input type="text" name="genLocation" id="genLocation"> <span id="chooseFile" class="link">(select file)</span>
-      <br/>
-      <input type="submit" value="find matches">
-    </form>
-    
-    <h2>Raw Data</h2>
-    <form action="identity.html" id="identityDataForm">
-      Enter the ID of yourself or your closest ancestor: <input type="text" name="idInFile" id="idInFile">
-      <br/>
-       ... from the genealogy file: <input type="text" name="genLocation" id="genLocation"> <span id="chooseFile" class="link">(select file)</span>
-      <br/>
-      <input type="submit" value="add identity">
-    </form>
-    
-  </div>
 </body>
 </html>
