@@ -15,13 +15,16 @@ function configApp() {
   
   if (Titanium.App.Properties.hasProperty('appPropsJson')) {
     // Titanium loads and savs properties with backslashes ("\") incorrectly: I think it's on the initial load that it loses them, and then all backslashes get dropped in any property other than the one you're setting.  Yes.  This is very bad for Windows paths.
-    // Se we're going to use a single property.
+    // So we're going to use a single property (because more than one can mess up the values of other ones).
     // Looks like the very first property load (ie. only in this initial file) is where we have to replace backslashes; doing it in other property loads will add too many more of them.
     var appPropsStr = Titanium.App.Properties.getString("appPropsJson").replace(/\\/g, "\\\\");
     appProps = JSON.parse(appPropsStr);
   } else {
     Titanium.App.Properties.setString('appPropsJson', JSON.stringify({}));
     // that has the side-effect of saving the property
+  }
+  if (Titanium.App.Properties.listProperties().length > 1) {
+    Titanium.API.print("\n\nBEWARE: There is more than one App property, which can cause data corruption. !!!!!!!!!!!!!!!!\n\n");
   }
   
   // Initialize the basic setup.
