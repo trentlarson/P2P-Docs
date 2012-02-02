@@ -13,9 +13,9 @@ class SampleReposVersioned
       test_content_dir = test_content_dir.toString()
     end
     
-    require File.join(app_sources_base_dir, "ruby/settings.rb")
-    require File.join(app_sources_base_dir, "ruby/updates.rb")
-    require File.join(app_sources_base_dir, "test/ruby/test_utils.rb")
+    require File.join(app_sources_base_dir, "ruby", "settings.rb")
+    require File.join(app_sources_base_dir, "ruby", "updates.rb")
+    require File.join(app_sources_base_dir, "test", "ruby", "test_utils.rb")
     
     FileUtils.rm_rf(test_content_dir)
     settings = Settings.new(test_content_dir, Settings::BLANK_SETTINGS)
