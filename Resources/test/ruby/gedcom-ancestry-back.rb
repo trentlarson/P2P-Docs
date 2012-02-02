@@ -6,7 +6,7 @@ require File.join(File.expand_path(File.dirname(__FILE__)), "..", "..", "ruby", 
 require File.join(File.expand_path(File.dirname(__FILE__)), "..", "..", "ruby", "gedcom-ancestry.rb")
 
 file_name = ARGV.length > 0 ? ARGV[0] : File.join("Resources", "test", "royal.ged")
-id_to_start_tree = ARGV.length > 1 ? ARGV[1] : "14"
+id_to_start_tree = ARGV.length > 1 ? ARGV[1] : "2"
 
 parser = TreeExtractor.new
 #parser = TreeExtracter.new

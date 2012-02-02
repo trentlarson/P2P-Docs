@@ -73,9 +73,34 @@ class TreeExtractor < GEDCOM::Parser
   
   def initialize
     super
+    @currentIndiInfo = nil
     @currentFamId = nil
     @familyToParentsHash = {}
-    @childToFamilyHash = {}
+    @childToInfoHash = {}
+    
+    
+    # get individual info
+    
+    before %w(INDI) do |data|
+      id = data[2..-2]
+      @currentIndiInfo = {'INDI' => id}
+      @childToInfoHash[id] = @currentIndiInfo
+    end
+    
+    before %w(INDI NAME) do |data|
+      @currentIndiInfo['NAME'] = data
+    end
+    
+    before %w(INDI _UID) do |data|
+      @currentIndiInfo['_UID'] = data
+    end
+    
+    after %w(INDI) do
+      @currentIndiInfo = nil
+    end
+    
+    
+    # now for the family info
     
     before %w(FAM) do |data|
       @currentFamId = data[2..-2]
@@ -99,10 +124,7 @@ class TreeExtractor < GEDCOM::Parser
     
     before %w(FAM CHIL) do |data|
       id = data[2..-2]
-      if (@childToFamilyHash[data] == nil) then
-        @childToFamilyHash[id]
-      end
-      @childToFamilyHash[id] = @currentFamId
+      @childToInfoHash[id]['FAM'] = @currentFamId
     end
     
     after %w(FAM) do
@@ -112,16 +134,20 @@ class TreeExtractor < GEDCOM::Parser
   end
   
   def retrieveTree(idToStartTree)
-    current = {'INDI' => idToStartTree}
-    if (@childToFamilyHash[idToStartTree] != nil) then
-      #puts"family for #{idToStartTree}: #{@childToFamilyHash[idToStartTree]} ... type #{@childToFamilyHash[idToStartTree].class.name}"
-      parents = @familyToParentsHash[@childToFamilyHash[idToStartTree]]
-      #puts"parents in family #{@childToFamilyHash[idToStartTree]}: #{parents}"
-      if (parents['HUSB'] != nil) then
-        current['pat'] = retrieveTree(parents['HUSB'])
-      end
-      if (parents['WIFE'] != nil) then
-        current['mat'] = retrieveTree(parents['WIFE'])
+    info = @childToInfoHash[idToStartTree]
+    current = {'info' => info}
+    if (@childToInfoHash[idToStartTree] != nil) then
+      #puts"family for #{idToStartTree}: #{@childToInfoHash[idToStartTree]}"
+      famId = @childToInfoHash[idToStartTree]['FAM']
+      parents = @familyToParentsHash[famId]
+      #puts"parents in family #{@childToInfoHash[idToStartTree]}: #{parents}"
+      if (parents != nil) then
+        if (parents['HUSB'] != nil) then
+          current['pat'] = retrieveTree(parents['HUSB'])
+        end
+        if (parents['WIFE'] != nil) then
+          current['mat'] = retrieveTree(parents['WIFE'])
+        end
       end
     end
     return current
