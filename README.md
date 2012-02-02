@@ -129,13 +129,11 @@ User Story Details, By Priority
 
  * import "tree-of-interest"
    * find matching people in existing GEDCOM file
-     * get GEDCOM working
-       * show potential matches
-       * add search ancestry to DB
-       * show birthdate (tiny)
-     * accept other types of repositories: ancestry.com, familysearch.org, git-ged
-     * allow to remove(/disable?) identities
-   * find matching people on website (eg. FamilySearch.org, Ancestry.com)
+     * add search ancestry to DB
+       * correlate FAMS and FAMC if FAM records don't exist (Does that happen?)
+     * show birthdate (tiny)
+   * accept other types of repositories: ancestry.com, familysearch.org, git-ged
+   * allow to remove(/disable?) identities
  * search for stories (locally)
    * search for data within tree, ie. restricted sets of files rather than all
      * if match has children, suggest browsing down to find closest ancestor

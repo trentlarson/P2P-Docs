@@ -68,8 +68,77 @@ class SimilarNameExtracter < GEDCOM::Parser
 
 end
 
+
+class TreeExtractor < GEDCOM::Parser
+  
+  def initialize
+    super
+    @currentFamId = nil
+    @familyToParentsHash = {}
+    @childToFamilyHash = {}
+    
+    before %w(FAM) do |data|
+      @currentFamId = data[2..-2]
+    end
+    
+    before %w(FAM HUSB) do |data|
+      id = data[2..-2]
+      if (@familyToParentsHash[@currentFamId] == nil) then
+        @familyToParentsHash[@currentFamId] = {}
+      end
+      @familyToParentsHash[@currentFamId]['HUSB'] = id
+    end
+    
+    before %w(FAM WIFE) do |data|
+      id = data[2..-2]
+      if (@familyToParentsHash[@currentFamId] == nil) then
+        @familyToParentsHash[@currentFamId] = {}
+      end
+      @familyToParentsHash[@currentFamId]['WIFE'] = id
+    end
+    
+    before %w(FAM CHIL) do |data|
+      id = data[2..-2]
+      if (@childToFamilyHash[data] == nil) then
+        @childToFamilyHash[id]
+      end
+      @childToFamilyHash[id] = @currentFamId
+    end
+    
+    after %w(FAM) do
+      @currentFamId = nil
+    end
+
+  end
+  
+  def retrieveTree(idToStartTree)
+    current = {'INDI' => idToStartTree}
+    if (@childToFamilyHash[idToStartTree] != nil) then
+      #puts"family for #{idToStartTree}: #{@childToFamilyHash[idToStartTree]} ... type #{@childToFamilyHash[idToStartTree].class.name}"
+      parents = @familyToParentsHash[@childToFamilyHash[idToStartTree]]
+      #puts"parents in family #{@childToFamilyHash[idToStartTree]}: #{parents}"
+      if (parents['HUSB'] != nil) then
+        current['pat'] = retrieveTree(parents['HUSB'])
+      end
+      if (parents['WIFE'] != nil) then
+        current['mat'] = retrieveTree(parents['WIFE'])
+      end
+    end
+    return current
+  end
+
+  def retrieveTreeJson()
+    P2PDocsUtils.strings_arrays_hashes_json retrieveTree()
+  end
+  
+end
+
+
 # Titanium gives an error if I try to create a new SimilarNameExtractor in a page... thus this method.
 def newSimilarNameExtractor()
   return SimilarNameExtracter.new
 end
 
+def treeExtractor()
+  return TreeExtractor.new
+end
