@@ -5,8 +5,12 @@ Use this together with the file-sharing program of your choice to
 share files in more of a publish/subscribe model (and maintain your
 own changes separately), keeping your own organization of files.
 
-Download packages for Windows, Mac, and Linux here:
-http://api.appcelerator.net/p/pages/app_page?token=04txtaw6
+See http://familyhistories.info for general updates on this project.
+
+Here is a link to an early version of this application.  
+It has some of the basics if you want to play around, but... 
+let's just say it's early, and you'll want to stay tuned for future releases.
+http://api.appcelerator.net/p/pages/app_page?token=B4tcrXt3
 
 Let's say, for example, you're working on some historical
 documentation, and you subscribe to other people's feeds where they
