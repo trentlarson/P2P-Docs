@@ -105,29 +105,12 @@ var checkDatabase = function(request, response) {
     });
     request.on('end', function () {
       var postData = qsLib.parse(body);
-      var db = new sqliteLib.Database();
-      console.log("About to check for " + postData['ancestryIds'] + "\n  in " + postData['incomingFiles'] + "\n");
-      response.end();
-      return;
-      db.open(postData['sqliteFile'], function(error) {
-        if (error) { throw "Error opening genealogy DB: " + error; }
-        db.prepare("SELECT id, father_id, mother_id, ext_ids FROM genealogy", function(error, statement) {
-          if (error) { throw "Error selecting from genealogy: " + error; }
-          statement.fetchAll(function (error, rows) {
-            if (error) { throw "Error fetching from genealogy: " + error; }
-            //console.log("Yep, got your stuff " + rows[0].id + " " + rows[0].father_id + " " + rows[0].mother_id + " " + rows[0].ext_ids);
-            var allIds = [];
-            for (var i = 0, len = rows.length; i < len; i++) {
-              allIds = allIds.concat(JSON.parse(rows[i].ext_ids));
-            }
-            allIds.sort();
-            
-            statement.finalize(function(error) {
-              if (error) { throw "Error finalizing genealogy statement: " + error; }
-              db.close(function(error) {
-                if (error) { throw "Error closing genealogy DB: " + error; }
-              });
-            });
+      var idInfo = JSON.parse(postData['ancestryIds']);
+      var allIds = [];
+      for (var i = 0, len = idInfo.length; i < len; i++) {
+        allIds = allIds.concat([idInfo[i]['id']]);
+      }
+      allIds.sort();
             
             //console.log("Searching for these IDs: " + JSON.stringify(allIds));
             // an array of file diff info
@@ -174,7 +157,7 @@ var checkDatabase = function(request, response) {
                                 metaId = metas[j].getAttribute("itemprop") + "/" + metas[j].getAttribute("content");
                                 var pastAlpha = false; // to shortcut more searching if we're past where the ID would be in our search of this sorted array
                                 allIds.forEach(function(value, index) {
-                                  if (!foundPersonId && !pastAlpha) {
+                                  if (!foundPersonId /*&& !pastAlpha -- turned off due to a bug in royal.ged w/ INDI 2 */) {
                                     var comparison = metaId.localeCompare(value);
                                     if (comparison == 0) {
                                       foundPersonId = metaId;
@@ -201,9 +184,6 @@ var checkDatabase = function(request, response) {
                 }
               }
             }
-          });
-        });
-      });
     });
   } else {
     response.writeHead(400, {"Content-Type": "text/plain"});  

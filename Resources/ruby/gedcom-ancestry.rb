@@ -159,7 +159,7 @@ class TreeExtractor < GEDCOM::Parser
   
   def retrieveTreeAsUrlList(prefix, idToStartTree)
     allIds = retrieveTreeAsList2(retrieveTree(idToStartTree)).map{ |info|
-      {"id" => prefix + "/" + info['INDI'], 'name' => info['NAME']}
+      {"id" => "file:" + prefix + "/" + info['INDI'], 'name' => info['NAME']}
     }
     allIds
   end
