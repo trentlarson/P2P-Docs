@@ -106,6 +106,9 @@ var checkDatabase = function(request, response) {
     request.on('end', function () {
       var postData = qsLib.parse(body);
       var db = new sqliteLib.Database();
+      console.log("About to check for " + postData['ancestryIds'] + "\n  in " + postData['incomingFiles'] + "\n");
+      response.end();
+      return;
       db.open(postData['sqliteFile'], function(error) {
         if (error) { throw "Error opening genealogy DB: " + error; }
         db.prepare("SELECT id, father_id, mother_id, ext_ids FROM genealogy", function(error, statement) {

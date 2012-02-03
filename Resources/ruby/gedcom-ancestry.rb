@@ -157,8 +157,11 @@ class TreeExtractor < GEDCOM::Parser
   end
 
   
-  def retrieveTreeAsList(prefix, idToStartTree)
-    {'prefix'=>prefix, 'list'=>retrieveTreeAsList2(retrieveTree(idToStartTree))}
+  def retrieveTreeAsUrlList(prefix, idToStartTree)
+    allIds = retrieveTreeAsList2(retrieveTree(idToStartTree)).map{ |info|
+      {"id" => prefix + "/" + info['INDI'], 'name' => info['NAME']}
+    }
+    allIds
   end
   def retrieveTreeAsList2(tree)
     if (tree == nil) then
@@ -167,8 +170,8 @@ class TreeExtractor < GEDCOM::Parser
       [tree['info']] + retrieveTreeAsList2(tree['pat']) + retrieveTreeAsList2(tree['mat'])
     end
   end
-  def retrieveTreeAsListJson(prefix, idToStartTree)
-    P2PDocsUtils.strings_arrays_hashes_json retrieveTreeAsList(prefix, idToStartTree)
+  def retrieveTreeAsUrlListJson(prefix, idToStartTree)
+    P2PDocsUtils.strings_arrays_hashes_json retrieveTreeAsUrlList(prefix, idToStartTree)
   end
   
 end

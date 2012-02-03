@@ -14,4 +14,4 @@ parser.parse file_name
 
 puts parser.retrieveTree(id_to_start_tree).to_s + "\n"
 
-parser.retrieveTreeAsList(file_name, id_to_start_tree).each{ |elem| puts elem.to_s + "\n" }
+parser.retrieveTreeAsUrlList(file_name, id_to_start_tree).each{ |elem| puts elem.to_s + "\n" }
