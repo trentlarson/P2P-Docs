@@ -112,78 +112,78 @@ var checkDatabase = function(request, response) {
       }
       allIds.sort();
             
-            //console.log("Searching for these IDs: " + JSON.stringify(allIds));
-            // an array of file diff info
-            incomingFiles = JSON.parse(postData['incomingFiles']);
-            if (incomingFiles.length === 0) {
-              response.write("[]");
+      //console.log("Searching for these IDs: " + JSON.stringify(allIds));
+      // an array of file diff info
+      incomingFiles = JSON.parse(postData['incomingFiles']);
+      if (incomingFiles.length === 0) {
+        response.write("[]");
+        response.end();
+      } else {
+        //console.log(" ... in these files: " + JSON.stringify(incomingFiles));
+        // an array of objects with: file, context, position (similar to main in search.rb)
+        var resultsCollector = {
+          inProgress: incomingFiles.length,
+          results: [],
+          fillResult: function(interestingLocations) {
+            //console.log("Decrementing " + this.inProgress + " for interestingLocations: " + JSON.stringify(interestingLocations));
+            this.results = this.results.concat(interestingLocations);
+            this.inProgress--;
+            if (this.inProgress === 0) {
+              response.write(JSON.stringify(this.results));
               response.end();
-            } else {
-              //console.log(" ... in these files: " + JSON.stringify(incomingFiles));
-              // an array of objects with: file, context, position (similar to main in search.rb)
-              var resultsCollector = {
-                inProgress: incomingFiles.length,
-                results: [],
-                fillResult: function(interestingLocations) {
-                  //console.log("Decrementing " + this.inProgress + " for interestingLocations: " + JSON.stringify(interestingLocations));
-                  this.results = this.results.concat(interestingLocations);
-                  this.inProgress--;
-                  if (this.inProgress === 0) {
-                    response.write(JSON.stringify(this.results));
-                    response.end();
-                  }
-                }
-              };
-              for (i = 0, len = incomingFiles.length; i < len; i++) {
-                if (endsWith(incomingFiles[i].path, ".htm")
-                    || endsWith(incomingFiles[i].path, ".html")) {
-                  apricotLib.Apricot.open(incomingFiles[i].path, function(fileInfo) {
-                    return function(error, doc) {
-                      if (error) {
-                        //console.log("Got this error parsing file " + fileInfo.path + ": " + error);
-                        resultsCollector.fillResult([]);
-                      } else {
-                        doc.find("span[itemscope][itemtype=\"http://historical-data.org/HistoricalPerson.html\"]");
-                        var matches = [];
-                        //if (matches.length>0) { console.log("Parsed through " + fileInfo.path + " and found: " + matches + ", eg. " + matches[0].text + " " + matches[0].textContent); }
-                        doc.each(function(element) {
-                          // check for the first 'meta' tag that matches anyone in my ancestry
-                          var foundPersonId = null;
-                          metas = element.getElementsByTagName("meta");
-                          for (var j = 0; j < metas.length; j++) {
-                            if (!foundPersonId) {
-                              if (metas[j].getAttribute("itemprop").length > 0
-                                  && metas[j].getAttribute("content").length > 0) {
-                                metaId = metas[j].getAttribute("itemprop") + "/" + metas[j].getAttribute("content");
-                                var pastAlpha = false; // to shortcut more searching if we're past where the ID would be in our search of this sorted array
-                                allIds.forEach(function(value, index) {
-                                  if (!foundPersonId /*&& !pastAlpha -- turned off due to a bug in royal.ged w/ INDI 2 */) {
-                                    var comparison = metaId.localeCompare(value);
-                                    if (comparison == 0) {
-                                      foundPersonId = metaId;
-                                    } else if (comparison > 0) {
-                                      pastAlpha = true;
-                                    }
-                                  }
-                                });
+            }
+          }
+        };
+        for (i = 0, len = incomingFiles.length; i < len; i++) {
+          if (endsWith(incomingFiles[i].path, ".htm")
+              || endsWith(incomingFiles[i].path, ".html")) {
+            apricotLib.Apricot.open(incomingFiles[i].path, function(fileInfo) {
+              return function(error, doc) {
+                if (error) {
+                  //console.log("Got this error parsing file " + fileInfo.path + ": " + error);
+                  resultsCollector.fillResult([]);
+                } else {
+                  doc.find("span[itemscope][itemtype=\"http://historical-data.org/HistoricalPerson.html\"]");
+                  var matches = [];
+                  //if (matches.length>0) { console.log("Parsed through " + fileInfo.path + " and found: " + matches + ", eg. " + matches[0].text + " " + matches[0].textContent); }
+                  doc.each(function(element) {
+                    // check for the first 'meta' tag that matches anyone in my ancestry
+                    var foundPersonId = null;
+                    metas = element.getElementsByTagName("meta");
+                    for (var j = 0; j < metas.length; j++) {
+                      if (!foundPersonId) {
+                        if (metas[j].getAttribute("itemprop").length > 0
+                            && metas[j].getAttribute("content").length > 0) {
+                          metaId = metas[j].getAttribute("itemprop") + "/" + metas[j].getAttribute("content");
+                          var pastAlpha = false; // to shortcut more searching if we're past where the ID would be in our search of this sorted array
+                          allIds.forEach(function(value, index) {
+                            if (!foundPersonId /*&& !pastAlpha -- turned off due to a bug in royal.ged w/ INDI 2 */) {
+                              var comparison = metaId.localeCompare(value);
+                              if (comparison == 0) {
+                                foundPersonId = metaId;
+                              } else if (comparison > 0) {
+                                pastAlpha = true;
                               }
                             }
-                          }
-                          if (foundPersonId) {
-                            fileInfo.context = element.textContent; // textContent omits tag elements; text includes it all
-                            fileInfo.position = element.id;
-                            matches.push(fileInfo);
-                          }
-                        });
-                        resultsCollector.fillResult(matches);
+                          });
+                        }
                       }
-                    };
-                  }(incomingFiles[i]));
-                } else {
-                  resultsCollector.fillResult([]);
+                    }
+                    if (foundPersonId) {
+                      fileInfo.context = element.textContent; // textContent omits tag elements; text includes it all
+                      fileInfo.position = element.id;
+                      matches.push(fileInfo);
+                    }
+                  });
+                  resultsCollector.fillResult(matches);
                 }
-              }
-            }
+              };
+            }(incomingFiles[i]));
+          } else {
+            resultsCollector.fillResult([]);
+          }
+        }
+      }
     });
   } else {
     response.writeHead(400, {"Content-Type": "text/plain"});  
