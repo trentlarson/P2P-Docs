@@ -91,9 +91,9 @@ class TreeExtractor < GEDCOM::Parser
       @currentIndiInfo['NAME'] = data
     end
     
-    before %w(INDI _UID) do |data|
-      @currentIndiInfo['_UID'] = data
-    end
+    #before %w(INDI _UID) do |data|
+    #  @currentIndiInfo['_UID'] = data
+    #end
     
     after %w(INDI) do
       @currentIndiInfo = nil
@@ -124,7 +124,7 @@ class TreeExtractor < GEDCOM::Parser
     
     before %w(FAM CHIL) do |data|
       id = data[2..-2]
-      @childToInfoHash[id]['FAM'] = @currentFamId
+      @childToInfoHash[id]['FAMC'] = @currentFamId
     end
     
     after %w(FAM) do
@@ -138,7 +138,7 @@ class TreeExtractor < GEDCOM::Parser
     current = {'info' => info}
     if (@childToInfoHash[idToStartTree] != nil) then
       #puts"family for #{idToStartTree}: #{@childToInfoHash[idToStartTree]}"
-      famId = @childToInfoHash[idToStartTree]['FAM']
+      famId = @childToInfoHash[idToStartTree]['FAMC']
       parents = @familyToParentsHash[famId]
       #puts"parents in family #{@childToInfoHash[idToStartTree]}: #{parents}"
       if (parents != nil) then
@@ -152,9 +152,23 @@ class TreeExtractor < GEDCOM::Parser
     end
     return current
   end
+  def retrieveTreeJson(idToStartTree)
+    P2PDocsUtils.strings_arrays_hashes_json retrieveTree(idToStartTree)
+  end
 
-  def retrieveTreeJson()
-    P2PDocsUtils.strings_arrays_hashes_json retrieveTree()
+  
+  def retrieveTreeAsList(prefix, idToStartTree)
+    {'prefix'=>prefix, 'list'=>retrieveTreeAsList2(retrieveTree(idToStartTree))}
+  end
+  def retrieveTreeAsList2(tree)
+    if (tree == nil) then
+      []
+    else
+      [tree['info']] + retrieveTreeAsList2(tree['pat']) + retrieveTreeAsList2(tree['mat'])
+    end
+  end
+  def retrieveTreeAsListJson(prefix, idToStartTree)
+    P2PDocsUtils.strings_arrays_hashes_json retrieveTreeAsList(prefix, idToStartTree)
   end
   
 end
