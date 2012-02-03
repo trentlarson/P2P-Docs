@@ -144,10 +144,11 @@ User Story Details, By Priority
    * terms
    * semantic data
  * error in versioned-repo test environment when we mark files as reviewed... because it's removing the previous_path, where it should be replacing it (and why am I removing again?)
- * add node for Windows; possibly add sqlite for Windows/Linux
  * store non-diffable (or ignored) files in DB rather than keeping copy of everything in reviewed
+ * only keep copies of selected files (not all of them) (same as previous?)
+ * fix error loading properties when royal.ged INDI 1 is used as an identity
  * remove the static Ruby class variable that's not static (in settings.rb)
- * only keep copies of selected files (not all of them)
+ * add node for Windows; possibly add sqlite for Windows/Linux
  * default to versioned files, but allow to overwrite (both incoming and outgoing)
  * default to keep old reviewed versions, but allow deletion
  * default to keep old outgoing versions, but allow deletion
