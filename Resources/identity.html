@@ -25,6 +25,7 @@
   <script type="text/ruby">
     window.p2pdoc_settings = Settings.new(window.settingsDir)
     window.p2pdoc_ancestor_search = newSimilarNameExtractor()
+    window.p2pdoc_ancestor_tree = newTreeExtractor()
   </script>
   
 </head>
@@ -90,8 +91,13 @@
       if (urlParam("indId")
           && urlParam("gedcomFile")) {
         window.p2pdoc_settings.add_identity(urlParam("gedcomFile"), urlParam("indId"));
+        window.p2pdoc_ancestor_tree.parse(urlParam("gedcomFile"));
+        var resultString = window.p2pdoc_ancestor_tree.retrieveTreeJson(urlParam("indId"));
+        appProps['ancestry'] = JSON.parse(resultString);
+        Titanium.App.Properties.setString('appPropsJson', JSON.stringify(appProps));
+        var message = "Your ancestry has been indexed and saved.";
         $('#everything').hide('slide', { direction: "down"}, 500, function() {
-          location.href = "repositories.html";
+          location.href = "repositories.html?message=" + escape(message);
         });
       }
       

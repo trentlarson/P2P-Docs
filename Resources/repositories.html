@@ -218,6 +218,10 @@ $(document).ready(function() {
     
     
     
+    if (urlParam("message")) {
+      $('#message').html(urlParam("message"));
+    }
+    
     if (afterLoadShow != null) {
       location.hash = afterLoadShow.jumpToAnchor;
       $("#" + afterLoadShow.showElement).hide();
@@ -241,6 +245,10 @@ $(document).ready(function() {
     <a href="search.html"><img src="images/binoculars.32.png" alt="Search"/></a>
     <a href="change-summary.html"><img src="images/rss-feed.32.png" alt="Review Feeds"/></a>
     <a href="repositories.html"><img src="images/gear.32.png" alt="Configure"/></a>
+  </div>
+
+  <div>
+    <span id="message"></span>
   </div>
 
 <div id="repoList">

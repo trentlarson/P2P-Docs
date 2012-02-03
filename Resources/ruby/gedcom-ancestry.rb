@@ -179,6 +179,6 @@ def newSimilarNameExtractor()
   return SimilarNameExtracter.new
 end
 
-def treeExtractor()
+def newTreeExtractor()
   return TreeExtractor.new
 end
