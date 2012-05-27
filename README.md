@@ -10,6 +10,8 @@ See http://familyhistories.info for general updates on this project.
 Here is a link to an early version of this application.  
 It has some of the basics if you want to play around, but... 
 let's just say it's early, and you'll want to stay tuned for future releases.
+(Don't use for large numbers of large files yet, since it currently
+makes a copy of all of them.)
 http://api.appcelerator.net/p/pages/app_page?token=B4tcrXt3
 
 Let's say, for example, you're working on some historical
