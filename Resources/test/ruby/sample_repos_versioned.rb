@@ -22,7 +22,7 @@ class SampleReposVersioned
 
     repo_name = "test 0"
     repo_dir_name = File.join(test_content_dir, settings.fixed_repo_name(repo_name))
-    added = TestUtils.add_repo(settings, repo_name, repo_dir_name)
+    added = TestUtils.add_repo(settings, repo_name, repo_dir_name, repo_dir_name + "_my_loc", repo_dir_name + "_out_loc")
     if (!added)
       raise "I was unable to create the #{repo_name} repository.  This happens if you've already set up this test, and I don't know why."
     else
@@ -32,12 +32,12 @@ class SampleReposVersioned
       
       File.open(File.join(repo_dir_name, "test_2.txt"), 'w') do |out|
         out.write("data\n")
-        out.write("... is in your future\n")
+        out.write("... is in Trent's future\n")
       end
       
       File.open(File.join(repo_dir_name, "test_4.txt"), 'w') do |out|
         out.write("data\n")
-        out.write("... is in your future, buddy.\n")
+        out.write("... is in everyone's future, buddy.\n")
       end
     end
 
