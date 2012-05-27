@@ -128,6 +128,7 @@ Development Setup:
   * I haven't checked in a Windows version.
   * I haven't checked in a Linux or Windows version of sqlite3.
   * I have checked in the Resources/node_modules/sqlite-osx build and sqlite3_bindings.node files, which are in .gitignore in that module.  They're built on OSX 10.6.8.
+* When updating versions, make sure to change in both places: tiapp.xml and nodeApp.js
 
 
 User Story Details, By Priority

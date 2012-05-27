@@ -209,7 +209,7 @@ server = http.createServer(function (req, resp) {
     getProfile(req, resp);
 
   } else if (req.url.indexOf('/version') === 0) {
-    // coordinate this version with the one in index.html
+    // coordinate this version with the one in tiapp.xml
     resp.write(JSON.stringify("8.0")); // this is a String mainly to keep consistent with other version numbers
     resp.end();
 
