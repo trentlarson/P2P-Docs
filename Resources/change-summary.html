@@ -207,7 +207,8 @@ $(document).ready(function() {
         repoTemplate = $('#outChanges #repoList #repo_');
         
         for (var outRepoNum = 0; outRepoNum < outCount; outRepoNum++) {
-          repoName = allOutDiffs[outRepoNum].name;
+          oneRepoDiffs = allOutDiffs[outRepoNum];
+          repoName = oneRepoDiffs.name;
           
           addedRepo = repoTemplate.clone();
           addedRepo.insertBefore(repoTemplate);
@@ -221,6 +222,7 @@ $(document).ready(function() {
           for (var outChangeNum = 0; outChangeNum < outChangeCount; outChangeNum++) {
             addedDiff = diffTemplate.clone();
             addedDiff.insertBefore(diffTemplate);
+            addedDiff.show();
             addedDiff.attr("id", "diff_" + diffNum);
             addedDiff.find("#diffPath_").attr("id", "diffPath_" + outChangeNum).html(allOutDiffs[outRepoNum].diffs[outChangeNum].path);
           }
@@ -416,7 +418,7 @@ $(document).ready(function() {
     <h2>Outgoing</h2>
     <strong>You've made changes that aren't exported to the outgoing folders.</strong>
     <a href="#" id="previewOutgoing">(preview)</a>
-    <a href="#" id="exportOutChanges">(export)</a>
+    <a href="#" id="exportOutChanges">(export all)</a>
   </div>
   <br/>
   <br/>
@@ -424,7 +426,7 @@ $(document).ready(function() {
     <div id="repo_" style="display:none;">
       <h3><span id="repoName_">repo</span></h3>
       <div>
-        <div id="diff_">
+        <div id="diff_" style="display:none;">
           <span id="diffPath_"></span>
         </div>
       </div>
