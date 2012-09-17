@@ -12,9 +12,6 @@
 <link rel="stylesheet" type="text/css" href="css/p2pdocs.css" />
 
 <style>
-#inChanges {
-  position: relative;
-}
 
 #repoList {
   float: left;
@@ -111,6 +108,7 @@ try {
 
 var Ti = {fs: Titanium.Filesystem, api:Titanium.API};
 
+/* Set up a back-end action to do on reload, since */
 function setupMarkAction(reviewedList) {
   //eg. {'action':'markReviewedBulk', 'reviewed':[{'id':0, 'name':'Bohemia', 'path':'Tao', 'previousPath':'Hedonism'}]}];
   var actionData = {'action':'markReviewedBulk', 'reviewed':reviewedList};
@@ -127,8 +125,16 @@ function getRepoById(allRepos, repoId) {
   return null;
 }
 
-function markAccepted() {
-  var checkedBoxes = $('input[type="checkbox"]:checked');
+function markOutAccepted() {
+  var checkedBoxes = $('#inChanges input[type="checkbox"]:checked');
+  if (checkedBoxes.length == 0) {
+    alert("If you really want to publish something, you'll have to select it first.");
+  } else {
+  }
+}
+
+function markInAccepted() {
+  var checkedBoxes = $('#inChanges input[type="checkbox"]:checked');
   if (checkedBoxes.length == 0) {
     alert("If you really want to accept something, you'll have to select it first.");
   } else {
@@ -191,17 +197,33 @@ $(document).ready(function() {
       var errorDetails = {};
       
       var changesExist = false;
+      var repoTemplate, repoId, repoName, addedRepo;
+      var diffTemplate, addedDiff;
       if (allOutDiffs.length > 0) {
         changesExist = true;
+        $('#outChanges').show();
+        
         var outCount = allOutDiffs.length;
+        repoTemplate = $('#outChanges #repoList #repo_');
+        
         for (var outRepoNum = 0; outRepoNum < outCount; outRepoNum++) {
-          $('#outChangeList').append("<h4>" + allOutDiffs[outRepoNum].name + "</h4>");
-          $('#outChangeList').append("<ul>\n");
+          repoName = allOutDiffs[outRepoNum].name;
+          
+          addedRepo = repoTemplate.clone();
+          addedRepo.insertBefore(repoTemplate);
+          addedRepo.show();
+          addedRepo.attr("id", "repo_" + outRepoNum);
+          addedRepo.find("#repoName_").attr("id", "repoName_" + outRepoNum).html(allOutDiffs[outRepoNum].name);
+          
+          diffTemplate = addedRepo.find('#diff_');
+          
           var outChangeCount = allOutDiffs[outRepoNum].diffs.length;
           for (var outChangeNum = 0; outChangeNum < outChangeCount; outChangeNum++) {
-            $('#outChangeList').append("<li>" + allOutDiffs[outRepoNum].diffs[outChangeNum].path + "</li>\n");
+            addedDiff = diffTemplate.clone();
+            addedDiff.insertBefore(diffTemplate);
+            addedDiff.attr("id", "diff_" + diffNum);
+            addedDiff.find("#diffPath_").attr("id", "diffPath_" + outChangeNum).html(allOutDiffs[outRepoNum].diffs[outChangeNum].path);
           }
-          $('#outChangeList').append("</ul>\n");
         }
         $('#exportOutChanges').click(function() {
             // This unfortunate necessity is because I cannot grab a simple "id" when calling Ruby (because it's deprecated and now called "object_id"), and I cannot figure out how to dig into Kroll and grab the 'id' field.
@@ -215,9 +237,8 @@ $(document).ready(function() {
             return false;
         });
         $('#previewOutgoing').click(function() {
-          $("#outChangeList").toggle(500);
+          $("#outChanges #repoList").toggle(500);
         });
-        $('#outChanges').show();
       }
       
       // show the incoming-review action
@@ -230,11 +251,11 @@ $(document).ready(function() {
         $('#inChanges').show();
   
         // declare the repo variables for data and DOM elements
-        var repoCount, repoTemplate, oneRepoDiffs, repoName, repoDiffList, repoDiffCount, addedRepo;
+        var repoCount, oneRepoDiffs, repoDiffList, repoDiffCount;
         var repoData, numChanges;
         // declare the diff variables for data and DOM elements
         var diffSet;
-        var diffTemplate, addedDiff, numFiles;
+        var numFiles;
         // gather info for checking for info in the tree-of-interest
         var interestCheckData = [];
         
@@ -278,6 +299,10 @@ $(document).ready(function() {
               addedDiff.find("#removed").show();
               
             } else if (diffSet.source_type === "file") {
+
+              // another hack, because I found the reference to reviewed_dir later would be undefined unless I reference it here, outside the 'if' statement
+              var junk = (" " + window.p2pdoc_settings.reviewed_dir);
+
               if (diffSet.target_type == null) {
                 addedDiff.find("#sourceView a").click(viewFileWrapperFunc(repoData.incoming_loc, diffSet.path)).show();
               } else {
@@ -327,7 +352,7 @@ $(document).ready(function() {
               $('#incomingSearchDone').show(1000);
               for (var i = 0, len = interestingData.length; i < len; i++) {
                 oneFile = interestingData[i];
-                $('#repo_' + oneFile.repoNum + ' #diffPath_' + oneFile.diffNum).before("<img src='images/button-green-solid.16.png'>");
+                $('#inChanges #repo_' + oneFile.repoNum + ' #diffPath_' + oneFile.diffNum).before("<img src='images/button-green-solid.16.png'>");
               }
             }
           }).error(function(error){p2pdocsHandleError(error, {"sqliteFile":Titanium.App.Properties.getString("genealogy_db_path")});});
@@ -386,19 +411,34 @@ $(document).ready(function() {
 
 <br/>
 <br/>
-<div id="outChanges" style="display:none;">
-  <span><strong>You've made changes that aren't exported to the outgoing folders.</strong></span>
-  <a href="#" id="previewOutgoing">(preview)</a>
-  <a href="#" id="exportOutChanges">(export)</a>
+<div id="outChanges" style="display:none; width:100%">
+  <div>
+    <h2>Outgoing</h2>
+    <strong>You've made changes that aren't exported to the outgoing folders.</strong>
+    <a href="#" id="previewOutgoing">(preview)</a>
+    <a href="#" id="exportOutChanges">(export)</a>
+  </div>
   <br/>
   <br/>
-  <div id="outChangeList" style="display:none;"></div>
+  <div id="repoList" style="display:none;">
+    <div id="repo_" style="display:none;">
+      <h3><span id="repoName_">repo</span></h3>
+      <div>
+        <div id="diff_">
+          <span id="diffPath_"></span>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
 
-<br/>
-<br/>
-<div id="inChanges" style="display:none;">
-  <span><strong>Here are incoming changes that you haven't reviewed.</strong></span>
+<div id="inChanges" style="display:none; clear:both;">
+  
+  <br/>
+  <br/>
+  <br/>
+  
+  <span><h2>Incoming</h2><strong>Here are incoming changes that you haven't reviewed.</strong></span>
   <br/>
   <span id="incomingSearchProgress">&nbsp;&nbsp;&nbsp;Searching for references in your tree-of-interest... <img src="images/anim-flower.gif"></span>
   <span id="incomingSearchDone" style="display:none;">&nbsp;&nbsp;&nbsp;<img src="images/button-green-solid.16.png"> - Files that contain info for you</span>
@@ -426,7 +466,7 @@ $(document).ready(function() {
   
   <div id="sideActionWrapper">
     <div id="sideAction">
-      <a href="#" onclick="javascript: markAccepted(); return false;">Accept Checked</a>
+      <a href="#" onclick="javascript: markInAccepted(); return false;">Accept Checked</a>
     </div>
   </div>
 
