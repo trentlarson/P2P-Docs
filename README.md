@@ -134,6 +134,8 @@ Development Setup:
 User Story Details, By Priority
 --------------------
 
+ * allow selection of outgoing files to publish (small)
+ * allow some say to mark files as ignored (so we don't save reviewed copies, eg. for Janell's 2 GB of files)
  * import "tree-of-interest"
    * find matching people in existing GEDCOM file
      * add search ancestry to DB
