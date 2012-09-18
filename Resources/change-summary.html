@@ -134,7 +134,7 @@ function markOutAccepted() {
 }
 
 function markInAccepted() {
-  var checkedBoxes = $('#inChanges input[type="checkbox"]:checked');
+  var checkedBoxes = $('#inChanges input[type="checkbox"]:checked').not("#checkAll");
   if (checkedBoxes.length == 0) {
     alert("If you really want to accept something, you'll have to select it first.");
   } else {
@@ -279,6 +279,12 @@ $(document).ready(function() {
           addedRepo.find("#repoName_").attr("id", "repoName_" + repoNum).html(repoName);
           numChanges = repoDiffCount + " " + (repoDiffCount == 1 ? "change" : "changes");
           addedRepo.find("#repoDiffCount_").attr("id", "repoDiffCount_" + repoNum).html("(" + numChanges + ")");
+          addedRepo.find('#checkAll').click(function() {
+            var newValue = $(this).attr("checked");
+            $(this).parent().find('div input[type="checkbox"]').not("#reviewed_").each(function() {
+              $(this).attr("checked", newValue);
+            });
+          });
           
           diffTemplate = addedRepo.find('#diff_');
           
@@ -303,7 +309,7 @@ $(document).ready(function() {
             } else if (diffSet.source_type === "file") {
 
               // another hack, because I found the reference to reviewed_dir later would be undefined unless I reference it here, outside the 'if' statement
-              var junk = (" " + window.p2pdoc_settings.reviewed_dir);
+              var junk = " " + window.p2pdoc_settings.reviewed_dir;
 
               if (diffSet.target_type == null) {
                 addedDiff.find("#sourceView a").click(viewFileWrapperFunc(repoData.incoming_loc, diffSet.path)).show();
@@ -341,6 +347,9 @@ $(document).ready(function() {
             }
           }
         }
+        
+        // consider removing the template HTML (so that select-all functions don't give problems, eg. checkAll checkboxes)
+        
         
         // fire off a check for any info from the tree-of-interest
         if (appProps['ancestryIds']) {
@@ -453,6 +462,9 @@ $(document).ready(function() {
         </a>
       </h3>
       <div id="diffList">
+        <input type="checkbox" id="checkAll">check/uncheck all
+        <br/>
+        <br/>
         <div id="diff_" style="display:none;">
           <input type="checkbox" id="reviewed_" repoId="_" repoName="_" path="_" previousPath="_">
           <span id="diffPath_">path</span>
