@@ -90,9 +90,6 @@ class Updates
   
   
   
-  # versioned_info is an array of hash: 'version' is a version and 'diff_match' is a hash where 'diff' is one element from diff_dirs
-  # latest_target_versions is the result from latest_versions
-  # incoming is true if we're doing the incoming directory, false otherwise
   # return results of diff_dirs augmented with:
   # {
   #   'target_path_previous_version' => the name of the previously reviewed version of this file (for setups with versions that come in via different file names)
@@ -103,6 +100,7 @@ class Updates
     versioned_diffs2(diff_dirs(source_dir, target_dir), target_dir)
   end
   def self.versioned_diffs2(diff_dirs_result, target_dir)
+    # versioned_info is an array of hash: 'version' is a version and 'diff_match' is a hash where 'diff' is one element from diff_dirs
     versioned_info = versioned_filenames(diff_dirs_result)
     versions = versioned_info.map { |v_dm| v_dm['version'] }
     

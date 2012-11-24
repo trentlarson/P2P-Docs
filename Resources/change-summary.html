@@ -108,7 +108,7 @@ try {
 
 var Ti = {fs: Titanium.Filesystem, api:Titanium.API};
 
-/* Set up a back-end action to do on reload, since */
+/* Set up a back-end action to do on reload, since we have all kinds of problems trying to run Ruby after the page has loaded. */
 function setupMarkAction(reviewedList) {
   //eg. {'action':'markReviewedBulk', 'reviewed':[{'id':0, 'name':'Bohemia', 'path':'Tao', 'previousPath':'Hedonism'}]}];
   var actionData = {'action':'markReviewedBulk', 'reviewed':reviewedList};
