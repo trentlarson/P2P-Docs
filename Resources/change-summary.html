@@ -264,6 +264,9 @@ $(document).ready(function() {
         repoCount = all_diffs.length;
         repoTemplate = $('#inChanges #repoList #repo_');
         
+        // another hack, because I found the reference to reviewed_dir later would be undefined unless I reference it here, outside the 'for' statement
+        var junk = " " + window.p2pdoc_settings.reviewed_dir;
+
         for (var repoNum = 0; repoNum < repoCount; repoNum++) {
           oneRepoDiffs = all_diffs[repoNum];
           repoId = parseInt(oneRepoDiffs.id);
@@ -307,9 +310,6 @@ $(document).ready(function() {
               addedDiff.find("#removed").show();
               
             } else if (diffSet.source_type === "file") {
-
-              // another hack, because I found the reference to reviewed_dir later would be undefined unless I reference it here, outside the 'if' statement
-              var junk = " " + window.p2pdoc_settings.reviewed_dir;
 
               if (diffSet.target_type == null) {
                 addedDiff.find("#sourceView a").click(viewFileWrapperFunc(repoData.incoming_loc, diffSet.path)).show();
