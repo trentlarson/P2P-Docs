@@ -159,6 +159,7 @@ settings: initial settings; if nil, @@settings will not be reset
       if (name.nil?)
         name = ""
       end
+      # optimal: keep track of the max ID somewhere so that we don't reuse numbers
       maxRepo = @@settings['repositories'].max { |repo1,repo2| repo1['id'] <=> repo2['id'] }
       if (maxRepo == nil)
         max = 0

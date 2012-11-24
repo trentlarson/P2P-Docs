@@ -39,7 +39,7 @@ class SettingsTest
     # set up the directory structure
     if (settings_data['repositories'] != nil)
       
-      @settings.properties['repositories'].each{ |repo| @settings.remove_repo(repo['id']) }
+      @settings.properties['repositories'].collect{|repo| repo['id']}.each{ |id| @settings.remove_repo(id) }
       
       settings_data['repositories'].each do |repo|
         TestUtils.add_repo2(@settings, repo)
@@ -533,7 +533,6 @@ class SettingsTest
     Updates.mark_reviewed(@settings, 0, 'sample.txt')
     all_repo_diffs = Updates.all_repo_diffs(@settings)
     puts "fail: after review #{@settings.properties}: #{all_repo_diffs.inspect}" if all_repo_diffs != []
-exit 1
 
 
 
