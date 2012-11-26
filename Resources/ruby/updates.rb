@@ -383,6 +383,9 @@ class Updates
       end
       
     # both source_file and target_file exist
+    elsif (File.size(target_file) == 0)
+      # zero-size target file means that we're ignoring this element
+      []
     elsif (File.file?(source_file) && File.file?(target_file))
       if (File.size(source_file) != File.size(target_file))
         [{'path' => subpath, 'source_type' => 'file', 'target_type' => 'file', "contents" => nil }]
@@ -435,9 +438,9 @@ class Updates
 
   # marks the subpath in repo['incoming_loc'] as reviewed
   # remove is the previous file, and it will be removed
-  def self.mark_reviewed(settings, repo_id, subpath = nil, remove = nil)
+  def self.mark_reviewed(settings, repo_id, subpath = nil, remove = nil, ignore = false)
     repo = settings.get_repo_by_id(repo_id)
-    copy_all_contents(repo['incoming_loc'], settings.reviewed_dir(repo), subpath)
+    copy_all_contents(repo['incoming_loc'], settings.reviewed_dir(repo), subpath, nil, ignore)
     if (remove != nil)
       FileUtils::remove_entry_secure(File.join(settings.reviewed_dir(repo), remove), true)
     end
@@ -457,7 +460,7 @@ class Updates
   # copy everything from the source to the target, under a common subpath
   # if source_subpath is nil, source will be the source_loc
   # if target_subpath is nil, target will be same as source_subpath
-  def self.copy_all_contents(source_loc, target_loc, source_subpath = nil, target_subpath = nil)
+  def self.copy_all_contents(source_loc, target_loc, source_subpath = nil, target_subpath = nil, ignore = false)
     if (source_subpath.nil?)
       source = source_loc
       target = target_loc
@@ -472,7 +475,13 @@ class Updates
     FileUtils::remove_entry_secure(target, true)
     if (FileTest.exist? source)
       FileUtils::mkpath(File.dirname(target))
-      FileUtils::cp_r(source, target, :preserve => true)
+      if (ignore)
+        # use a zero-size file to mark items that will be ignored
+        FileUtils::touch(target)
+        File.utime(File.atime(source), File.mtime(source), target)
+      else
+        FileUtils::cp_r(source, target, :preserve => true)
+      end
     end
   end
   
