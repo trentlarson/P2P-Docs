@@ -572,10 +572,17 @@ class SettingsTest
     File.open(File.join(repo_test0['incoming_loc'], 'sample.jpg'), 'w') do |out|
       out.write "gabba gabba image\n"
     end
+    # this sleep isn't really used in this test but it does demonstrate that the time setting works
     sleep(1)
     Updates.mark_reviewed(@settings, 0, 'sample.jpg', nil, true)
     all_repo_diffs = Updates.all_repo_diffs(@settings)
-    puts "fail: marker for ignoring a file isn't recognized" if all_repo_diffs != []
+    puts "fail: marker for ignoring a new file isn't recognized" if all_repo_diffs != []
+
+    File.open(File.join(repo_test0['incoming_loc'], 'sample.jpg'), 'a') do |out|
+      out.write "gabba gabba image bugaboo\n"
+    end
+    all_repo_diffs = Updates.all_repo_diffs(@settings)
+    puts "fail: marker for ignoring changed file isn't recognized" if all_repo_diffs != []
 
 
 
