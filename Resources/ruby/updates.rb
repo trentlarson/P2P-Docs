@@ -383,9 +383,16 @@ class Updates
       end
       
     # both source_file and target_file exist
-    elsif (File.size(target_file) == 0)
-      # zero-size target file means that we're ignoring this element
-      []
+    elsif (File.file?(target_file) && File.size(target_file) == 0)
+      # zero-size target file means that we're not keeping a copy of this
+      # (This is also the convention when the source file is a directory.)
+      if (File.mtime(target_file) < File.mtime(source_file))
+        # the source is newer, so show that there's an update
+        [{'path' => subpath, 'source_type' => File.ftype(source_file), 'target_type' => 'file', "contents" => nil }]
+      else
+        # the source is the same or older, so don't even show this item
+        []
+      end
     elsif (File.file?(source_file) && File.file?(target_file))
       if (File.size(source_file) != File.size(target_file))
         [{'path' => subpath, 'source_type' => 'file', 'target_type' => 'file', "contents" => nil }]
@@ -437,10 +444,12 @@ class Updates
   end
 
   # marks the subpath in repo['incoming_loc'] as reviewed
-  # remove is the previous file, and it will be removed
-  def self.mark_reviewed(settings, repo_id, subpath = nil, remove = nil, ignore = false)
+  # if remove is true, the previous file will be removed
+  # if no_review_copy is true, don't bother saving a full copy (useful to save space if we can't diff this type of file)
+  # if ignore_forever is true, never show this file to be reviewed again (requires no_review_copy to be true)
+  def self.mark_reviewed(settings, repo_id, subpath = nil, remove = nil, no_review_copy = false, ignore = false)
     repo = settings.get_repo_by_id(repo_id)
-    copy_all_contents(repo['incoming_loc'], settings.reviewed_dir(repo), subpath, nil, ignore)
+    copy_all_contents(repo['incoming_loc'], settings.reviewed_dir(repo), subpath, nil, no_review_copy, ignore)
     if (remove != nil)
       FileUtils::remove_entry_secure(File.join(settings.reviewed_dir(repo), remove), true)
     end
@@ -460,7 +469,9 @@ class Updates
   # copy everything from the source to the target, under a common subpath
   # if source_subpath is nil, source will be the source_loc
   # if target_subpath is nil, target will be same as source_subpath
-  def self.copy_all_contents(source_loc, target_loc, source_subpath = nil, target_subpath = nil, ignore = false)
+  # if no_review_copy is true, don't bother saving a full copy (useful to save space if we can't diff this type of file)
+  # if ignore_forever is true, never show this file to be reviewed again (requires no_review_copy to be true)
+  def self.copy_all_contents(source_loc, target_loc, source_subpath = nil, target_subpath = nil, no_review_copy = false, ignore_forever = false)
     if (source_subpath.nil?)
       source = source_loc
       target = target_loc
@@ -475,10 +486,14 @@ class Updates
     FileUtils::remove_entry_secure(target, true)
     if (FileTest.exist? source)
       FileUtils::mkpath(File.dirname(target))
-      if (ignore)
+      if (no_review_copy)
         # use a zero-size file to mark items that will be ignored
         FileUtils::touch(target)
-        File.utime(File.atime(source), File.mtime(source), target)
+        if (ignore_forever)
+          time = Time.new(9999)
+        else
+          File.utime(File.atime(source), File.mtime(source), target)
+        end
       else
         FileUtils::cp_r(source, target, :preserve => true)
       end

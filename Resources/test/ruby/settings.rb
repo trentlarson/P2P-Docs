@@ -572,17 +572,28 @@ class SettingsTest
     File.open(File.join(repo_test0['incoming_loc'], 'sample.jpg'), 'w') do |out|
       out.write "gabba gabba image\n"
     end
-    # this sleep isn't really used in this test but it does demonstrate that the time setting works
+    # this sleep isn't really used in this test but it does demonstrate that the time setting works if you look at the files
     sleep(1)
     Updates.mark_reviewed(@settings, 0, 'sample.jpg', nil, true)
     all_repo_diffs = Updates.all_repo_diffs(@settings)
-    puts "fail: marker for ignoring a new file isn't recognized" if all_repo_diffs != []
+    puts "fail: didn't recognize that a new file is reviewed but not copied" if all_repo_diffs != []
 
     File.open(File.join(repo_test0['incoming_loc'], 'sample.jpg'), 'a') do |out|
       out.write "gabba gabba image bugaboo\n"
     end
     all_repo_diffs = Updates.all_repo_diffs(@settings)
-    puts "fail: marker for ignoring changed file isn't recognized" if all_repo_diffs != []
+    puts "fail: didn't recognize change for file that's reviewed but not copied (but not ignored forever)" if all_repo_diffs !=
+      [{"id"=>0, "name"=>"test 0", "diffs"=>[{"path"=>"sample.jpg", "source_type"=>"file", "target_type"=>"file", "target_path_previous_version"=>"sample.jpg", "target_path_next_version"=>"sample.jpg", "contents"=>nil}]}]
+
+    Updates.mark_reviewed(@settings, 0, 'sample.jpg', nil, true, true)
+    all_repo_diffs = Updates.all_repo_diffs(@settings)
+    puts "fail: didn't ignore the file" if all_repo_diffs != []
+
+    File.open(File.join(repo_test0['incoming_loc'], 'sample.jpg'), 'a') do |out|
+      out.write "harrumph\n"
+    end
+    all_repo_diffs = Updates.all_repo_diffs(@settings)
+    puts "fail: didn't ignore a further change to a file that's ignored forever" if all_repo_diffs != []
 
 
 

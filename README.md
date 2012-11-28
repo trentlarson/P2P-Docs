@@ -136,6 +136,7 @@ User Story Details, By Priority
 
  * allow selection of outgoing files to publish (small)
  * allow some say to mark files as ignored (so we don't save reviewed copies, eg. for Janell's 2 GB of files)
+ * allow copying/merging to my own copy
  * import "tree-of-interest"
    * find matching people in existing GEDCOM file
      * add search ancestry to DB
