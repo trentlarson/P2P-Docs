@@ -802,7 +802,7 @@ class SettingsTest
 
 
     setup_settings({'repositories'=>[repo_test0]})
-    Updates.mark_reviewed(@settings, 0) # since there are unreviewed stuff from earlier
+    Updates.mark_reviewed(@settings, 0) # since there are unreviewed stuff from eariler
     # test where user explicitly mark a file as not-for-later-diffs
     File.open(File.join(repo_test0['incoming_loc'], 'sample.txt'), 'w') do |out|
       out.write "gabba gabba hey\n"
@@ -834,14 +834,38 @@ class SettingsTest
       out.write "harrumph\n"
     end
     Updates.mark_reviewed(@settings, 0, 'no_full_copy_subdir', nil, true)
-    all_repo_diffs = Updates.all_repo_diffs(@settings)
+    file = File.join(@settings.reviewed_base_dir(), repo_test0['id'].to_s, 'no_full_copy_subdir', 'no_full_copy_subsubdir', 'sample.txt')
+    puts "fail: text file was fully copied when explicity asked for no history; size #{File.size file}" if File.size(file) != 0
+    file = File.join(@settings.reviewed_base_dir(), repo_test0['id'].to_s, 'no_full_copy_subdir', 'no_full_copy_subsubdir', 'sample.jpg')
+    puts "fail: jpg file was fully copied when explicity asked for no history; size #{File.size file}" if File.size(file) != 0
+    
     sleep(1)
     File.open(File.join(repo_test0['incoming_loc'], 'no_full_copy_subdir', 'no_full_copy_subsubdir', 'sample.txt'), 'a') do |out|
       out.write "harrumph txt change\n"
     end
+    all_repo_diffs = Updates.all_repo_diffs(@settings)
+    puts "fail: didn't see change of revision-keeping file inside a dir that's reviewed but not fully copied: #{all_repo_diffs.inspect}" if all_repo_diffs !=
+      [{"id"=>0, "name"=>"test 0", "diffs"=>[{"path"=>File.join("no_full_copy_subdir", "no_full_copy_subsubdir", "sample.txt"), "source_type"=>"file", "target_type"=>"file", 
+        "target_path_previous_version"=>File.join("no_full_copy_subdir", "no_full_copy_subsubdir", "sample.txt"), 
+        "target_path_next_version"=>File.join("no_full_copy_subdir", "no_full_copy_subsubdir", "sample.txt"),
+        "contents"=>nil}]}]
+    Updates.mark_reviewed(@settings, 0, 'no_full_copy_subdir')
+    file = File.join(@settings.reviewed_base_dir(), repo_test0['id'].to_s, 'no_full_copy_subdir', 'no_full_copy_subsubdir', 'sample.txt')
+    puts "fail: text file wasn't fully copied; size #{File.size file}" if File.size(file) != 29
+
     File.open(File.join(repo_test0['incoming_loc'], 'no_full_copy_subdir', 'no_full_copy_subsubdir', 'sample.jpg'), 'a') do |out|
       out.write "harrumph jpg change\n"
     end
+    all_repo_diffs = Updates.all_repo_diffs(@settings)
+    puts "fail: didn't see change of no-history file inside a dir that's reviewed but not fully copied: #{all_repo_diffs.inspect}" if all_repo_diffs !=
+      [{"id"=>0, "name"=>"test 0", "diffs"=>[{"path"=>File.join("no_full_copy_subdir", "no_full_copy_subsubdir", "sample.jpg"), "source_type"=>"file", "target_type"=>"file", 
+        "target_path_previous_version"=>File.join("no_full_copy_subdir", "no_full_copy_subsubdir", "sample.jpg"), 
+        "target_path_next_version"=>File.join("no_full_copy_subdir", "no_full_copy_subsubdir", "sample.jpg"),
+        "contents"=>nil}]}]
+    file = File.join(@settings.reviewed_base_dir(), repo_test0['id'].to_s, 'no_full_copy_subdir', 'no_full_copy_subsubdir', 'sample.jpg')
+    puts "fail: jpg file was fully copied; size #{File.size file}" if File.size(file) != 0
+    Updates.mark_reviewed(@settings, 0, 'no_full_copy_subdir', nil, true)
+    
     Dir.mkdir(File.join(repo_test0['incoming_loc'], 'no_full_copy_subdir', 'no_full_copy_subsubdir2'))
     File.open(File.join(repo_test0['incoming_loc'], 'no_full_copy_subdir', 'no_full_copy_subsubdir2', 'sample.txt'), 'a') do |out|
       out.write "harrumph txt 2\n"
@@ -851,7 +875,8 @@ class SettingsTest
     end
     all_repo_diffs = Updates.all_repo_diffs(@settings)
     puts "fail: didn't recognize changed & new items for a dir that's reviewed but not copied: #{all_repo_diffs.inspect}" if all_repo_diffs != 
-      [{"id"=>0, "name"=>"test 0", "diffs"=>[{"path"=>"no_full_copy_subdir", "source_type"=>"directory", "target_type"=>"file", "target_path_previous_version"=>"no_full_copy_subdir", "target_path_next_version"=>"no_full_copy_subdir", "contents"=>nil}]}]
+      [{"id"=>0, "name"=>"test 0", "diffs"=>[{"path"=>"no_full_copy_subdir/no_full_copy_subsubdir2", "source_type"=>"directory", "target_type"=>nil, 
+        "target_path_previous_version"=>nil, "target_path_next_version"=>"no_full_copy_subdir/no_full_copy_subsubdir2", "contents"=>["sample.jpg","sample.txt"]}]}]
     
     Updates.mark_reviewed(@settings, 0, 'no_full_copy_subdir')
     Updates.mark_reviewed(@settings, 0, File.join('no_full_copy_subdir', 'no_full_copy_subsubdir2'), nil, true)
@@ -860,14 +885,14 @@ class SettingsTest
     file = File.join(@settings.reviewed_base_dir(), repo_test0['id'].to_s, 'no_full_copy_subdir', 'no_full_copy_subsubdir', 'sample.txt')
     puts "fail: text file wasn't fully copied; size #{size}" if File.size(file) != 29
     file = File.join(@settings.reviewed_base_dir(), repo_test0['id'].to_s, 'no_full_copy_subdir', 'no_full_copy_subsubdir2', 'sample.txt')
-    puts "fail: text file in non-reviewed subsubdir was still fully copied" if File.exists? file
+    puts "fail: text file wasn't fully copied; size #{size}" if File.size(file) != 0
 
 
 
     # change back so this directory is not fully copied
     Updates.mark_reviewed(@settings, 0, 'no_full_copy_subdir', nil, true)
     file = File.join(@settings.reviewed_base_dir(), repo_test0['id'].to_s, 'no_full_copy_subdir', 'no_full_copy_subsubdir', 'sample.txt')
-    puts "fail: text file of non-reviewed dir still around" if File.exists? file
+    puts "fail: text file of non-reviewed dir still around" if File.size(file) != 0
 
 
 
