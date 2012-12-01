@@ -93,6 +93,17 @@ settings: initial settings; if nil, @@settings will not be reset
     save()
   end
   
+  def add_diffable_extension(ext)
+    if (ext.class.name == "RubyKObject") # for method results from Titanium
+      ext = ext.toString()
+    end
+    if (@@settings['diffable_extensions'] == nil)
+      @@settings['diffable_extensions'] = []
+    end
+    @@settings['diffable_extensions'] << ext if !@@settings['diffable_extensions'].include?(ext)
+    save()
+  end
+  
   def reviewed_base_dir()
     File.join(@@settings_dir, "reviewed_files")
   end

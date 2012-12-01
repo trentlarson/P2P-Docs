@@ -45,6 +45,11 @@ class SettingsTest
         TestUtils.add_repo2(@settings, repo)
       end
     end
+    
+    @settings.properties['diffable_extensions'] = []
+    @settings.add_diffable_extension 'txt'
+    @settings.add_diffable_extension 'htm'
+    @settings.add_diffable_extension 'html'
   end
   
   def add_repo(name, incoming_loc, my_loc = nil, outgoing_loc = nil, not_versioned = false)
@@ -584,8 +589,6 @@ class SettingsTest
       out.write "gabba gabba hey bugaboo\n"
     end
     all_repo_diffs = Updates.all_repo_diffs(@settings)
-#    puts "time of file: #{File.mtime(File.join(repo_test0['incoming_loc'], 'sample.txt'))}"
-#    puts "size of file: #{File.size(File.join(repo_test0['incoming_loc'], 'sample.txt'))}"
     puts "fail: didn't recognize change for file that's reviewed but not copied (but not ignored forever): #{all_repo_diffs.inspect}" if all_repo_diffs !=
       [{"id"=>0, "name"=>"test 0", "diffs"=>[{"path"=>"sample.txt", "source_type"=>"file", "target_type"=>"file", "target_path_previous_version"=>"sample.txt", "target_path_next_version"=>"sample.txt", "contents"=>nil}]}]
     Updates.mark_reviewed(@settings, 0, 'sample.txt', nil, true)
