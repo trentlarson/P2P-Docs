@@ -574,121 +574,6 @@ class SettingsTest
 
 
 
-    # test where user explicitly mark a file as not-for-later-diffs
-    File.open(File.join(repo_test0['incoming_loc'], 'sample.txt'), 'w') do |out|
-      out.write "gabba gabba hey\n"
-    end
-    # this sleep isn't really used in this test but it does demonstrate that the time setting works if you manually look at the files
-    #sleep(1)
-    Updates.mark_reviewed(@settings, 0, 'sample.txt', nil, true)
-    all_repo_diffs = Updates.all_repo_diffs(@settings)
-    puts "fail: didn't recognize that a new file is reviewed even though we don't keep full reviewed copy" if all_repo_diffs != []
-
-    sleep(1) # so that the time is different, which is how we detect an update
-    File.open(File.join(repo_test0['incoming_loc'], 'sample.txt'), 'a') do |out|
-      out.write "gabba gabba hey bugaboo\n"
-    end
-    all_repo_diffs = Updates.all_repo_diffs(@settings)
-    puts "fail: didn't recognize change for file that's reviewed but not copied (but not ignored forever): #{all_repo_diffs.inspect}" if all_repo_diffs !=
-      [{"id"=>0, "name"=>"test 0", "diffs"=>[{"path"=>"sample.txt", "source_type"=>"file", "target_type"=>"file", "target_path_previous_version"=>"sample.txt", "target_path_next_version"=>"sample.txt", "contents"=>nil}]}]
-    Updates.mark_reviewed(@settings, 0, 'sample.txt', nil, true)
-
-    Dir.mkdir(File.join(repo_test0['incoming_loc'], 'no_full_copy_subdir'))
-    File.open(File.join(repo_test0['incoming_loc'], 'no_full_copy_subdir', 'sample.jpg'), 'a') do |out|
-      out.write "harrumph\n"
-    end
-    Dir.mkdir(File.join(repo_test0['incoming_loc'], 'no_full_copy_subdir', 'no_full_copy_subsubdir'))
-    File.open(File.join(repo_test0['incoming_loc'], 'no_full_copy_subdir', 'no_full_copy_subsubdir', 'sample.txt'), 'w') do |out|
-      out.write "harrumph\n"
-    end
-    File.open(File.join(repo_test0['incoming_loc'], 'no_full_copy_subdir', 'no_full_copy_subsubdir', 'sample.jpg'), 'w') do |out|
-      out.write "harrumph\n"
-    end
-    Updates.mark_reviewed(@settings, 0, 'no_full_copy_subdir', nil, true)
-    all_repo_diffs = Updates.all_repo_diffs(@settings)
-    sleep(1)
-    File.open(File.join(repo_test0['incoming_loc'], 'no_full_copy_subdir', 'no_full_copy_subsubdir', 'sample.txt'), 'a') do |out|
-      out.write "harrumph txt change\n"
-    end
-    File.open(File.join(repo_test0['incoming_loc'], 'no_full_copy_subdir', 'no_full_copy_subsubdir', 'sample.jpg'), 'a') do |out|
-      out.write "harrumph jpg change\n"
-    end
-    Dir.mkdir(File.join(repo_test0['incoming_loc'], 'no_full_copy_subdir', 'no_full_copy_subsubdir2'))
-    File.open(File.join(repo_test0['incoming_loc'], 'no_full_copy_subdir', 'no_full_copy_subsubdir2', 'sample.txt'), 'a') do |out|
-      out.write "harrumph txt 2\n"
-    end
-    File.open(File.join(repo_test0['incoming_loc'], 'no_full_copy_subdir', 'no_full_copy_subsubdir2', 'sample.jpg'), 'w') do |out|
-      out.write "harrumph jpg 2\n"
-    end
-    all_repo_diffs = Updates.all_repo_diffs(@settings)
-    puts "fail: didn't recognize changed & new items for a dir that's reviewed but not copied: #{all_repo_diffs.inspect}" if all_repo_diffs != 
-      [{"id"=>0, "name"=>"test 0", "diffs"=>[{"path"=>"no_full_copy_subdir", "source_type"=>"directory", "target_type"=>"file", "target_path_previous_version"=>"no_full_copy_subdir", "target_path_next_version"=>"no_full_copy_subdir", "contents"=>nil}]}]
-    
-    Updates.mark_reviewed(@settings, 0, 'no_full_copy_subdir')
-    Updates.mark_reviewed(@settings, 0, File.join('no_full_copy_subdir', 'no_full_copy_subsubdir2'), nil, true)
-    all_repo_diffs = Updates.all_repo_diffs(@settings)
-    puts "fail: still seeing changes for a dir that's reviewed but not copied: #{all_repo_diffs.inspect}" if all_repo_diffs != []
-    file = File.join(@settings.reviewed_base_dir(), repo_test0['id'].to_s, 'no_full_copy_subdir', 'no_full_copy_subsubdir', 'sample.txt')
-    puts "fail: text file wasn't fully copied; size #{size}" if File.size(file) != 29
-    file = File.join(@settings.reviewed_base_dir(), repo_test0['id'].to_s, 'no_full_copy_subdir', 'no_full_copy_subsubdir2', 'sample.txt')
-    puts "fail: text file in non-reviewed subsubdir was still fully copied" if File.exists? file
-
-
-
-    # change back so this directory is not fully copied
-    Updates.mark_reviewed(@settings, 0, 'no_full_copy_subdir', nil, true)
-    file = File.join(@settings.reviewed_base_dir(), repo_test0['id'].to_s, 'no_full_copy_subdir', 'no_full_copy_subsubdir', 'sample.txt')
-    puts "fail: text file of non-reviewed dir still around" if File.exists? file
-
-
-
-    # test where files have extensions which we cannot diff
-    File.open(File.join(repo_test0['incoming_loc'], 'sample.jpg'), 'a') do |out|
-      out.write "gabba gabba image\n"
-    end
-    Updates.mark_reviewed(@settings, 0, nil)
-    all_repo_diffs = Updates.all_repo_diffs(@settings)
-    file = File.join(@settings.reviewed_base_dir(), repo_test0['id'].to_s, 'sample.jpg')
-    puts "fail: jpg file was fully copied: size #{File.size file}" if File.size(file) > 0
-
-
-
-
-    Dir.mkdir(File.join(repo_test0['incoming_loc'], 'subdir_w_ignorables'))
-    File.open(File.join(repo_test0['incoming_loc'], 'subdir_w_ignorables', 'sample.txt'), 'w') do |out|
-      out.write "gabba gabba hey\n"
-    end
-    File.open(File.join(repo_test0['incoming_loc'], 'subdir_w_ignorables', 'sample.png'), 'w') do |out|
-      out.write "gabba gabba hey\n"
-    end
-    File.open(File.join(repo_test0['incoming_loc'], 'subdir_w_ignorables', 'sample.xls'), 'w') do |out|
-      out.write "gabba gabba hey\n"
-    end
-    Dir.mkdir(File.join(repo_test0['incoming_loc'], 'subdir_w_ignorables', 'another_dir'))
-    File.open(File.join(repo_test0['incoming_loc'], 'subdir_w_ignorables', 'another_dir', 'sample.txt'), 'w') do |out|
-      out.write "gabba gabba hey\n"
-    end
-    File.open(File.join(repo_test0['incoming_loc'], 'subdir_w_ignorables', 'another_dir', 'sample.png'), 'w') do |out|
-      out.write "gabba gabba hey\n"
-    end
-    File.open(File.join(repo_test0['incoming_loc'], 'subdir_w_ignorables', 'another_dir', 'sample.xls'), 'w') do |out|
-      out.write "gabba gabba hey\n"
-    end
-    Updates.mark_reviewed(@settings, 0, 'subdir_w_ignorables')
-    all_repo_diffs = Updates.all_repo_diffs(@settings)
-    puts "fail: not ignoring subdir" if all_repo_diffs != []
-
-    size = File.size File.join(@settings.reviewed_base_dir(), repo_test0['id'].to_s, 'subdir_w_ignorables', 'sample.txt')
-    puts "fail: text file wasn't fully copied; size #{size}" if size != 16
-    size = File.size File.join(@settings.reviewed_base_dir(), repo_test0['id'].to_s, 'subdir_w_ignorables', 'sample.png')
-    puts "fail: png file was copied with all contents" if size != 0
-    size = File.size File.join(@settings.reviewed_base_dir(), repo_test0['id'].to_s, 'subdir_w_ignorables', 'another_dir', 'sample.png')
-    puts "fail: png file in subdir was copied with all contents" if size != 0
-
-    # add tests for things inside ignored dir: added file, changed file, added dir
-
-
-
     File.open(File.join(repo_test0['incoming_loc'], 'sample.txt'), 'w') do |out|
       out.write "mitch\n"
     end
@@ -893,24 +778,145 @@ class SettingsTest
     
     # check that there's no outgoing diffs if there's no outgoing
     setup_settings({'repositories'=>[]})
-    repo_test0 = add_repo('test out 0', File.join(@test_data_dir, 'sources', 'cracked'),
+    repo_test_out0 = add_repo('test out 0', File.join(@test_data_dir, 'sources', 'cracked'),
       nil, File.join(@test_data_dir, 'my_copies', 'cracked'))
     all_out_diffs = Updates.all_outgoing_diffs(@settings)
     puts "fail: diff with no source isn't blank: #{all_out_diffs.inspect}" if all_out_diffs != []
     
     # ... or no my_loc
     setup_settings({'repositories'=>[]})
-    repo_test0 = add_repo('test out 0', File.join(@test_data_dir, 'sources', 'cracked'),
+    repo_test_out0 = add_repo('test out 0', File.join(@test_data_dir, 'sources', 'cracked'),
       File.join(@test_data_dir, 'my_copies', 'cracked'), nil)
     all_out_diffs = Updates.all_outgoing_diffs(@settings)
     puts "fail: diff with no outgoing isn't blank: #{all_out_diffs.inspect}" if all_out_diffs != []
 
     # ... or neither
     setup_settings({'repositories'=>[]})
-    repo_test0 = add_repo('test out 0', File.join(@test_data_dir, 'sources', 'cracked'),
+    repo_test_out0 = add_repo('test out 0', File.join(@test_data_dir, 'sources', 'cracked'),
       nil, nil)
     all_out_diffs = Updates.all_outgoing_diffs(@settings)
     puts "fail: diff with no source/outgoing isn't blank: #{all_out_diffs.inspect}" if all_out_diffs != []
+
+
+
+
+
+    setup_settings({'repositories'=>[repo_test0]})
+    Updates.mark_reviewed(@settings, 0) # since there are unreviewed stuff from earlier
+    # test where user explicitly mark a file as not-for-later-diffs
+    File.open(File.join(repo_test0['incoming_loc'], 'sample.txt'), 'w') do |out|
+      out.write "gabba gabba hey\n"
+    end
+    # this sleep isn't really used in this test but it does demonstrate that the time setting works if you manually look at the files
+    #sleep(1)
+    Updates.mark_reviewed(@settings, 0, 'sample.txt', nil, true)
+    all_repo_diffs = Updates.all_repo_diffs(@settings)
+    puts "fail: didn't recognize that a new file is reviewed even though we don't keep full reviewed copy: #{all_repo_diffs}" if all_repo_diffs != []
+
+    sleep(1) # so that the time is different, which is how we detect an update
+    File.open(File.join(repo_test0['incoming_loc'], 'sample.txt'), 'a') do |out|
+      out.write "gabba gabba hey bugaboo\n"
+    end
+    all_repo_diffs = Updates.all_repo_diffs(@settings)
+    puts "fail: didn't recognize change for file that's reviewed but not copied (but not ignored forever): #{all_repo_diffs.inspect}" if all_repo_diffs !=
+      [{"id"=>0, "name"=>"test 0", "diffs"=>[{"path"=>"sample.txt", "source_type"=>"file", "target_type"=>"file", "target_path_previous_version"=>"sample.txt", "target_path_next_version"=>"sample.txt", "contents"=>nil}]}]
+    Updates.mark_reviewed(@settings, 0, 'sample.txt', nil, true)
+
+    Dir.mkdir(File.join(repo_test0['incoming_loc'], 'no_full_copy_subdir'))
+    File.open(File.join(repo_test0['incoming_loc'], 'no_full_copy_subdir', 'sample.jpg'), 'a') do |out|
+      out.write "harrumph\n"
+    end
+    Dir.mkdir(File.join(repo_test0['incoming_loc'], 'no_full_copy_subdir', 'no_full_copy_subsubdir'))
+    File.open(File.join(repo_test0['incoming_loc'], 'no_full_copy_subdir', 'no_full_copy_subsubdir', 'sample.txt'), 'w') do |out|
+      out.write "harrumph\n"
+    end
+    File.open(File.join(repo_test0['incoming_loc'], 'no_full_copy_subdir', 'no_full_copy_subsubdir', 'sample.jpg'), 'w') do |out|
+      out.write "harrumph\n"
+    end
+    Updates.mark_reviewed(@settings, 0, 'no_full_copy_subdir', nil, true)
+    all_repo_diffs = Updates.all_repo_diffs(@settings)
+    sleep(1)
+    File.open(File.join(repo_test0['incoming_loc'], 'no_full_copy_subdir', 'no_full_copy_subsubdir', 'sample.txt'), 'a') do |out|
+      out.write "harrumph txt change\n"
+    end
+    File.open(File.join(repo_test0['incoming_loc'], 'no_full_copy_subdir', 'no_full_copy_subsubdir', 'sample.jpg'), 'a') do |out|
+      out.write "harrumph jpg change\n"
+    end
+    Dir.mkdir(File.join(repo_test0['incoming_loc'], 'no_full_copy_subdir', 'no_full_copy_subsubdir2'))
+    File.open(File.join(repo_test0['incoming_loc'], 'no_full_copy_subdir', 'no_full_copy_subsubdir2', 'sample.txt'), 'a') do |out|
+      out.write "harrumph txt 2\n"
+    end
+    File.open(File.join(repo_test0['incoming_loc'], 'no_full_copy_subdir', 'no_full_copy_subsubdir2', 'sample.jpg'), 'w') do |out|
+      out.write "harrumph jpg 2\n"
+    end
+    all_repo_diffs = Updates.all_repo_diffs(@settings)
+    puts "fail: didn't recognize changed & new items for a dir that's reviewed but not copied: #{all_repo_diffs.inspect}" if all_repo_diffs != 
+      [{"id"=>0, "name"=>"test 0", "diffs"=>[{"path"=>"no_full_copy_subdir", "source_type"=>"directory", "target_type"=>"file", "target_path_previous_version"=>"no_full_copy_subdir", "target_path_next_version"=>"no_full_copy_subdir", "contents"=>nil}]}]
+    
+    Updates.mark_reviewed(@settings, 0, 'no_full_copy_subdir')
+    Updates.mark_reviewed(@settings, 0, File.join('no_full_copy_subdir', 'no_full_copy_subsubdir2'), nil, true)
+    all_repo_diffs = Updates.all_repo_diffs(@settings)
+    puts "fail: still seeing changes for a dir that's reviewed but not copied: #{all_repo_diffs.inspect}" if all_repo_diffs != []
+    file = File.join(@settings.reviewed_base_dir(), repo_test0['id'].to_s, 'no_full_copy_subdir', 'no_full_copy_subsubdir', 'sample.txt')
+    puts "fail: text file wasn't fully copied; size #{size}" if File.size(file) != 29
+    file = File.join(@settings.reviewed_base_dir(), repo_test0['id'].to_s, 'no_full_copy_subdir', 'no_full_copy_subsubdir2', 'sample.txt')
+    puts "fail: text file in non-reviewed subsubdir was still fully copied" if File.exists? file
+
+
+
+    # change back so this directory is not fully copied
+    Updates.mark_reviewed(@settings, 0, 'no_full_copy_subdir', nil, true)
+    file = File.join(@settings.reviewed_base_dir(), repo_test0['id'].to_s, 'no_full_copy_subdir', 'no_full_copy_subsubdir', 'sample.txt')
+    puts "fail: text file of non-reviewed dir still around" if File.exists? file
+
+
+
+    # test where files have extensions which we cannot diff
+    File.open(File.join(repo_test0['incoming_loc'], 'sample.jpg'), 'a') do |out|
+      out.write "gabba gabba image\n"
+    end
+    Updates.mark_reviewed(@settings, 0, nil)
+    all_repo_diffs = Updates.all_repo_diffs(@settings)
+    file = File.join(@settings.reviewed_base_dir(), repo_test0['id'].to_s, 'sample.jpg')
+    puts "fail: jpg file was fully copied: size #{File.size file}" if File.size(file) > 0
+
+
+
+
+    Dir.mkdir(File.join(repo_test0['incoming_loc'], 'subdir_w_ignorables'))
+    File.open(File.join(repo_test0['incoming_loc'], 'subdir_w_ignorables', 'sample.txt'), 'w') do |out|
+      out.write "gabba gabba hey\n"
+    end
+    File.open(File.join(repo_test0['incoming_loc'], 'subdir_w_ignorables', 'sample.png'), 'w') do |out|
+      out.write "gabba gabba hey\n"
+    end
+    File.open(File.join(repo_test0['incoming_loc'], 'subdir_w_ignorables', 'sample.xls'), 'w') do |out|
+      out.write "gabba gabba hey\n"
+    end
+    Dir.mkdir(File.join(repo_test0['incoming_loc'], 'subdir_w_ignorables', 'another_dir'))
+    File.open(File.join(repo_test0['incoming_loc'], 'subdir_w_ignorables', 'another_dir', 'sample.txt'), 'w') do |out|
+      out.write "gabba gabba hey\n"
+    end
+    File.open(File.join(repo_test0['incoming_loc'], 'subdir_w_ignorables', 'another_dir', 'sample.png'), 'w') do |out|
+      out.write "gabba gabba hey\n"
+    end
+    File.open(File.join(repo_test0['incoming_loc'], 'subdir_w_ignorables', 'another_dir', 'sample.xls'), 'w') do |out|
+      out.write "gabba gabba hey\n"
+    end
+    Updates.mark_reviewed(@settings, 0, 'subdir_w_ignorables')
+    all_repo_diffs = Updates.all_repo_diffs(@settings)
+    puts "fail: not ignoring subdir" if all_repo_diffs != []
+
+    size = File.size File.join(@settings.reviewed_base_dir(), repo_test0['id'].to_s, 'subdir_w_ignorables', 'sample.txt')
+    puts "fail: text file wasn't fully copied; size #{size}" if size != 16
+    size = File.size File.join(@settings.reviewed_base_dir(), repo_test0['id'].to_s, 'subdir_w_ignorables', 'sample.png')
+    puts "fail: png file was copied with all contents" if size != 0
+    size = File.size File.join(@settings.reviewed_base_dir(), repo_test0['id'].to_s, 'subdir_w_ignorables', 'another_dir', 'sample.png')
+    puts "fail: png file in subdir was copied with all contents" if size != 0
+
+    # add tests for things inside ignored dir: added file, changed file, added dir
+
+
     
   end
 
