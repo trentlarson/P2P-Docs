@@ -446,6 +446,7 @@ class Updates
   # marks the subpath in repo['incoming_loc'] as reviewed
   # if remove is true, the previous file will be removed
   # if no_review_copy is true, don't bother saving a full copy (useful to save space if we can't diff this type of file)
+  # (... but is that necessary now that we're not saving full copies of non-diffable files?)
   # if ignore_forever is true, never show this file to be reviewed again (requires no_review_copy to be true)
   def self.mark_reviewed(settings, repo_id, subpath = nil, remove = nil, no_review_copy = false, ignore = false)
     repo = settings.get_repo_by_id(repo_id)
@@ -470,6 +471,7 @@ class Updates
   # if source_subpath is nil, source will be the source_loc
   # if target_subpath is nil, target will be same as source_subpath
   # if no_review_copy is true, don't bother saving a full copy (useful to save space if we can't diff this type of file)
+  # (... but is that necessary now that we're not saving full copies of non-diffable files?)
   # if ignore_forever is true, never show this file to be reviewed again (requires no_review_copy to be true)
   def self.copy_all_contents(source_loc, target_loc, source_subpath = nil, target_subpath = nil, no_review_copy = false, ignore_forever = false)
     if (source_subpath.nil?)

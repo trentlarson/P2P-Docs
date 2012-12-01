@@ -134,9 +134,10 @@ Development Setup:
 User Story Details, By Priority
 --------------------
 
+ * don't copy the file to reviewed area if it's not a recognized (diffable) type -- including subdirs/files under the reviewed one
  * allow selection of outgoing files to publish (small)
- * allow some say to mark files as ignored (so we don't save reviewed copies, eg. for Janell's 2 GB of files)
- * allow copying/merging to my own copy
+ * allow indication (checkbox?) to mark dirs/files as ignored forever
+ * allow copying/merging to my own copy (via link?)
  * import "tree-of-interest"
    * find matching people in existing GEDCOM file
      * add search ancestry to DB
