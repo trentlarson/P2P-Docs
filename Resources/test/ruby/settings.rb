@@ -928,17 +928,48 @@ class SettingsTest
       out.write "gabba gabba hey\n"
     end
     Updates.mark_reviewed(@settings, 0, 'subdir_w_ignorables')
-    all_repo_diffs = Updates.all_repo_diffs(@settings)
-    puts "fail: not ignoring subdir" if all_repo_diffs != []
 
     size = File.size File.join(@settings.reviewed_base_dir(), repo_test0['id'].to_s, 'subdir_w_ignorables', 'sample.txt')
-    puts "fail: text file wasn't fully copied; size #{size}" if size != 16
+    puts "fail: txt file wasn't fully copied; size #{size}" if size != 16
     size = File.size File.join(@settings.reviewed_base_dir(), repo_test0['id'].to_s, 'subdir_w_ignorables', 'sample.png')
     puts "fail: png file was copied with all contents" if size != 0
+    size = File.size File.join(@settings.reviewed_base_dir(), repo_test0['id'].to_s, 'subdir_w_ignorables', 'another_dir', 'sample.txt')
+    puts "fail: txt file in subdir wasn't fully copied; size #{size}" if size != 16
     size = File.size File.join(@settings.reviewed_base_dir(), repo_test0['id'].to_s, 'subdir_w_ignorables', 'another_dir', 'sample.png')
     puts "fail: png file in subdir was copied with all contents" if size != 0
+    size = File.size File.join(@settings.reviewed_base_dir(), repo_test0['id'].to_s, 'subdir_w_ignorables', 'another_dir', 'sample.xls')
+    puts "fail: xls file in subdir was copied with all contents" if size != 0
 
     # add tests for things inside ignored dir: added file, changed file, added dir
+    Updates.mark_reviewed(@settings, 0, 'subdir_w_ignorables', nil, true, true)
+    sleep 1
+    File.open(File.join(repo_test0['incoming_loc'], 'subdir_w_ignorables', 'sample.txt'), 'a') do |out|
+      out.write "gabba gabba hey again\n"
+    end
+    File.open(File.join(repo_test0['incoming_loc'], 'subdir_w_ignorables', 'another_dir', 'sample.txt'), 'a') do |out|
+      out.write "gabba gabba hey again\n"
+    end
+    all_repo_diffs = Updates.all_repo_diffs(@settings)
+    puts "fail: not ignoring files below: #{all_repo_diffs.inspect}" if all_repo_diffs != []
+
+
+    
+    Updates.mark_reviewed(@settings, 0, 'subdir_w_ignorables')
+    sleep 1
+    File.open(File.join(repo_test0['incoming_loc'], 'subdir_w_ignorables', 'sample.txt'), 'a') do |out|
+      out.write "gabba gabba hey again 2\n"
+    end
+    File.open(File.join(repo_test0['incoming_loc'], 'subdir_w_ignorables', 'another_dir', 'sample.txt'), 'a') do |out|
+      out.write "gabba gabba hey again 2\n"
+    end
+    all_repo_diffs = Updates.all_repo_diffs(@settings)
+    puts "fail: not seeing changes in previously ignored area: #{all_repo_diffs.inspect}" if all_repo_diffs != 
+      [{"id"=>0, "name"=>"test 0", "diffs"=>
+        [{"path"=>"subdir_w_ignorables/another_dir/sample.txt", "source_type"=>"file", "target_type"=>"file", 
+          "target_path_previous_version"=>"subdir_w_ignorables/another_dir/sample.txt", "target_path_next_version"=>"subdir_w_ignorables/another_dir/sample.txt", "contents"=>nil}, 
+         {"path"=>"subdir_w_ignorables/sample.txt", "source_type"=>"file", "target_type"=>"file", 
+          "target_path_previous_version"=>"subdir_w_ignorables/sample.txt", "target_path_next_version"=>"subdir_w_ignorables/sample.txt", "contents"=>nil}]}]
+    
 
 
     

@@ -449,10 +449,10 @@ class Updates
   # if remove is true, the previous file will be removed
   # if no_history_copy is true, don't bother saving a full copy (useful to save space if we can't diff this type of file)
   # (... but is that necessary now that we're not saving full copies of non-diffable files?)
-  # if ignore_forever is true, never show this file to be reviewed again (requires no_history_copy to be true)
-  def self.mark_reviewed(settings, repo_id, subpath = nil, remove = nil, no_history_copy = false, ignore = false)
+  # if ignore_future is true, never show this file to be reviewed again (requires no_history_copy to be true)
+  def self.mark_reviewed(settings, repo_id, subpath = nil, remove = nil, no_history_copy = false, ignore_future = false)
     repo = settings.get_repo_by_id(repo_id)
-    copy_all_contents(settings.properties['diffable_extensions'], repo['incoming_loc'], settings.reviewed_dir(repo), subpath, nil, no_history_copy, ignore)
+    copy_all_contents(settings.properties['diffable_extensions'], repo['incoming_loc'], settings.reviewed_dir(repo), subpath, nil, no_history_copy, ignore_future)
     if (remove != nil)
       FileUtils::remove_entry_secure(File.join(settings.reviewed_dir(repo), remove), true)
     end
@@ -475,8 +475,8 @@ class Updates
   # if target_subpath is nil, target will be same as source_subpath
   # if no_history_copy is true, don't bother saving a full copy (useful to save space if we can't diff this type of file)
   # (... but is that necessary now that we're not saving full copies of non-diffable files?)
-  # if ignore_forever is true, never show this file to be reviewed again (requires no_history_copy to be true)
-  def self.copy_all_contents(extensions_to_keep_histories, source_loc, target_loc, source_subpath = nil, target_subpath = nil, no_history_copy = false, ignore_forever = false)
+  # if ignore_future is true, never show this file to be reviewed again (requires no_history_copy to be true)
+  def self.copy_all_contents(extensions_to_keep_histories, source_loc, target_loc, source_subpath = nil, target_subpath = nil, no_history_copy = false, ignore_future = false)
     if (source_subpath.nil?)
       source = source_loc
       target = target_loc
@@ -492,7 +492,7 @@ class Updates
     if (FileTest.exist? source)
       FileUtils::mkpath(File.dirname(target)) # why?
       if (no_history_copy)
-        if (ignore_forever)
+        if (ignore_future)
           # use a zero-size file with a time far in the future to mark items that will be ignored forever
           FileUtils::touch(target)
           time = Time.new(9999)
