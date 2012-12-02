@@ -345,7 +345,7 @@ class Updates
     if ((source_dir.nil? || source_dir.empty?) ||
         (target_dir.nil? || target_dir.empty?))
       # we shouldn't even be here in this case, but we'll play nice
-      puts "(In diff_dirs, the source_dir #{source_dir} or target_dir #{target_dir} is nil or empty.  Returning [])"
+      #puts "(WARNING: In diff_dirs, the source_dir #{source_dir} or target_dir #{target_dir} is nil or empty.  Returning [])"
       return []
     end
     
@@ -359,7 +359,7 @@ class Updates
 
     if (!File.exist?(source_file) && !File.exist?(target_file))
       # we shouldn't even be here in this case, but we'll play nice
-      puts "(In diff_dirs, both source_file #{source_file} and target_file #{target_file} don't exist.  Returning [])"
+      #puts "(WARNING: In diff_dirs, both source_file #{source_file} and target_file #{target_file} don't exist.  Returning [])"
       []
     elsif (! File.exist? target_file) # but source_file must exist
       if (FileTest.directory? source_file)
@@ -510,16 +510,12 @@ class Updates
   def self.cp_r_maybe_without_history(extensions_to_keep_histories, source, target, no_history_copy = false)
     if (File.file? source)
       ext_match = /.*\.(.+)/.match(source)
-#puts "extension is #{ext_match}"
-#puts "it's good... is #{ext_match[1]} a history keeper? #{extensions_to_keep_histories.include?(ext_match[1])}" if ext_match
       # keep a history if: not explicitly rejected and either it has no extension or the extension is diffable
       if (! no_history_copy &&
           (!ext_match ||
            extensions_to_keep_histories.include?(ext_match[1])))
-#puts "Hooray! Copying."
         FileUtils::cp(source, target)
       else
-#puts "Nope.  Stub."
        # use a zero-size file with the source time to mark items that needn't preserve our own copy
         FileUtils::touch(target)
         File.utime(File.atime(source), File.mtime(source), target)
@@ -530,7 +526,7 @@ class Updates
         cp_r_maybe_without_history(extensions_to_keep_histories, File.join(source, entry), File.join(target, entry), no_history_copy) if ![".",".."].index(entry)
       }
     else
-      puts "(Got unknown file type #{File.ftype source}.  We'll just put a placeholder and not track revisions.)"
+      #puts "(WARNING: Got unknown file type #{File.ftype source}.  We'll just put a placeholder and not track revisions.)"
       FileUtils::touch(target)
       File.utime(File.atime(source), File.mtime(source), target)
     end
