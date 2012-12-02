@@ -134,7 +134,6 @@ Development Setup:
 User Story Details, By Priority
 --------------------
 
- * don't copy the file to reviewed area if it's not a recognized (diffable) type -- including subdirs/files under the reviewed one
  * allow selection of outgoing files to publish (small)
  * allow indication (checkbox?) to mark dirs/files as ignored forever
  * allow copying/merging to my own copy (via link?)
