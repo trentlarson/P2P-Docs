@@ -345,7 +345,7 @@ class Updates
     if ((source_dir.nil? || source_dir.empty?) ||
         (target_dir.nil? || target_dir.empty?))
       # we shouldn't even be here in this case, but we'll play nice
-      puts "In diff_dirs, the source_dir #{source_dir} or target_dir #{target_dir} is nil or empty.  Returning []"
+      puts "(In diff_dirs, the source_dir #{source_dir} or target_dir #{target_dir} is nil or empty.  Returning [])"
       return []
     end
     
@@ -356,10 +356,10 @@ class Updates
       source_file = File.join(source_dir, subpath)
       target_file = File.join(target_dir, subpath)
     end
-    
+
     if (!File.exist?(source_file) && !File.exist?(target_file))
       # we shouldn't even be here in this case, but we'll play nice
-      puts "In diff_dirs, both source_file #{source_file} and target_file #{target_file} don't exist.  Returning []"
+      puts "(In diff_dirs, both source_file #{source_file} and target_file #{target_file} don't exist.  Returning [])"
       []
     elsif (! File.exist? target_file) # but source_file must exist
       if (FileTest.directory? source_file)
@@ -390,7 +390,7 @@ class Updates
       # (This is also the convention when the source file is a directory.)
       if (File.mtime(target_file) < File.mtime(source_file))
         # the source is newer, so show that there's an update
-        [{'path' => subpath, 'source_type' => File.ftype(source_file), 'target_type' => 'file', "contents" => nil }]
+        [{'path' => subpath, 'source_type' => File.ftype(source_file), 'target_type' => 'file', 'contents' => all_files_below(source_file, "") }]
       else
         # the source is the same or older, so don't even show this item
         []
@@ -464,7 +464,7 @@ class Updates
     repo = settings.get_repo_by_id(repo_id)
     copy_all_contents(settings.properties['diffable_extensions'], repo['my_loc'], repo['outgoing_loc'], source_subpath, target_subpath)
     if (repo['outgoing_loc'] == repo['incoming_loc'])
-      copy_all_contents(repo['outgoing_loc'], settings.reviewed_dir(repo), target_subpath, target_subpath)
+      copy_all_contents(settings.properties['diffable_extensions'], repo['outgoing_loc'], settings.reviewed_dir(repo), target_subpath, target_subpath)
     end
   end
 
@@ -512,9 +512,10 @@ class Updates
       ext_match = /.*\.(.+)/.match(source)
 #puts "extension is #{ext_match}"
 #puts "it's good... is #{ext_match[1]} a history keeper? #{extensions_to_keep_histories.include?(ext_match[1])}" if ext_match
+      # keep a history if: not explicitly rejected and either it has no extension or the extension is diffable
       if (! no_history_copy &&
-          ext_match &&
-          extensions_to_keep_histories.include?(ext_match[1]))
+          (!ext_match ||
+           extensions_to_keep_histories.include?(ext_match[1])))
 #puts "Hooray! Copying."
         FileUtils::cp(source, target)
       else
@@ -529,7 +530,7 @@ class Updates
         cp_r_maybe_without_history(extensions_to_keep_histories, File.join(source, entry), File.join(target, entry), no_history_copy) if ![".",".."].index(entry)
       }
     else
-      puts "Got unknown file type #{File.ftype source}.  We'll just put a placeholder and not track revisions."
+      puts "(Got unknown file type #{File.ftype source}.  We'll just put a placeholder and not track revisions.)"
       FileUtils::touch(target)
       File.utime(File.atime(source), File.mtime(source), target)
     end

@@ -720,6 +720,7 @@ class SettingsTest
 
     # mismatch dir and file
     FileUtils::rm_f(File.join(repo_test1['incoming_loc'], '1_sub_dir'))
+    sleep 1
     Dir.mkdir(File.join(repo_test1['incoming_loc'], '1_sub_dir'))
     File.open(File.join(repo_test1['incoming_loc'], '1_sub_dir', '1_sample.txt'), 'w') do |out|
       out.write "flibberty jibbit\n"
@@ -800,15 +801,13 @@ class SettingsTest
 
 
 
-
+    # start tests for not keeping historical copies (by request, by extension, and possibly forever)
     setup_settings({'repositories'=>[repo_test0]})
     Updates.mark_reviewed(@settings, 0) # since there are unreviewed stuff from eariler
     # test where user explicitly mark a file as not-for-later-diffs
     File.open(File.join(repo_test0['incoming_loc'], 'sample.txt'), 'w') do |out|
       out.write "gabba gabba hey\n"
     end
-    # this sleep isn't really used in this test but it does demonstrate that the time setting works if you manually look at the files
-    #sleep(1)
     Updates.mark_reviewed(@settings, 0, 'sample.txt', nil, true)
     all_repo_diffs = Updates.all_repo_diffs(@settings)
     puts "fail: didn't recognize that a new file is reviewed even though we don't keep full reviewed copy: #{all_repo_diffs}" if all_repo_diffs != []
@@ -819,7 +818,7 @@ class SettingsTest
     end
     all_repo_diffs = Updates.all_repo_diffs(@settings)
     puts "fail: didn't recognize change for file that's reviewed but not copied (but not ignored forever): #{all_repo_diffs.inspect}" if all_repo_diffs !=
-      [{"id"=>0, "name"=>"test 0", "diffs"=>[{"path"=>"sample.txt", "source_type"=>"file", "target_type"=>"file", "target_path_previous_version"=>"sample.txt", "target_path_next_version"=>"sample.txt", "contents"=>nil}]}]
+      [{"id"=>0, "name"=>"test 0", "diffs"=>[{"path"=>"sample.txt", "source_type"=>"file", "target_type"=>"file", "target_path_previous_version"=>"sample.txt", "target_path_next_version"=>"sample.txt", "contents"=>[]}]}]
     Updates.mark_reviewed(@settings, 0, 'sample.txt', nil, true)
 
     Dir.mkdir(File.join(repo_test0['incoming_loc'], 'no_full_copy_subdir'))
@@ -848,7 +847,7 @@ class SettingsTest
       [{"id"=>0, "name"=>"test 0", "diffs"=>[{"path"=>File.join("no_full_copy_subdir", "no_full_copy_subsubdir", "sample.txt"), "source_type"=>"file", "target_type"=>"file", 
         "target_path_previous_version"=>File.join("no_full_copy_subdir", "no_full_copy_subsubdir", "sample.txt"), 
         "target_path_next_version"=>File.join("no_full_copy_subdir", "no_full_copy_subsubdir", "sample.txt"),
-        "contents"=>nil}]}]
+        "contents"=>[]}]}]
     Updates.mark_reviewed(@settings, 0, 'no_full_copy_subdir')
     file = File.join(@settings.reviewed_base_dir(), repo_test0['id'].to_s, 'no_full_copy_subdir', 'no_full_copy_subsubdir', 'sample.txt')
     puts "fail: text file wasn't fully copied; size #{File.size file}" if File.size(file) != 29
@@ -861,7 +860,7 @@ class SettingsTest
       [{"id"=>0, "name"=>"test 0", "diffs"=>[{"path"=>File.join("no_full_copy_subdir", "no_full_copy_subsubdir", "sample.jpg"), "source_type"=>"file", "target_type"=>"file", 
         "target_path_previous_version"=>File.join("no_full_copy_subdir", "no_full_copy_subsubdir", "sample.jpg"), 
         "target_path_next_version"=>File.join("no_full_copy_subdir", "no_full_copy_subsubdir", "sample.jpg"),
-        "contents"=>nil}]}]
+        "contents"=>[]}]}]
     file = File.join(@settings.reviewed_base_dir(), repo_test0['id'].to_s, 'no_full_copy_subdir', 'no_full_copy_subsubdir', 'sample.jpg')
     puts "fail: jpg file was fully copied; size #{File.size file}" if File.size(file) != 0
     Updates.mark_reviewed(@settings, 0, 'no_full_copy_subdir', nil, true)
