@@ -174,6 +174,7 @@ User Story Details, By Priority
  * fix the new-repo transition to slide whole screen (not half)
  * make a consistent styling for the whole app
  * search - HTML anchors: not just "a name=" strings, and not just single- and double-quotes
+ * maybe we shouldn't save copies of files without extensions by default (by changing "!ext_match" conditional in Updates.cp_r_maybe_without_history)
  * rework graphics with repo pic
    * http://www.clker.com/clipart-vertical-file-cabinet.html
    * http://search.coolclips.com/media/?D=busi1110
