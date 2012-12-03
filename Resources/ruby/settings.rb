@@ -104,6 +104,10 @@ settings: initial settings; if nil, @@settings will not be reset
     save()
   end
   
+  def diffable_extensions()
+    @@settings['diffable_extensions']
+  end
+  
   def reviewed_base_dir()
     File.join(@@settings_dir, "reviewed_files")
   end

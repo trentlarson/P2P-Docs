@@ -180,6 +180,7 @@ $(document).ready(function() {
 
     $('#settingsDir').html(window.p2pdoc_settings.data_dir());
     $('#openSettings').click(viewFileWrapperFunc(window.p2pdoc_settings.data_dir(), Titanium.Filesystem.getSeparator()));
+    $('#savedFileExtensions').html(window.p2pdoc_settings.diffable_extensions().inspect());
     $('#aboutPage').click(function(){Titanium.Platform.openURL(Titanium.App.getURL());});
     
     var repos = window.p2pdoc_settings.properties().repositories;
@@ -313,6 +314,8 @@ $(document).ready(function() {
 <h2>Other</h2>
 <div id="settings">
   <strong>Settings Directory</strong>: <span id="settingsDir"></span> <a href="" id="openSettings">(open)</a>
+  <br/>
+  <strong>File Types which have Old Copies Saved</strong>: <span id="savedFileExtensions"></span>
 </div>
 
 <br/>

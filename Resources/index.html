@@ -55,6 +55,12 @@ window.settingsDir = appProps['settings-dir'];
 
 <script type="text/ruby">
   window.p2pdoc_settings = Settings.new(window.settingsDir)
+  if (window.p2pdoc_settings.diffable_extensions().nil?)
+    window.p2pdoc_settings.add_diffable_extension('htm')
+    window.p2pdoc_settings.add_diffable_extension('html')
+    window.p2pdoc_settings.add_diffable_extension('txt')
+    window.p2pdoc_settings.save()
+  end
 </script>
 
 <script type="text/javascript">
