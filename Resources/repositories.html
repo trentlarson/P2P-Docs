@@ -13,14 +13,11 @@
 .repoItem {
   display: none;
 }
-.repoRemove {
+.clickable {
   cursor: pointer;
 }
 .repoInfo {
   font-weight:bold;
-}
-.repoAdd {
-  cursor: pointer;
 }
 .repoAct {
   cursor: pointer;
@@ -63,11 +60,13 @@ var insertRepo = function(repo, showSlowly) {
   }
   addedItem.attr("id", "repoItem_" + dom_suffix);
   addedItem.find("a").attr("name", "repoAnchor_" + dom_suffix);
+  addedItem.find("#repoName_").attr("id", "repoName_" + dom_suffix).html(repo.name);
+  addedItem.find("#repoNameEdit_").attr("id", "repoNameEdit_" + dom_suffix);
   addedItem.find("#repoRemove_").attr("id", "repoRemove_" + dom_suffix);
-  addedItem.find("#repoName_")  .attr("id", "repoName_"   + dom_suffix).find("span").html(repo.name);
+  addedItem.find("#repoNameSection_").attr("id", "repoNameSection_" + dom_suffix);
   addedItem.find("#repoInPath_").attr("id", "repoInPath_" + dom_suffix).html(repo.incoming_loc);
-  addedItem.find("#repoMyLocPath_") .attr("id", "repoMyLocPath_"  + dom_suffix).html(repo.my_loc);
-  addedItem.find("#repoOutPath_") .attr("id", "repoOutPath_"  + dom_suffix).html(repo.outgoing_loc);
+  addedItem.find("#repoMyLocPath_").attr("id", "repoMyLocPath_"  + dom_suffix).html(repo.my_loc);
+  addedItem.find("#repoOutPath_").attr("id", "repoOutPath_"  + dom_suffix).html(repo.outgoing_loc);
   addedItem.find("#inFolderChooser_").attr("id", "inFolderChooser_" + dom_suffix).click(function() {
     location.hash = "repoAnchor_" + dom_suffix;
     Titanium.UI.getCurrentWindow().openFolderChooserDialog(function(selectionResponse) {
@@ -256,10 +255,13 @@ $(document).ready(function() {
   <h2>Libraries</h2>
   <div id="repoItem_" class="repoItem">
     <a name="repoAnchor_"></a>
-    <span id="repoName_">
+    <span id="repoNameSection_">
       <h3>
-        <span></span>
-        <img src="images/button-red-x.16.png" title="Remove" alt="Remove" id="repoRemove_" class="repoRemove">
+        <span id="repoName_"></span>
+        <!--
+        <img src="images/pencil-yellow-16.png" title="Edit" alt="Edit" id="repoNameEdit_" class="clickable">
+        -->
+        <img src="images/button-red-x.16.png" title="Remove" alt="Remove" id="repoRemove_" class="clickable">
       </h3>
     </span>
     <table>
@@ -294,7 +296,7 @@ $(document).ready(function() {
   </div>
 </div>
 
-<img src="images/button-green-plus.png" title="Add" alt="Add" id="repoAdd_" class="repoAdd">
+<img src="images/button-green-plus.png" title="Add" alt="Add" id="repoAdd_" class="clickable">
 
 <br/>
 <br/>
@@ -315,7 +317,7 @@ $(document).ready(function() {
 <div id="settings">
   <strong>Settings Directory</strong>: <span id="settingsDir"></span> <a href="" id="openSettings">(open)</a>
   <br/>
-  <strong>File Types which have Old Copies Saved</strong>: <span id="savedFileExtensions"></span>
+  <strong>File Types which Keep A Historical Copy</strong>: <span id="savedFileExtensions"></span>
 </div>
 
 <br/>

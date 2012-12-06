@@ -191,6 +191,7 @@ Externalities
  * rss-feed-raw2.jpg by burnsflipper: http://burnsflipper.deviantart.com/art/MyCircles-RSS-Icon-40357449 via http://wonderful-tricks.blogspot.com/2009/05/collection-of-free-rss-feed-icons.html
  * anim-flower.gif by ajaxload.info
  * button-green-solid.16.png by OCAL: http://www.clker.com/clipart-2590.html
+ * pencil-yellow by dryicons http://dryicons.com/icon/shine-icon-set/edit/
 
 Other Commentary
 ----------------
