@@ -514,7 +514,7 @@ class Updates
       if (! no_history_copy &&
           (!ext_match ||
            extensions_to_keep_histories.include?(ext_match[1])))
-        FileUtils::cp(source, target)
+        FileUtils::cp(source, target, :preserve => true)
       else
        # use a zero-size file with the source time to mark items that needn't preserve our own copy
         FileUtils::touch(target)
