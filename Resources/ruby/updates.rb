@@ -350,6 +350,13 @@ class Updates
     end
     
     if (subpath == "")
+      if (!File.exist?(source_dir))
+        #puts "(WARNING: In diff_dirs, the base source_dir #{source_dir} doesn't exist, probably because it got renamed.  We should warn the user!  Returning [])"
+        return []
+      elsif (!File.exist?(target_dir))
+        #puts "(WARNING: In diff_dirs, the base target_dir #{target_dir} doesn't exist, probably because it got renamed.  We should warn the user!  Returning [])"
+        return []
+      end
       source_file = source_dir
       target_file = target_dir
     else
