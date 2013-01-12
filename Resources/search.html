@@ -19,7 +19,7 @@
 <script type="text/ruby"       src="ruby/search.rb"></script>
 
 <script type="text/javascript">
-  var appPropsStr = Titanium.App.Properties.getString("appPropsJson");
+  var appPropsStr = Ti.App.Properties.getString("appPropsJson");
   var appProps = JSON.parse(appPropsStr);
   window.settingsDir = appProps['settings-dir'];
 </script>
@@ -31,7 +31,7 @@
 
 <script type="text/javascript">
 
-var Ti = {fs: Titanium.Filesystem, api:Titanium.API};
+var Ti = {fs: Ti.Filesystem, api:Ti.API};
 
 function endsWith(str, suffix) {
   return str.indexOf(suffix, str.length - suffix.length) !== -1;
@@ -46,9 +46,9 @@ function openFile(filename, filepos) {
       } else {
         alert("There is no anchor point near that text.  The file will open at the top, and you'll have to search for that text.");
       }
-      Titanium.Desktop.openURL("file://" + filename);
+      Ti.Desktop.openURL("file://" + filename);
     } else {
-      Titanium.Desktop.openApplication(filename);
+      Ti.Desktop.openApplication(filename);
     }
   } catch (e) {
     p2pdocsHandleError(e);
@@ -67,7 +67,7 @@ $(document).ready(function() {
       } else {
         var moreInfo = window.p2pdocs_searcher.main(window.p2pdocs_settings, term);
         var nothing = moreInfo.toString(); // this is just to avoid crashes, eg. on searches for "Robert"
-        //Titanium.API.print("results: " + moreInfo + "\n"); // this also could avoid crashes
+        //Ti.API.print("results: " + moreInfo + "\n"); // this also could avoid crashes
         
         if (moreInfo.length == 0) {
           $("#files").append("Nothing.");

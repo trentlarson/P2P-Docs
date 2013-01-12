@@ -13,34 +13,34 @@
 var appProps = {};
 function configApp() {
   
-  if (Titanium.App.Properties.hasProperty('appPropsJson')) {
+  if (Ti.App.Properties.hasProperty('appPropsJson')) {
     // Titanium loads and savs properties with backslashes ("\") incorrectly: I think it's on the initial load that it loses them, and then all backslashes get dropped in any property other than the one you're setting.  Yes.  This is very bad for Windows paths.
     // So we're going to use a single property (because more than one can mess up the values of other ones).
     // Looks like the very first property load (ie. only in this initial file) is where we have to replace backslashes; doing it in other property loads will add too many more of them.
-    var appPropsStr = Titanium.App.Properties.getString("appPropsJson").replace(/\\/g, "\\\\");
+    var appPropsStr = Ti.App.Properties.getString("appPropsJson").replace(/\\/g, "\\\\");
     appProps = JSON.parse(appPropsStr);
   } else {
-    Titanium.App.Properties.setString('appPropsJson', JSON.stringify({}));
+    Ti.App.Properties.setString('appPropsJson', JSON.stringify({}));
     // that has the side-effect of saving the property
   }
-  if (Titanium.App.Properties.listProperties().length > 1) {
-    Titanium.API.print("\n\nBEWARE: There is more than one App property, which can cause data corruption. !!!!!!!!!!!!!!!!\n\n");
+  if (Ti.App.Properties.listProperties().length > 1) {
+    Ti.API.print("\n\nBEWARE: There is more than one App property, which can cause data corruption. !!!!!!!!!!!!!!!!\n\n");
   }
   
   // Initialize the basic setup.
-  // Titanium.App.Properties pulls from the application.properties file.  Note that lines in it beginning with # sometimes disappear; I use // for commentary.
+  // Ti.App.Properties pulls from the application.properties file.  Note that lines in it beginning with # sometimes disappear; I use // for commentary.
   if (typeof appProps['settings-dir'] == "undefined") {
-    appProps['settings-dir'] = Titanium.Filesystem.getApplicationDataDirectory().toString();
-    Titanium.App.Properties.setString('appPropsJson', JSON.stringify(appProps));
+    appProps['settings-dir'] = Ti.Filesystem.getApplicationDataDirectory().toString();
+    Ti.App.Properties.setString('appPropsJson', JSON.stringify(appProps));
   }
   
   // Initialize a DB for genealogy tree-of-interest.
-  var genealogyDB = Titanium.Database.open("genealogy");
+  var genealogyDB = Ti.Database.open("genealogy");
   // ext_ids is a JSON-encoded array of ID strings
   var exec = genealogyDB.execute('CREATE TABLE IF NOT EXISTS genealogy (id INTEGER PRIMARY KEY AUTOINCREMENT, father_id INTEGER, mother_id INTEGER, ext_ids TEXT)');
   genealogyDB.close();
   appProps.genealogy_db_path = genealogyDB.getPath();
-  Titanium.App.Properties.setString('appPropsJson', JSON.stringify(appProps));
+  Ti.App.Properties.setString('appPropsJson', JSON.stringify(appProps));
 }
 
 try {
@@ -78,13 +78,13 @@ function redirectWhenSetupFinished(url) {
 function startApp() {
   
   // coordinate the version in nodeApp.js with this one
-  var thisVersion = parseFloat(Titanium.App.getVersion());
+  var thisVersion = parseFloat(Ti.App.getVersion());
   
-  //Titanium.UI.getWindows()[0].showInspector(true);
-  //Titanium.API.print("to console\n");
+  //Ti.UI.getWindows()[0].showInspector(true);
+  //Ti.API.print("to console\n");
   
   /** This doesn't work: gotta save and retrieve the version from our settings.
-  if (parseFloat(Titanium.App.getVersion()) < 8.0) {
+  if (parseFloat(Ti.App.getVersion()) < 8.0) {
     settingsFile = window.p2pdoc_settings.settings_file().toString();
     reviewedDir = window.p2pdoc_settings.reviewed_base_dir().toString();
     message = 
@@ -93,31 +93,31 @@ function startApp() {
       + "\n\nOpen this directory: " + reviewedDir 
       + "\n\nRename each folder in the directory to the 'id' number in the file.\n\nClick 'OK' to continue.";
     if (!confirm(message)) {
-      Titanium.App.exit();
+      Ti.App.exit();
     }
   }
   **/
   
   // run the node server
-  var platform = Titanium.getPlatform();
+  var platform = Ti.getPlatform();
   //if (platform === 'win') {
   //  alert("Many functions will not work because the Windows platform is not supported yet.  I wouldn't even try.");
   //}
-  var sep = Titanium.Filesystem.getSeparator();
-  var binRoot = Titanium.App.getHome() + sep + 'Resources';
+  var sep = Ti.Filesystem.getSeparator();
+  var binRoot = Ti.App.getHome() + sep + 'Resources';
   var nodeBinary = binRoot + sep + 'nodejs' + sep + 'builds' + sep + platform + sep + 'node' + sep + 'bin' + sep + 'node';
   var appServerPath = binRoot + sep + 'nodeApp.js';
-  if (!Titanium.Filesystem.getFile(nodeBinary).isExecutable()) {
-    Titanium.Filesystem.getFile(nodeBinary).setExecutable();
+  if (!Ti.Filesystem.getFile(nodeBinary).isExecutable()) {
+    Ti.Filesystem.getFile(nodeBinary).setExecutable();
   }
-  var nodeProcess = Titanium.Process.createProcess(["nohup", nodeBinary, appServerPath]);
+  var nodeProcess = Ti.Process.createProcess(["nohup", nodeBinary, appServerPath]);
   // I'd like to attach to all the pipes (eg. stdout, stderr) in the subprocess, but I can't find the handles to the pipes in the main app.
   nodeProcess.setOnRead(function(data) {
     // This will fire on console.log, warn, and trace; all others will go directly to output.
-    Titanium.API.info("node console.log: " + data.getData());
+    Ti.API.info("node console.log: " + data.getData());
   });
   nodeProcess.launch(); // they say this is deprecated, but mine doesn't run without it
-  Titanium.API.addEventListener(Titanium.EXIT, function(e) {
+  Ti.API.addEventListener(Ti.EXIT, function(e) {
     nodeProcess.kill();
   });
   
@@ -125,7 +125,7 @@ function startApp() {
   setupFinished = true;
   
   // redirect to the correct first page
-  var settingsFile = Titanium.Filesystem.getFile(window.p2pdoc_settings.settings_file());
+  var settingsFile = Ti.Filesystem.getFile(window.p2pdoc_settings.settings_file());
   if (settingsFile.exists()) {
     redirectWhenSetupFinished("change-summary.html?redirectIfNoUpdates=");
   } else {

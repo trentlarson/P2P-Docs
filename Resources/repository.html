@@ -28,7 +28,7 @@
 <script type="text/ruby" src="ruby/settings.rb"></script>
 
 <script type="text/javascript">
-  var appPropsStr = Titanium.App.Properties.getString("appPropsJson");
+  var appPropsStr = Ti.App.Properties.getString("appPropsJson");
   var appProps = JSON.parse(appPropsStr);
   window.settingsDir = appProps['settings-dir'];
 </script>
@@ -101,19 +101,19 @@ $(document).ready(function() {
     }, viewModel);
     
     var selectHome = function() {
-      Titanium.UI.getCurrentWindow().openFolderChooserDialog(function(selectionResponse) {
+      Ti.UI.getCurrentWindow().openFolderChooserDialog(function(selectionResponse) {
         if (selectionResponse.length > 0) { viewModel.homeLoc(selectionResponse[0]); }
       });
     }
 
     var selectIncoming = function() {
-      Titanium.UI.getCurrentWindow().openFolderChooserDialog(function(selectionResponse) {
+      Ti.UI.getCurrentWindow().openFolderChooserDialog(function(selectionResponse) {
         if (selectionResponse.length > 0) { viewModel.incomingLoc(selectionResponse[0]); }
       });
     }
     
     var selectOutgoing = function() {
-      Titanium.UI.getCurrentWindow().openFolderChooserDialog(function(selectionResponse) {
+      Ti.UI.getCurrentWindow().openFolderChooserDialog(function(selectionResponse) {
         if (selectionResponse.length > 0) { viewModel.outgoingLoc(selectionResponse[0]); }
       });
     }

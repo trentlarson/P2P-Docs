@@ -13,13 +13,13 @@ function errorProps(err) {
 /**
  * This shows a user-friendly alert with a bunch of debugging info, including a stack trace showing function names and argument values passed in.
  *
- * Unfortunately, it appears that assigning window.onerror doesn't work in Titanium.
+ * Unfortunately, it appears that assigning window.onerror doesn't work in Ti.
  *
  * requires stacktrace.js
  */
 function p2pdocsHandleError(err, extras) {
   message = "Sorry!  I don't understand what just happened.  If you don't mind, contact the nice people at familyhistories.info and send them this information.  Thanks!\n\n";
-  message += "version: " + Titanium.App.getVersion() + "\n";
+  message += "version: " + Ti.App.getVersion() + "\n";
   message += errorProps(err);
   if (extras) {
     message += errorProps(extras);
@@ -49,9 +49,9 @@ function viewFile(sourceDir, path) {
   if (path == null) {
     path = "";
   }
-  var file = Titanium.Filesystem.getFile(sourceDir, path).toString();
+  var file = Ti.Filesystem.getFile(sourceDir, path).toString();
   try {
-    var result = Titanium.Platform.openApplication(file);
+    var result = Ti.Platform.openApplication(file);
     if (result !== "true"     // The API says that the result is a string...
         && result !== true) { // ... but I'm getting a boolean result.
       alert("Sorry!  We had a problem opening that file.  If you report this problem, the following info will help.\nfile: " + file + "\nresult: " + result);

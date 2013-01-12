@@ -14,20 +14,20 @@
 <script type="text/ruby" src="ruby/settings.rb"></script>
 
 <script type="text/javascript">
-  var appPropsStr = Titanium.App.Properties.getString("appPropsJson");
+  var appPropsStr = Ti.App.Properties.getString("appPropsJson");
   var appProps = JSON.parse(appPropsStr);
   window.settingsDir = appProps['settings-dir'];
 </script>
 
 <script type="text/ruby">
   window.p2pdoc_settings = Settings.new(window.settingsDir)
-  window.p2pdoc_test_versioned = lambda { |content_dir| SampleReposVersioned.create(Titanium.Filesystem.getFile(Titanium.App.getHome(), "Resources"), Titanium.Filesystem.getFile(Titanium.App.getHome(), content_dir)) }
-  window.p2pdoc_test_many = lambda { |content_dir| SampleManyRepos.create(Titanium.Filesystem.getFile(Titanium.App.getHome(), "Resources"), Titanium.Filesystem.getFile(Titanium.App.getHome(), content_dir)) }
+  window.p2pdoc_test_versioned = lambda { |content_dir| SampleReposVersioned.create(Ti.Filesystem.getFile(Ti.App.getHome(), "Resources"), Ti.Filesystem.getFile(Ti.App.getHome(), content_dir)) }
+  window.p2pdoc_test_many = lambda { |content_dir| SampleManyRepos.create(Ti.Filesystem.getFile(Ti.App.getHome(), "Resources"), Ti.Filesystem.getFile(Ti.App.getHome(), content_dir)) }
 </script>
 
 <script type="text/javascript">
 
-  // Titanium.App.Properties pulls from the application.properties file.  Note that lines in it beginning with # sometimes disappear; I use // for commentary.
+  // Ti.App.Properties pulls from the application.properties file.  Note that lines in it beginning with # sometimes disappear; I use // for commentary.
   var BACKUP_PROP = '//settings-dir-bak';
 
   function restoreRegularOperation() {
@@ -37,9 +37,9 @@
       if (typeof appProps[BACKUP_PROP] == "undefined") {
         appProps['settings-dir'] = appProps(BACKUP_PROP);
       } else {
-        appProps['settings-dir'] = Titanium.Filesystem.getApplicationDataDirectory().toString();
+        appProps['settings-dir'] = Ti.Filesystem.getApplicationDataDirectory().toString();
       }
-      Titanium.App.Properties.setString('appPropsJson', JSON.stringify(appProps));
+      Ti.App.Properties.setString('appPropsJson', JSON.stringify(appProps));
       
       alert("All set back to regular environment.");
     } catch (e) {
@@ -55,9 +55,9 @@
         appProps[BACKUP_PROP] = appProps['settings-dir'];
       }
       var testSubDir = 'test-clean-slate';
-      var settingsDir = Titanium.Filesystem.getFile(Titanium.App.getHome(), testSubDir).toString();
+      var settingsDir = Ti.Filesystem.getFile(Ti.App.getHome(), testSubDir).toString();
       appProps['settings-dir'] = settingsDir;
-      Titanium.App.Properties.setString('appPropsJson', JSON.stringify(appProps));
+      Ti.App.Properties.setString('appPropsJson', JSON.stringify(appProps));
       
       alert("All set to test environment for new install.");
     } catch (e) {
@@ -73,9 +73,9 @@
         appProps[BACKUP_PROP] = appProps['settings-dir'];
       }
       var testSubDir = 'sample-repos-versioned';
-      var settingsDir = Titanium.Filesystem.getFile(Titanium.App.getHome(), testSubDir).toString();
+      var settingsDir = Ti.Filesystem.getFile(Ti.App.getHome(), testSubDir).toString();
       appProps['settings-dir'] = settingsDir;
-      Titanium.App.Properties.setString('appPropsJson', JSON.stringify(appProps));
+      Ti.App.Properties.setString('appPropsJson', JSON.stringify(appProps));
 
       window.p2pdoc_test_versioned(testSubDir);
       alert("All set for test environment for versioned files.");
@@ -92,9 +92,9 @@
         appProps[BACKUP_PROP] = appProps['settings-dir'];
       }
       var testSubDir = 'sample-many-repos';
-      var settingsDir = Titanium.Filesystem.getFile(Titanium.App.getHome(), testSubDir).toString();
+      var settingsDir = Ti.Filesystem.getFile(Ti.App.getHome(), testSubDir).toString();
       appProps['settings-dir'] = settingsDir;
-      Titanium.App.Properties.setString('appPropsJson', JSON.stringify(appProps));
+      Ti.App.Properties.setString('appPropsJson', JSON.stringify(appProps));
 
       window.p2pdoc_test_many(testSubDir);
       alert("All set for test environment for many libraries.");
@@ -108,10 +108,10 @@
       $('#everything').show('slide', { direction: "down" }, 500);
       $('#restore-env').click(function(){ restoreRegularOperation(); });
       $('#setup-test-env-for-new-install').click(function(){ setupTestForNewInstall(); });
-      $('#restart').click(function(){ Titanium.App.restart(); });
+      $('#restart').click(function(){ Ti.App.restart(); });
       $('#setup-test-env-for-versioned-files').click(function(){ setupTestForVersionedFiles(); });
       $('#setup-test-env-for-many-repos').click(function(){ setupTestForManyRepos(); });
-      $('#open-inspector').click(function(){ Titanium.UI.getWindows()[0].showInspector(true); });
+      $('#open-inspector').click(function(){ Ti.UI.getWindows()[0].showInspector(true); });
     } catch (e) {
       p2pdocsHandleError(e);
     }
