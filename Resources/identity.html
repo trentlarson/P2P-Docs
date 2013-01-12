@@ -17,7 +17,7 @@
   <script type="text/ruby"       src="ruby/p2pdocs_utils.rb"></script>
   
   <script type="text/javascript">
-    var appPropsStr = Titanium.App.Properties.getString("appPropsJson");
+    var appPropsStr = Ti.App.Properties.getString("appPropsJson");
     var appProps = JSON.parse(appPropsStr);
     window.settingsDir = appProps['settings-dir'];
   </script>
@@ -96,7 +96,7 @@
         //appProps['ancestry'] = JSON.parse(treeString);
         var listString = window.p2pdoc_ancestor_tree.retrieveTreeAsUrlListJson(urlParam("gedcomFile"), urlParam("indId"));
         appProps['ancestryIds'] = JSON.parse(listString);
-        Titanium.App.Properties.setString('appPropsJson', JSON.stringify(appProps));
+        Ti.App.Properties.setString('appPropsJson', JSON.stringify(appProps));
         var message = "Your ancestry has been indexed and saved.";
         $('#everything').hide('slide', { direction: "down"}, 500, function() {
           location.href = "repositories.html?message=" + escape(message);
@@ -142,7 +142,7 @@
       });
       
       $("#chooseFile").click(function() {
-        Titanium.UI.getCurrentWindow().openFileChooserDialog(function(selectionResponse) {
+        Ti.UI.getCurrentWindow().openFileChooserDialog(function(selectionResponse) {
           if (selectionResponse.length > 0) {
             $("#genLocation").val(selectionResponse[0]);
           }

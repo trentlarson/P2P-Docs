@@ -29,7 +29,7 @@
 <script type="text/ruby" src="ruby/p2pdocs_utils.rb"></script>
 
 <script type="text/javascript">
-  var appPropsStr = Titanium.App.Properties.getString("appPropsJson");
+  var appPropsStr = Ti.App.Properties.getString("appPropsJson");
   var appProps = JSON.parse(appPropsStr);
   window.settingsDir = appProps['settings-dir'];
 </script>
@@ -41,10 +41,10 @@
 </script>
 
 <script type="text/javascript">
-var Ti = {fs: Titanium.Filesystem, api:Titanium.API};
+var Ti = {fs: Ti.Filesystem, api:Ti.API};
 
-//Titanium.UI.getWindows()[0].showInspector()
-//Titanium.api.print("to console");
+//Ti.UI.getWindows()[0].showInspector()
+//Ti.api.print("to console");
 
 // render each repository
 var insertRepo = function(repo, showSlowly) {
@@ -69,7 +69,7 @@ var insertRepo = function(repo, showSlowly) {
   addedItem.find("#repoOutPath_").attr("id", "repoOutPath_"  + dom_suffix).html(repo.outgoing_loc);
   addedItem.find("#inFolderChooser_").attr("id", "inFolderChooser_" + dom_suffix).click(function() {
     location.hash = "repoAnchor_" + dom_suffix;
-    Titanium.UI.getCurrentWindow().openFolderChooserDialog(function(selectionResponse) {
+    Ti.UI.getCurrentWindow().openFolderChooserDialog(function(selectionResponse) {
       if (selectionResponse.length > 0) {
         window.location.href = "?changeRepoDir=&repoId=" + repo.id + "&repoName=" + escape(repo.name) + "&inOutMine=in&directory=" + escape(selectionResponse[0]);
       }
@@ -79,7 +79,7 @@ var insertRepo = function(repo, showSlowly) {
   });
   addedItem.find("#myLocFolderChooser_").attr("id", "myLocFolderChooser_" + dom_suffix).click(function() {
     location.hash = "repoAnchor_" + dom_suffix;
-    Titanium.UI.getCurrentWindow().openFolderChooserDialog(function(selectionResponse) {
+    Ti.UI.getCurrentWindow().openFolderChooserDialog(function(selectionResponse) {
       if (selectionResponse.length > 0) {
         window.location.href = "?changeRepoDir=&repoId=" + repo.id + "&repoName=" + escape(repo.name) + "&inOutMine=mine&directory=" + escape(selectionResponse[0]);
       }
@@ -87,7 +87,7 @@ var insertRepo = function(repo, showSlowly) {
   });
   addedItem.find("#outFolderChooser_").attr("id", "outFolderChooser_" + dom_suffix).click(function() {
     location.hash = "repoAnchor_" + dom_suffix;
-    Titanium.UI.getCurrentWindow().openFolderChooserDialog(function(selectionResponse) {
+    Ti.UI.getCurrentWindow().openFolderChooserDialog(function(selectionResponse) {
       if (selectionResponse.length > 0) {
         window.location.href = "?changeRepoDir=&repoId=" + repo.id + "&repoName=" + escape(repo.name) + "&inOutMine=out&directory=" + escape(selectionResponse[0]);
       }
@@ -117,13 +117,13 @@ var insertRepo = function(repo, showSlowly) {
   
   addedItem.find("#inFolderOpener_").attr("id", "inFolderOpener_" + dom_suffix)
   .html(repo.incoming_loc == null || repo.incoming_loc.length === 0 ? "" : "(open)")
-  .click(viewFileWrapperFunc(repo.incoming_loc, Titanium.Filesystem.getSeparator()));
+  .click(viewFileWrapperFunc(repo.incoming_loc, Ti.Filesystem.getSeparator()));
   addedItem.find("#myLocFolderOpener_").attr("id", "myLocFolderOpener_" + dom_suffix)
   .html(repo.my_loc == null || repo.my_loc.length === 0 ? "" : "(open)")
-  .click(viewFileWrapperFunc(repo.my_loc, Titanium.Filesystem.getSeparator()));
+  .click(viewFileWrapperFunc(repo.my_loc, Ti.Filesystem.getSeparator()));
   addedItem.find("#outFolderOpener_").attr("id", "outFolderOpener_" + dom_suffix)
   .html(repo.outgoing_loc == null || repo.outgoing_loc.length === 0 ? "" : "(open)")
-  .click(viewFileWrapperFunc(repo.outgoing_loc, Titanium.Filesystem.getSeparator()));
+  .click(viewFileWrapperFunc(repo.outgoing_loc, Ti.Filesystem.getSeparator()));
   
   // attach methods to the visuals
   addedItem.find("#repoRemove_" + dom_suffix).click(function() {
@@ -178,9 +178,9 @@ $(document).ready(function() {
     }
 
     $('#settingsDir').html(window.p2pdoc_settings.data_dir());
-    $('#openSettings').click(viewFileWrapperFunc(window.p2pdoc_settings.data_dir(), Titanium.Filesystem.getSeparator()));
+    $('#openSettings').click(viewFileWrapperFunc(window.p2pdoc_settings.data_dir(), Ti.Filesystem.getSeparator()));
     $('#savedFileExtensions').html(window.p2pdoc_settings.diffable_extensions().inspect());
-    $('#aboutPage').click(function(){Titanium.Platform.openURL(Titanium.App.getURL());});
+    $('#aboutPage').click(function(){Ti.Platform.openURL(Ti.App.getURL());});
     
     var repos = window.p2pdoc_settings.properties().repositories;
     var repo;

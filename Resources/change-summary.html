@@ -42,7 +42,7 @@
 <script type="text/ruby"       src="ruby/p2pdocs_utils.rb"></script>
 
 <script type="text/javascript">
-  var appPropsStr = Titanium.App.Properties.getString("appPropsJson");
+  var appPropsStr = Ti.App.Properties.getString("appPropsJson");
   var appProps = JSON.parse(appPropsStr);
   window.settingsDir = appProps['settings-dir'];
 </script>
@@ -50,16 +50,16 @@
 <script type="text/ruby">
   window.p2pdoc_settings = Settings.new(window.settingsDir)
   window.p2pdoc_mark_reviewed = lambda { |repo_id, path, previous_path| Updates.mark_reviewed(window.p2pdoc_settings, repo_id, path, previous_path) }
-  window.p2pdoc_mark_reviewed2 = lambda { |repo_id, path, previous_path| Titanium.API.print("got into method\n") }
+  window.p2pdoc_mark_reviewed2 = lambda { |repo_id, path, previous_path| Ti.API.print("got into method\n") }
   def p2pdoc_mark_reviewed3(repo_id, path, previous_path)
-    Titanium.API.print("got into method #{repo_id} #{path} #{previous_path}.\n")
+    Ti.API.print("got into method #{repo_id} #{path} #{previous_path}.\n")
   end
 </script>
 
 <script type="text/javascript">
 
-//Titanium.UI.getWindows()[0].showInspector()
-//Titanium.API.print("to console\n");
+//Ti.UI.getWindows()[0].showInspector()
+//Ti.API.print("to console\n");
 
 function initializeChangeSummary() {
   if (typeof appProps['post-param'] != "undefined") {
@@ -74,7 +74,7 @@ function initializeChangeSummary() {
         }
       }
       appProps['post-param'] = null;
-      Titanium.App.Properties.setString('appPropsJson', JSON.stringify(appProps));
+      Ti.App.Properties.setString('appPropsJson', JSON.stringify(appProps));
     }
   }
 }
@@ -106,14 +106,14 @@ try {
 
 <script type="text/javascript">
 
-var Ti = {fs: Titanium.Filesystem, api:Titanium.API};
+var Ti = {fs: Ti.Filesystem, api:Ti.API};
 
 /* Set up a back-end action to do on reload, since we have all kinds of problems trying to run Ruby after the page has loaded. */
 function setupMarkAction(reviewedList) {
   //eg. {'action':'markReviewedBulk', 'reviewed':[{'id':0, 'name':'Bohemia', 'path':'Tao', 'previousPath':'Hedonism'}]}];
   var actionData = {'action':'markReviewedBulk', 'reviewed':reviewedList};
   appProps['post-param'] = actionData;
-  Titanium.App.Properties.setString('appPropsJson', JSON.stringify(appProps));
+  Ti.App.Properties.setString('appPropsJson', JSON.stringify(appProps));
 }
 
 function getRepoById(allRepos, repoId) {
@@ -293,7 +293,7 @@ $(document).ready(function() {
           
           for (var diffNum = 0; diffNum < repoDiffCount; diffNum++) {
             diffSet = repoDiffList[diffNum];
-            interestCheckData.push({"path":repoData.incoming_loc + Titanium.Filesystem.getSeparator() + diffSet.path, "repoNum":repoNum, "diffNum":diffNum});
+            interestCheckData.push({"path":repoData.incoming_loc + Ti.Filesystem.getSeparator() + diffSet.path, "repoNum":repoNum, "diffNum":diffNum});
             
             addedDiff = diffTemplate.clone();
             addedDiff.insertBefore(diffTemplate);
@@ -316,8 +316,8 @@ $(document).ready(function() {
               } else {
                 // there's another file or something that's been reviewed
                 if (diffSet.target_type === "file") {
-                  file1 = repoData.incoming_loc + Titanium.Filesystem.getSeparator() + diffSet.path;
-                  file2 = window.p2pdoc_settings.reviewed_dir(repoData) + Titanium.Filesystem.getSeparator() + diffSet.target_path_previous_version;
+                  file1 = repoData.incoming_loc + Ti.Filesystem.getSeparator() + diffSet.path;
+                  file2 = window.p2pdoc_settings.reviewed_dir(repoData) + Ti.Filesystem.getSeparator() + diffSet.target_path_previous_version;
                   addedDiff.find("#changeView a").attr("href", "file-diff.html?file1=" + file1 + "&file2=" + file2).show();
                 } else {
                   // it's something other than a file
@@ -356,7 +356,7 @@ $(document).ready(function() {
           var idData = appProps['ancestryIds']
           $.post('http://127.0.0.1:1338/check_database', {'ancestryIds':JSON.stringify(idData), "incomingFiles":JSON.stringify(interestCheckData)}, function(data) {
             $('#incomingSearchProgress').hide();
-            //Titanium.API.print("Got something from database: " + data + "\n");
+            //Ti.API.print("Got something from database: " + data + "\n");
             var interestingData = JSON.parse(data);
             var oneFile;
             if (interestingData.length > 0) {
@@ -366,7 +366,7 @@ $(document).ready(function() {
                 $('#inChanges #repo_' + oneFile.repoNum + ' #diffPath_' + oneFile.diffNum).before("<img src='images/button-green-solid.16.png'>");
               }
             }
-          }).error(function(error){p2pdocsHandleError(error, {"sqliteFile":Titanium.App.Properties.getString("genealogy_db_path")});});
+          }).error(function(error){p2pdocsHandleError(error, {"sqliteFile":Ti.App.Properties.getString("genealogy_db_path")});});
         }
         
       }

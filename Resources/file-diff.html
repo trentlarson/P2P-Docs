@@ -19,12 +19,12 @@ $(document).ready(function() {
 
   var filename, file, contents;
   filename = urlParam("file1");
-  file = Titanium.Filesystem.getFile(filename);
+  file = Ti.Filesystem.getFile(filename);
   contents = file.read() + ""; // without the "" it gives no results
   $('#text1').text(contents);
   
   filename = urlParam("file2");
-  file = Titanium.Filesystem.getFile(filename);
+  file = Ti.Filesystem.getFile(filename);
   contents = file.read() + "";
   $('#text2').text(contents);
   
