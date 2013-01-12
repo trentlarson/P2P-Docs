@@ -502,7 +502,8 @@ class Updates
         if (ignore_future)
           # use a zero-size file with a time far in the future to mark items that will be ignored forever
           FileUtils::touch(target)
-          time = Time.new(9999)
+          time = Time.local(Time.new.year + 999)
+          File.utime(time, time, target)
         else
           cp_r_maybe_without_history(extensions_to_keep_histories, source, target, no_history_copy)
         end
