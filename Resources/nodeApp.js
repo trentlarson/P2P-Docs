@@ -10,16 +10,16 @@ var server,
   github    = new GitHubApi(true),
   githubUserOfConcern = 'appcelerator';
 
-var ohNo = function(req, resp) {
+var ohNo = function(req, resp, err) {
   resp.writeHead(500, {"Content-Type": "text/plain"});  
     resp.write(err + "\n");  
-    resp.close();
+    resp.end();
     return;
 };
   
 var getFollowers = function(req, resp) {
   github.getUserApi().getFollowers(githubUserOfConcern, function(err, followers) {
-      if(err) { ohNo(); }
+      if(err) { ohNo(req, resp, err); }
       
       if (followers) {
         resp.write(JSON.stringify({users: followers}));
@@ -33,7 +33,7 @@ var getFollowers = function(req, resp) {
 
 var getRepos = function(req, resp) {
   github.getRepoApi().getUserRepos(githubUserOfConcern, function(err, repositories) {
-      if(err) { ohNo(); }
+      if(err) { ohNo(req, resp, err); }
 
       if (repositories) {
         resp.write(JSON.stringify({repos: repositories}));
@@ -52,7 +52,7 @@ var getRepoWatchers = function(req, resp) {
     var repo = urlParts[2];
     
     github.getRepoApi().getRepoWatchers(githubUserOfConcern, repo, function(err, watchers) {
-        if(err) { ohNo(); }
+        if(err) { ohNo(req, resp, err); }
 
         if (watchers) {
           resp.write(JSON.stringify({users: watchers}));
@@ -77,7 +77,7 @@ var getProfile = function(req, resp) {
     var username = urlParts[2];
     
     github.getUserApi().show(username, function(err, details) {
-        if(err) { ohNo(); }
+        if(err) { ohNo(req, resp, err); }
         
         resp.write(JSON.stringify(details));
         resp.end();
@@ -210,10 +210,11 @@ server = http.createServer(function (req, resp) {
 
   } else if (req.url.indexOf('/version') === 0) {
     // coordinate this version with the one in tiapp.xml
-    resp.write(JSON.stringify("8.0")); // this is a String mainly to keep consistent with other version numbers
+    resp.write(JSON.stringify("9.0")); // this is a String mainly to keep consistent with other version numbers
     resp.end();
 
   } else if (req.url.indexOf('/check_database') === 0) {
+    // curl http://127.0.0.1:1338/check_database -d "ancestryIds=2&incomingFiles=[{'path':'/Users/tlarson/Dropbox/Multimedia from Janell/Baker Austin-Fanny','repoNum':0,'diffNum':2}/]"
     try {
       checkDatabase(req, resp);
     } catch (e) {
