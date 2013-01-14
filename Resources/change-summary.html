@@ -365,6 +365,8 @@ $(document).ready(function() {
               }
             }
           }).error(function(error){p2pdocsHandleError(error, {"sqliteFile":Ti.App.Properties.getString("genealogy_db_path")});});
+        } else { // there are no ancestryIds stored
+          $('#incomingSearchProgress').hide();
         }
         
       }
