@@ -106,11 +106,19 @@ function startApp() {
   var sep = Ti.Filesystem.getSeparator();
   var binRoot = Ti.App.getHome() + sep + 'Resources';
   var nodeBinary = binRoot + sep + 'nodejs' + sep + 'builds' + sep + platform + sep + 'node' + sep + 'bin' + sep + 'node';
+  if (platform === 'win' || platform === 'win32') {
+    nodeBinary = nodeBinary + ".exe";
+  }
   var appServerPath = binRoot + sep + 'nodeApp.js';
   if (!Ti.Filesystem.getFile(nodeBinary).isExecutable()) {
     Ti.Filesystem.getFile(nodeBinary).setExecutable();
   }
-  var nodeProcess = Ti.Process.createProcess(["nohup", nodeBinary, appServerPath]);
+  if (platform === 'win' || platform === 'win32') {
+    // To run in the background in a Windows shell I would need to prefix this command with 'start', but that fails in a TideSDK process.  Thankfully, things seem to work without backgrounding it (even on the Mac).
+    var nodeProcess = Ti.Process.createProcess([nodeBinary, appServerPath]);
+  } else {
+    var nodeProcess = Ti.Process.createProcess(["nohup", nodeBinary, appServerPath]);
+  }
   // I'd like to attach to all the pipes (eg. stdout, stderr) in the subprocess, but I can't find the handles to the pipes in the main app.
   nodeProcess.setOnRead(function(data) {
     // This will fire on console.log, warn, and trace; all others will go directly to output.
@@ -134,7 +142,7 @@ function startApp() {
 }
 
 try {
-  // giving it a name for potential stack traces
+  // this doesn't help: to see a name for stack traces, the catch must be inside the function
   startApp();
 } catch (e) {
   p2pdocsHandleError(e);
