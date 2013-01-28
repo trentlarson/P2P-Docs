@@ -139,8 +139,8 @@ var insertRepo = function(repo, showSlowly) {
   }
 }
 
-$(document).ready(function() {
 
+function initializeDisplay() {
   try {
     
     var afterLoadShow = null;
@@ -230,7 +230,12 @@ $(document).ready(function() {
   } catch (e) {
     p2pdocsHandleError(e);
   }
-  
+}  
+
+
+$(document).ready(function() {
+  // calling a named method so there's something in the stack trace
+  initializeDisplay();
 });
 
 </script>
