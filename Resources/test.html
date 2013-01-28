@@ -32,7 +32,6 @@
 
   function restoreRegularOperation() {
     try {
-      
       // restore if the settings-dir property was backed-up
       if (typeof appProps[BACKUP_PROP] == "undefined") {
         appProps['settings-dir'] = appProps(BACKUP_PROP);
@@ -103,7 +102,7 @@
     }
   }
 
-  $(document).ready(function() {
+  function initializeDisplay() {
     try {
       $('#everything').show('slide', { direction: "down" }, 500);
       $('#restore-env').click(function(){ restoreRegularOperation(); });
@@ -115,6 +114,11 @@
     } catch (e) {
       p2pdocsHandleError(e);
     }
+  }
+
+  $(document).ready(function() {
+    // calling a named method so there's something in the stack trace
+    initializeDisplay();
   });
   
 </script>

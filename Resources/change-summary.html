@@ -62,6 +62,8 @@
 //Ti.API.print("to console\n");
 
 function initializeChangeSummary() {
+ try {
+
   if (typeof appProps['post-param'] != "undefined") {
     var actionData = appProps['post-param'];
     if (actionData != null) {
@@ -77,14 +79,13 @@ function initializeChangeSummary() {
       Ti.App.Properties.setString('appPropsJson', JSON.stringify(appProps));
     }
   }
-}
 
-try {
-  // calling a named method so there's something in the stack trace
-  initializeChangeSummary();
-} catch (e) {
+ } catch (e) {
   p2pdocsHandleError(e);
+ }
 }
+// using a function name to show in stack traces in error handling
+initializeChangeSummary();
 
 </script>
 
@@ -180,8 +181,8 @@ function markInAccepted() {
   }
 }
 
-$(document).ready(function() {
-  
+function initializeDisplay() {
+
   var errorDetails = {};
   try {
     
@@ -402,7 +403,11 @@ $(document).ready(function() {
   } catch (e) {
     p2pdocsHandleError(e, errorDetails);
   }
+}
 
+$(document).ready(function() {
+  // calling a named method so there's something in the stack trace
+  initializeDisplay();
 });
 </script>
 </head>

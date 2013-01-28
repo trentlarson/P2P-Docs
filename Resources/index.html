@@ -10,9 +10,12 @@
 <link rel="stylesheet" type="text/css" href="css/p2pdocs.css" />
 
 <script type="text/javascript">
+
 var appProps = {};
+
 function configApp() {
-  
+ try {
+
   if (Ti.App.Properties.hasProperty('appPropsJson')) {
     // Titanium loads and savs properties with backslashes ("\") incorrectly: I think it's on the initial load that it loses them, and then all backslashes get dropped in any property other than the one you're setting.  Yes.  This is very bad for Windows paths.
     // So we're going to use a single property (because more than one can mess up the values of other ones).
@@ -41,14 +44,13 @@ function configApp() {
   genealogyDB.close();
   appProps.genealogy_db_path = genealogyDB.getPath();
   Ti.App.Properties.setString('appPropsJson', JSON.stringify(appProps));
-}
 
-try {
-  // giving it a name for potential stack traces
-  configApp();
-} catch (e) {
+ } catch (e) {
   p2pdocsHandleError(e);
+ }
 }
+// using a function name to show in stack traces in error handling
+configApp();
 
 window.settingsDir = appProps['settings-dir'];
 </script>
@@ -76,7 +78,8 @@ function redirectWhenSetupFinished(url) {
 }
 
 function startApp() {
-  
+ try {
+
   // coordinate the version in nodeApp.js with this one
   var thisVersion = parseFloat(Ti.App.getVersion());
   
@@ -139,14 +142,13 @@ function startApp() {
   } else {
     redirectWhenSetupFinished("repository.html");
   }
-}
 
-try {
-  // this doesn't help: to see a name for stack traces, the catch must be inside the function
-  startApp();
-} catch (e) {
+ } catch (e) {
   p2pdocsHandleError(e);
+ }
 }
+// using a function name to show in stack traces in error handling
+startApp();
 
 </script>
 </head>
