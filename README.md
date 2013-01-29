@@ -125,7 +125,6 @@ Development Setup:
 * To disable the app calling Appcelerator (for tracking), add this in tiapp.xml inside ti:app element:
   <analytics>false</analytics>
 * You may have problems running the node server, because:
-  * I haven't checked in a Windows version.
   * I haven't checked in a Linux or Windows version of sqlite3.
   * I have checked in the Resources/node_modules/sqlite-osx build and sqlite3_bindings.node files, which are in .gitignore in that module.  They're built on OSX 10.6.8.
 * When updating versions, make sure to change in both places: tiapp.xml and nodeApp.js
@@ -134,6 +133,7 @@ Development Setup:
 User Story Details, By Priority
 --------------------
 
+ * add sqlite for Windows/Linux
  * allow selection of outgoing files to publish (small)
  * allow indication (checkbox?) to mark dirs/files as ignored forever
  * allow copying/merging to my own copy (via link?)
@@ -157,7 +157,6 @@ User Story Details, By Priority
  * fix error marking reviewed the files starting with "."
  * fix error loading properties when royal.ged INDI 1 is used as an identity
  * remove the static Ruby class variable that's not static (in settings.rb)
- * add node for Windows; possibly add sqlite for Windows/Linux
  * default to versioned files, but allow to overwrite (both incoming and outgoing)
  * default to keep old reviewed versions, but allow deletion
  * default to keep old outgoing versions, but allow deletion
@@ -172,6 +171,7 @@ User Story Details, By Priority
  * program auto-update (medium)
  * show an appropriate error if two apps are running... or something to avoid clashing node processes (small)
  * change links with JavaScript actions (eg. inFolderChooser in repositories.html) from "a" to "span" to avoid page jumps when clicking (small)
+ * mark the repo as well when found an ancestor's record (small)
  * use repo ID numbers everywhere (instead of names)
  * fix the new-repo transition to slide whole screen (not half)
  * make a consistent styling for the whole app
