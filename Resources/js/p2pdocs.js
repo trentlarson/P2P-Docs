@@ -24,7 +24,7 @@ function p2pdocsHandleError(err, extras) {
   if (extras) {
     message += errorProps(extras);
   }
-  message += "stack: " + printStackTrace().join('\n- ');
+  message += "stack: " + printStackTrace({e:err, guess:true}).join('\n- ');
   alert(message);
 }
 
