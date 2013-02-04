@@ -4,8 +4,6 @@ var server,
   apricotLib= require('apricot');
   qsLib     = require('querystring');
   urlLib    = require("url"),
-  // note the pure-JS mysql client: https://github.com/felixge/node-mysql, listed here http://nodejs.org/docs/latest/api/appendix_1.html
-  sqliteLib = require("sqlite-osx"),
   GitHubApi = require("github").GitHubApi,
   github    = new GitHubApi(true),
   githubUserOfConcern = 'appcelerator';
