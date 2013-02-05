@@ -4,14 +4,23 @@
 <link rel="stylesheet" type="text/css" href="css/p2pdocs.css" />
 
 <style type="text/css">
-
 .blurb {
   height: 30px;
 }
 
+.tooltip {
+  display:none;
+  background:transparent url(images/box_white_small.png);
+  font-size:12px;
+  width:80px;
+  height:30px;
+  padding:12px;
+  color:#000; 
+}
 </style>
 
 <script type="text/javascript" src="js/jquery-1.5.1.min.js"></script>
+<script type="text/javascript" src="js/jquery.flowplayer.org.tools.min.js"></script>
 <script type="text/javascript" src="js/stacktrace.js"></script>
 <script type="text/javascript" src="js/p2pdocs.js"></script>
 
@@ -56,6 +65,10 @@ function openFile(filename, filepos) {
 function initializeDisplay() {
   try {
     
+    $("#search[title]").tooltip({ position:"bottom left", effect:"slide" });
+    $("#reviewFeeds[title]").tooltip({ position:"bottom left", effect:"slide" });
+    $("#configure[title]").tooltip({ position:"bottom left", effect:"slide" });
+
     // check files for the search results.
     var term = urlParam("term");
     if (term != null) {
@@ -112,9 +125,9 @@ $(document).ready(function() {
 <body>
 
   <div style="float:right;">
-    <a href="search.html"><img src="images/binoculars.32.png" alt="Search"/></a>
-    <a href="change-summary.html"><img src="images/rss-feed.32.png" alt="Review Feeds"/></a>
-    <a href="repositories.html"><img src="images/gear.32.png" alt="Configure"/></a>
+    <a href="search.html"><img src="images/binoculars.32.png" title="Search" id="search"/></a>
+    <a href="change-summary.html"><img src="images/rss-feed.32.png" title="Review Feeds" id="reviewFeeds"/></a>
+    <a href="repositories.html"><img src="images/gear.32.png" title="Configure" id="configure"/></a>
   </div>
 
   <div>
