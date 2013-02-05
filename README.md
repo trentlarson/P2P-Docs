@@ -130,9 +130,11 @@ Development Setup:
 User Story Details, By Priority
 --------------------
 
- * allow selection of outgoing files to publish (small)
- * allow indication (checkbox?) to mark dirs/files as ignored forever
- * allow copying/merging to my own copy (via link?)
+ * search for stories (locally)
+   * search for data within tree, ie. restricted sets of files rather than all
+     * if match has children, suggest browsing down to find closest ancestor
+   * terms
+   * semantic data
  * import "tree-of-interest"
    * find matching people in existing GEDCOM file
      * add search ancestry to DB
@@ -140,11 +142,9 @@ User Story Details, By Priority
      * show birthdate (tiny)
    * accept other types of repositories: ancestry.com, familysearch.org, git-ged
    * allow to remove(/disable?) identities
- * search for stories (locally)
-   * search for data within tree, ie. restricted sets of files rather than all
-     * if match has children, suggest browsing down to find closest ancestor
-   * terms
-   * semantic data
+ * allow selection of outgoing files to publish (small)
+ * allow indication (checkbox?) to mark dirs/files as ignored forever
+ * allow copying/merging to my own copy (via link?)
  * show repositories in a way that focuses on people/groups/circles with whom we're sharing the files (maybe first we detect sharing program and offer help)
  * for outgoing changes: show diffs, maybe links to repos and sharing circle (small)
  * error in versioned-repo test environment when we mark files as reviewed... because it's removing the previous_path, where it should be replacing it (and why am I removing again?)
