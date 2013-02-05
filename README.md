@@ -124,16 +124,12 @@ Development Setup:
   * Reopen Titanium and play.
 * To disable the app calling Appcelerator (for tracking), add this in tiapp.xml inside ti:app element:
   <analytics>false</analytics>
-* You may have problems running the node server, because:
-  * I haven't checked in a Linux or Windows version of sqlite3.
-  * I have checked in the Resources/node_modules/sqlite-osx build and sqlite3_bindings.node files, which are in .gitignore in that module.  They're built on OSX 10.6.8.
 * When updating versions, make sure to change in both places: tiapp.xml and nodeApp.js
 
 
 User Story Details, By Priority
 --------------------
 
- * add sqlite for Windows/Linux
  * allow selection of outgoing files to publish (small)
  * allow indication (checkbox?) to mark dirs/files as ignored forever
  * allow copying/merging to my own copy (via link?)
