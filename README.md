@@ -88,14 +88,14 @@ A "-" means it's not done yet.
     * - manage folders/friends from the sharing tools
     * - allow individual files to be their own repository
     * allow outgoing to the same place as incoming
+  * Search: search for items of interest
+    * - make this a plugin, ancillary to the file tracking
   * - Doc Alerts: notify when there's new content
   * Doc Changes (external?): display the new content
     * - set up trust for certain incoming files, to shortcut to my copy
+    * - Notifications: notify of changes, via desktop and via preferred media
   * - Doc Resolution: accept or reject the changes in my own versions
     * - then copy my version into any shared areas
-  * Search: search for items of interest
-  * - Notifications: notify of changes, via desktop and via preferred media
-  * - Use a true file-control system underneath (eg. git)
   * - Work as a plugin/client for some of the main file-sharing
       systems (eg. Vuze, Dropbox, Singly), to hide some of the ugliness of
       maintenance and duplication that this tool imposes
@@ -130,6 +130,8 @@ Development Setup:
 User Story Details, By Priority
 --------------------
 
+ * look for Dropbox/AeroFS/other sharing folders and recommend for new repository
+ * look for genealogy (eg. .GED) files and recommend for new identity
  * search for stories (locally)
    * search for data within tree, ie. restricted sets of files rather than all
      * if match has children, suggest browsing down to find closest ancestor
@@ -170,6 +172,7 @@ User Story Details, By Priority
  * fix the new-repo transition to slide whole screen (not half)
  * make a consistent styling for the whole app
  * search - HTML anchors: not just "a name=" strings, and not just single- and double-quotes
+ * use a true change-control system to store file histories (eg. git)
  * maybe we shouldn't save copies of files without extensions by default (by changing "!ext_match" conditional in Updates.cp_r_maybe_without_history)
  * rework graphics with repo pic
    * http://www.clker.com/clipart-vertical-file-cabinet.html
