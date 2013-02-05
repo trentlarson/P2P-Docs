@@ -148,8 +148,6 @@ User Story Details, By Priority
  * show repositories in a way that focuses on people/groups/circles with whom we're sharing the files (maybe first we detect sharing program and offer help)
  * for outgoing changes: show diffs, maybe links to repos and sharing circle (small)
  * error in versioned-repo test environment when we mark files as reviewed... because it's removing the previous_path, where it should be replacing it (and why am I removing again?)
- * store non-diffable (or ignored) files in DB rather than keeping copy of everything in reviewed
- * only keep copies of selected files (not all of them) (same as previous?)
  * fix error marking reviewed the files starting with "."
  * fix error loading properties when royal.ged INDI 1 is used as an identity
  * remove the static Ruby class variable that's not static (in settings.rb)
