@@ -211,11 +211,9 @@ function initializeDisplay() {
       var allOutDiffs = JSON.parse(window.p2pdoc_all_out_diffs_json);
       var errorDetails = {};
       
-      var changesExist = false;
       var repoTemplate, repoId, repoName, addedRepo;
       var diffTemplate, addedDiff;
       if (allOutDiffs.length > 0) {
-        changesExist = true;
         $('#outChanges').show();
         
         var outCount = allOutDiffs.length;
@@ -264,7 +262,6 @@ function initializeDisplay() {
         $('#noDiffs').show();
         
       } else {
-        changesExist = true;
         $('#inChanges').show();
   
         // declare the repo variables for data and DOM elements
@@ -388,11 +385,6 @@ function initializeDisplay() {
         
       }
 
-      if (urlParam("redirectIfNoUpdates") != null
-          && !changesExist) {
-        window.location.href = "search.html";
-      }
-    
       // click to toggle panel
       $('.panelHeader').click(function() {
         $(this).next().toggle(500);

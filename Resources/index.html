@@ -138,7 +138,7 @@ function startApp() {
   // redirect to the correct first page
   var settingsFile = Ti.Filesystem.getFile(window.p2pdoc_settings.settings_file());
   if (settingsFile.exists()) {
-    redirectWhenSetupFinished("change-summary.html?redirectIfNoUpdates=");
+    redirectWhenSetupFinished("search.html");
   } else {
     redirectWhenSetupFinished("repository.html");
   }
