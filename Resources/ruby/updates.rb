@@ -371,22 +371,14 @@ class Updates
     elsif (! File.exist? target_file) # but source_file must exist
       if (FileTest.directory? source_file)
         contents = all_files_below(source_file, "")
-        if (!contents.empty?)
-          [{'path' => subpath, 'source_type' => 'directory', 'target_type' => nil, 'contents' => contents}]
-        else
-          []
-        end
+        [{'path' => subpath, 'source_type' => 'directory', 'target_type' => nil, 'contents' => contents}]
       else
         [{'path' => subpath, 'source_type' => File.ftype(source_file), 'target_type' => nil, "contents" => nil }]
       end
     elsif (! File.exist? source_file) # but target_file must exist
       if (FileTest.directory? target_file)
         contents = all_files_below(target_file, "")
-        if (!contents.empty?)
-          [{'path' => subpath, 'source_type' => nil, 'target_type' => 'directory', 'contents' => contents}]
-        else
-          []
-        end
+        [{'path' => subpath, 'source_type' => nil, 'target_type' => 'directory', 'contents' => contents}]
       else
         [{'path' => subpath, 'source_type' => nil, 'target_type' => File.ftype(target_file), "contents" => nil }]
       end

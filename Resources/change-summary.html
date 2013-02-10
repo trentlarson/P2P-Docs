@@ -232,12 +232,19 @@ function initializeDisplay() {
           diffTemplate = addedRepo.find('#diff_');
           
           var outChangeCount = allOutDiffs[outRepoNum].diffs.length;
+          var outDiff, outPath;
           for (var outChangeNum = 0; outChangeNum < outChangeCount; outChangeNum++) {
             addedDiff = diffTemplate.clone();
             addedDiff.insertBefore(diffTemplate);
             addedDiff.show();
             addedDiff.attr("id", "diff_" + diffNum);
-            addedDiff.find("#diffPath_").attr("id", "diffPath_" + outChangeNum).html(allOutDiffs[outRepoNum].diffs[outChangeNum].path);
+            
+            outDiff = allOutDiffs[outRepoNum].diffs[outChangeNum];
+            outPath = outDiff.path;
+            if (outDiff.target_path_next_version != outDiff.path) {
+              outPath += " ( -> " + outDiff.target_path_next_version + ")";
+            }
+            addedDiff.find("#diffPath_").attr("id", "diffPath_" + outChangeNum).html(outPath);
           }
         }
         $('#exportOutChanges').click(function() {

@@ -598,7 +598,8 @@ class SettingsTest
 
     Dir.mkdir(File.join(repo_test0['incoming_loc'], "a_sub_dir"))
     all_repo_diffs = Updates.all_repo_diffs(@settings)
-    puts "fail: new empty source directory: #{all_repo_diffs.inspect}" if all_repo_diffs != []
+    puts "fail: new empty source directory: #{all_repo_diffs.inspect}" if all_repo_diffs !=
+      [{"diffs"=>[{"target_path_next_version"=>"a_sub_dir", "contents"=>[], "path"=>"a_sub_dir", "source_type"=>"directory", "target_type"=>nil, "target_path_previous_version"=>nil}], "id"=>0, "name"=>"test 0"}]
 
 
 
@@ -998,6 +999,8 @@ class SettingsTest
     all_repo_diffs = Updates.all_repo_diffs(@settings)
     puts "fail: all reviewed: #{all_repo_diffs.inspect}" if all_repo_diffs != []
     
+
+
     # now let's accept those changes into our own
     File.open(File.join(repo_test0['my_loc'], 'sample.txt'), 'w') do |out|
       out.write "gabba gabba hey\n"
@@ -1009,6 +1012,30 @@ class SettingsTest
     Updates.copy_to_outgoing(@settings, 0)
     all_out_diffs = Updates.all_outgoing_diffs(@settings)
     puts "fail: all copied out: #{all_out_diffs.inspect}" if all_out_diffs != []
+
+
+
+    # add an outgoing 'dot' dir
+    FileUtils::mkdir_p(File.join(repo_test0['my_loc'], '.fseventsd'))
+    all_out_diffs = Updates.all_outgoing_diffs(@settings)
+    puts "fail: must copy 'dot' dir out: #{all_out_diffs.inspect}" if all_out_diffs !=
+      [{"id"=>0, "name"=>"test out 0", "diffs"=>[{"path"=>".fseventsd", "source_type"=>"directory", "target_type"=>nil, "target_path_previous_version"=>nil, "target_path_next_version"=>".fseventsd", "contents"=>nil}]}]
+
+    Updates.copy_to_outgoing(@settings, 0)
+    all_out_diffs = Updates.all_outgoing_diffs(@settings)
+    puts "fail: 'dot' dir all copied out: #{all_out_diffs.inspect}" if all_out_diffs != []
+
+
+
+    FileUtils::rmdir(File.join(repo_test0['my_loc'], '.fseventsd'))
+    all_out_diffs = Updates.all_outgoing_diffs(@settings)
+    puts "fail: must remove 'dot' dir out: #{all_out_diffs.inspect}" if all_out_diffs != []
+    # we're currently not removing any diffs only in the target; see updates.versioned_diffs_out2
+    #  [{"id"=>0, "name"=>"test out 0", "diffs"=>[{"path"=>".fseventsd", "source_type"=>nil, "target_type"=>"directory", "target_path_previous_version"=>".fseventsd", "target_path_next_version"=>nil, "contents"=>nil}]}]
+
+    Updates.copy_to_outgoing(@settings, 0)
+    all_out_diffs = Updates.all_outgoing_diffs(@settings)
+    puts "fail: 'dot' dir all removed: #{all_out_diffs.inspect}" if all_out_diffs != []
     
     
     
