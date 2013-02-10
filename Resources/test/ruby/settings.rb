@@ -99,50 +99,50 @@ class SettingsTest
   
   def test_simple_json()
     test = nil
-    puts "fail: bad json encoding of #{test}" if P2PDocsUtils.strings_arrays_hashes_json(test) != 
+    puts "fail: bad json encoding of #{test.inspect}" if P2PDocsUtils.strings_arrays_hashes_json(test) != 
       "null"
     
     test = "junk"
-    puts "fail: bad json encoding of #{test}" if P2PDocsUtils.strings_arrays_hashes_json(test) != 
+    puts "fail: bad json encoding of #{test.inspect}" if P2PDocsUtils.strings_arrays_hashes_json(test) != 
       "\"junk\""
     
     # I had to do this because Macs have stupid "Icon\n" files.
     test = "junk\"\\/\b\f\n\r\t"
     want = "\"junk\\\"\\\\/\\b\\f\\n\\r\\t\""
-    puts "fail: bad json encoding\n test: #{test}\n got:  #{P2PDocsUtils.strings_arrays_hashes_json(test)}\n want: #{want}" if
+    puts "fail: bad json encoding\n test: #{test.inspect}\n got:  #{P2PDocsUtils.strings_arrays_hashes_json(test)}\n want: #{want}" if
       P2PDocsUtils.strings_arrays_hashes_json(test) != want
     
     test = []
     want = "[]"
-    puts "fail: bad json encoding\n test: #{test}\n got:  #{P2PDocsUtils.strings_arrays_hashes_json(test)}\n want: #{want}" if
+    puts "fail: bad json encoding\n test: #{test.inspect}\n got:  #{P2PDocsUtils.strings_arrays_hashes_json(test)}\n want: #{want}" if
       P2PDocsUtils.strings_arrays_hashes_json(test) != want
     
     test = [nil,"junk2","junk\"3\"",nil]
     want = "[null, \"junk2\", \"junk\\\"3\\\"\", null]"
-    puts "fail: bad json encoding\n test: #{test}\n got:  #{P2PDocsUtils.strings_arrays_hashes_json(test)}\n want: #{want}" if
+    puts "fail: bad json encoding\n test: #{test.inspect}\n got:  #{P2PDocsUtils.strings_arrays_hashes_json(test)}\n want: #{want}" if
       P2PDocsUtils.strings_arrays_hashes_json(test) != want
     
     test = [nil,"junk2",["junk31",nil],[nil,[],["junk43"]]]
     want = "[null, \"junk2\", [\"junk31\", null], [null, [], [\"junk43\"]]]"
-    puts "fail: bad json encoding\n test: #{test}\n got:  #{P2PDocsUtils.strings_arrays_hashes_json(test)}\n want: #{want}" if
+    puts "fail: bad json encoding\n test: #{test.inspect}\n got:  #{P2PDocsUtils.strings_arrays_hashes_json(test)}\n want: #{want}" if
       P2PDocsUtils.strings_arrays_hashes_json(test) != want
     
     test = {}
     want = "{}"
-    puts "fail: bad json encoding\n test: #{test}\n got:  #{P2PDocsUtils.strings_arrays_hashes_json(test)}\n want: #{want}" if
+    puts "fail: bad json encoding\n test: #{test.inspect}\n got:  #{P2PDocsUtils.strings_arrays_hashes_json(test)}\n want: #{want}" if
       P2PDocsUtils.strings_arrays_hashes_json(test) != want
 
     test = { "akey" => "aval", "bkey" => "bval", "ckey" => "cval" }
     want = "{\"akey\":\"aval\", \"bkey\":\"bval\", \"ckey\":\"cval\"}"
-    want2 = "{\"akey\":\"aval\", \"ckey\":\"cval\", \"bkey\":\"bval\"}" # which is the ordering in Ruby 1.8
-    puts "fail: bad json encoding\n test: #{test}\n got:  #{P2PDocsUtils.strings_arrays_hashes_json(test)}\n want: #{want}" if
+    want2 = "{\"akey\":\"aval\", \"ckey\":\"cval\", \"bkey\":\"bval\"}" # looks like the ordering in Ruby 1.8 is unpredictable
+    puts "fail: bad json encoding for a hash\n test: #{test.inspect}\n got:  #{P2PDocsUtils.strings_arrays_hashes_json(test)}\n want: #{want}" if
       P2PDocsUtils.strings_arrays_hashes_json(test) != want &&
       P2PDocsUtils.strings_arrays_hashes_json(test) != want2
     
     test = { "akey" => nil, "bkey" => ["bval1","bval2"], "ckey" => [], "dkey" => {"dkey1" => "dval1", "ekey1" => {"ekey11" => ["eval11",nil]}} }
     want = "{\"akey\":null, \"bkey\":[\"bval1\", \"bval2\"], \"ckey\":[], \"dkey\":{\"dkey1\":\"dval1\", \"ekey1\":{\"ekey11\":[\"eval11\", null]}}}"
-    want2 = "{\"akey\":null, \"ckey\":[], \"dkey\":{\"dkey1\":\"dval1\", \"ekey1\":{\"ekey11\":[\"eval11\", null]}}, \"bkey\":[\"bval1\", \"bval2\"]}" # which is the ordering in Ruby 1.8
-    puts "fail: bad json encoding\n test: #{test}\n got:  #{P2PDocsUtils.strings_arrays_hashes_json(test)}\n want: #{want}" if
+    want2 = "{\"akey\":null, \"ckey\":[], \"dkey\":{\"dkey1\":\"dval1\", \"ekey1\":{\"ekey11\":[\"eval11\", null]}}, \"bkey\":[\"bval1\", \"bval2\"]}" # looks like the ordering in Ruby 1.8 is unpredictable
+    puts "fail: bad json encoding for nested hashes and lists\n test: #{test.inspect}\n got:  #{P2PDocsUtils.strings_arrays_hashes_json(test)}\n want: #{want}" if
       P2PDocsUtils.strings_arrays_hashes_json(test) != want &&
       P2PDocsUtils.strings_arrays_hashes_json(test) != want2
     
