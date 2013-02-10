@@ -135,14 +135,14 @@ class SettingsTest
     test = { "akey" => "aval", "bkey" => "bval", "ckey" => "cval" }
     want = "{\"akey\":\"aval\", \"bkey\":\"bval\", \"ckey\":\"cval\"}"
     want2 = "{\"akey\":\"aval\", \"ckey\":\"cval\", \"bkey\":\"bval\"}" # looks like the ordering in Ruby 1.8 is unpredictable
-    puts "fail: bad json encoding for a hash\n test: #{test.inspect}\n got:  #{P2PDocsUtils.strings_arrays_hashes_json(test)}\n want: #{want}" if
+    puts "fail: bad json encoding for a hash (gotta fix: ordering is nondeterministic)\n test: #{test.inspect}\n got:  #{P2PDocsUtils.strings_arrays_hashes_json(test)}\n want: #{want}" if
       P2PDocsUtils.strings_arrays_hashes_json(test) != want &&
       P2PDocsUtils.strings_arrays_hashes_json(test) != want2
     
     test = { "akey" => nil, "bkey" => ["bval1","bval2"], "ckey" => [], "dkey" => {"dkey1" => "dval1", "ekey1" => {"ekey11" => ["eval11",nil]}} }
     want = "{\"akey\":null, \"bkey\":[\"bval1\", \"bval2\"], \"ckey\":[], \"dkey\":{\"dkey1\":\"dval1\", \"ekey1\":{\"ekey11\":[\"eval11\", null]}}}"
     want2 = "{\"akey\":null, \"ckey\":[], \"dkey\":{\"dkey1\":\"dval1\", \"ekey1\":{\"ekey11\":[\"eval11\", null]}}, \"bkey\":[\"bval1\", \"bval2\"]}" # looks like the ordering in Ruby 1.8 is unpredictable
-    puts "fail: bad json encoding for nested hashes and lists\n test: #{test.inspect}\n got:  #{P2PDocsUtils.strings_arrays_hashes_json(test)}\n want: #{want}" if
+    puts "fail: bad json encoding for nested hashes and lists (gotta fix: ordering is nondeterministic)\n test: #{test.inspect}\n got:  #{P2PDocsUtils.strings_arrays_hashes_json(test)}\n want: #{want}" if
       P2PDocsUtils.strings_arrays_hashes_json(test) != want &&
       P2PDocsUtils.strings_arrays_hashes_json(test) != want2
     
@@ -233,7 +233,7 @@ class SettingsTest
     ]
     #puts "Expected:"; expected.each { |inresult| puts inresult.to_s + "\n" }
     #puts "... and got:"; result.each { |inresult| puts inresult.to_s + "\n" }
-    puts "fail: versioned results w/o versions: #{result}" if result != expected
+    puts "fail: versioned results w/o versions: #{result.inspect}" if result != expected
     
     
     diff_results = [
@@ -244,7 +244,7 @@ class SettingsTest
     #latest_target_versions = Updates.latest_versions(versioned_info, v_dir)
     #result = Updates.only_new_revisions(versioned_info, latest_target_versions, true)
     expected = []
-    puts "fail: versioned diff for initial file: #{result}" if expected != result
+    puts "fail: versioned diff for initial file: #{result.inspect}" if expected != result
     
     
     diff_results = [
@@ -259,7 +259,7 @@ class SettingsTest
     expected = []
     #puts "Expected:"; expected.each { |inresult| puts inresult.to_s + "\n" }
     #puts "... and got:"; result.each { |inresult| puts inresult.to_s + "\n" }
-    puts "fail: old versioned results: #{result}" if result != expected
+    puts "fail: old versioned results: #{result.inspect}" if result != expected
     
     
     diff_results = [
@@ -284,7 +284,7 @@ class SettingsTest
     ]
     #puts "Expected:"; expected.each { |inresult| puts inresult.to_s + "\n" }
     #puts "... and got:"; result.each { |inresult| puts inresult.to_s + "\n" }
-    puts "fail: old versioned results for 4: #{result}" if result != expected
+    puts "fail: old versioned results for 4: #{result.inspect}" if result != expected
     
     
     
@@ -330,7 +330,7 @@ class SettingsTest
     expected = {"some.txt"=>["some.txt"]}
     #puts "Expected:"; expected.each { |inresult| puts inresult.to_s + "\n" }
     #puts "... and got:"; result.each { |inresult| puts inresult.to_s + "\n" }
-    puts "fail: versioned diff single 1: #{result}" if expected != result
+    puts "fail: versioned diff single 1: #{result.inspect}" if expected != result
     
     diff_results = [
       {'path'=>'some.txt', 'source_type'=>nil, 'target_type'=>file, 'contents'=>nil},
@@ -338,14 +338,14 @@ class SettingsTest
     ]
     result = Updates.latest_versions(Updates.versioned_filenames(diff_results).map { |v_dm| v_dm['version'] }, v_dir)
     expected = {"some.txt"=>["some.txt"]}
-    puts "fail: versioned diff single 2: #{result}" if expected != result
+    puts "fail: versioned diff single 2: #{result.inspect}" if expected != result
     
     diff_results = [
       {'path'=>'some_1.txt', 'source_type'=>'file', 'target_type'=>nil, 'contents'=>nil}
     ]
     result = Updates.latest_versions(Updates.versioned_filenames(diff_results).map { |v_dm| v_dm['version'] }, v_dir)
     expected = {"some.txt"=>["some.txt"]}
-    puts "fail: versioned diff single 3: #{result}" if expected != result
+    puts "fail: versioned diff single 3: #{result.inspect}" if expected != result
     
     # some old versions are hanging around in the incoming
     diff_results = [
@@ -353,7 +353,7 @@ class SettingsTest
     ]
     result = Updates.latest_versions(Updates.versioned_filenames(diff_results).map { |v_dm| v_dm['version'] }, v_dir)
     expected = {"some3.txt"=>["some3", ".txt", 12]}
-    puts "fail: latest version for initial file: #{result}" if expected != result
+    puts "fail: latest version for initial file: #{result.inspect}" if expected != result
     
     # eg. some3_12.txt is reviewed (and some3.txt is gone)
     diff_results = [
@@ -362,7 +362,7 @@ class SettingsTest
     ]
     result = Updates.latest_versions(Updates.versioned_filenames(diff_results).map { |v_dm| v_dm['version'] }, v_dir)
     expected = {"some3.txt"=>["some3", ".txt", 12]}
-    puts "fail: versioned diff for multiple new ones: #{result}" if expected != result
+    puts "fail: versioned diff for multiple new ones: #{result.inspect}" if expected != result
     
     
     #### END tests for intermediate functions; helpful for internal testing, but not real user stories.
@@ -1219,7 +1219,7 @@ class SettingsTest
       out.write "You're welcome.\n"
     end
     result = Updates.all_outgoing_diffs(@settings)
-    puts "fail: versioned outgoing after another change: #{result}" if result !=
+    puts "fail: versioned outgoing after another change: #{result.inspect}" if result !=
       [{"id"=>0, "name"=>"test out 0", "diffs"=>
         [{"path"=>"my_sample.txt", "source_type"=>"file", "target_type"=>"file", "target_path_previous_version"=>"my_sample_0.txt", "target_path_next_version"=>"my_sample_1.txt", "contents"=>nil},
          {"path"=>"our_sample_3.txt", "source_type"=>"file", "target_type"=>nil, "target_path_previous_version"=>nil, "target_path_next_version"=>"our_sample_3_0.txt", "contents"=>nil}]}]
@@ -1256,7 +1256,7 @@ class SettingsTest
       out.write "No, thank you.\n"
     end
     result = Updates.all_outgoing_diffs(@settings)
-    puts "fail: second repo has change: #{result}" if result != 
+    puts "fail: second repo has change: #{result.inspect}" if result != 
       [{"id"=>0, "name"=>"test out 0",
         "diffs"=>[{"path"=>"our_sample_3.txt", "source_type"=>"file", "target_type"=>nil, "target_path_previous_version"=>nil, "target_path_next_version"=>"our_sample_3_0.txt", "contents"=>nil}]}, 
        {"id"=>1, "name"=>"test out 2nd",
@@ -1266,7 +1266,7 @@ class SettingsTest
     Updates.copy_to_outgoing(@settings, 0, 'our_sample_3.txt', 'our_sample_3_0.txt')
     Updates.copy_to_outgoing(@settings, 1, 'second.txt')
     result = Updates.all_outgoing_diffs(@settings)
-    puts "fail: second repo changes accepted: #{result}" if result != []
+    puts "fail: second repo changes accepted: #{result.inspect}" if result != []
     puts "fail: first repo version doesn't exist" if not File.exist? File.join(repo_test0['outgoing_loc'], 'our_sample_3_0.txt')
     
     
@@ -1283,7 +1283,7 @@ class SettingsTest
       out.write "Well, why not?\n"
     end
     result = Updates.all_outgoing_diffs(@settings)
-    puts "fail: first & second repo have more changes: #{result}" if result != 
+    puts "fail: first & second repo have more changes: #{result.inspect}" if result != 
       [{"id"=>0, "name"=>"test out 0",
         "diffs"=>[{"path"=>"our_sample_3.txt", "source_type"=>"file", "target_type"=>nil, "target_path_previous_version"=>"our_sample_3_0.txt", "target_path_next_version"=>"our_sample_3_1.txt", "contents"=>nil}]}, 
        {"id"=>1, "name"=>"test out 2nd",
@@ -1297,7 +1297,7 @@ class SettingsTest
     Updates.copy_to_outgoing(@settings, 1, 'third_3')
     Updates.copy_to_outgoing(@settings, 1, 'fourth')
     result = Updates.all_outgoing_diffs(@settings)
-    puts "fail: later first & second repo more changes accepted #{result}" if result != []
+    puts "fail: later first & second repo more changes accepted #{result.inspect}" if result != []
     puts "fail: later first repo version doesn't exist" if not File.exist? File.join(repo_test0['outgoing_loc'], 'our_sample_3_0.txt')
     puts "fail: later first repo reviewed version doesn't exist" if not File.exist? File.join(@settings.reviewed_dir(repo_test0), 'our_sample_3_0.txt')
     puts "fail: later second repo version doesn't exist" if not File.exist? File.join(repo_test_2nd['outgoing_loc'], 'second.txt')
@@ -1308,7 +1308,7 @@ class SettingsTest
       out.write "Who cares what's in the file?\n"
     end
     result = Updates.all_outgoing_diffs(@settings)
-    puts "fail: non-versioned file #{result}" if result !=
+    puts "fail: non-versioned file #{result.inspect}" if result !=
       [{"id"=>0, "name"=>"test out 0",
         "diffs"=>[{"path"=>"fourth_sample", "source_type"=>"file", "target_type"=>nil, "target_path_previous_version"=>nil, "target_path_next_version"=>"fourth_sample_0", "contents"=>nil}]}]
     
