@@ -159,6 +159,7 @@ User Story Details, By Priority
  * on searches, notify the user for skipped files
  * allow to make outgoing same location as incoming
  * when creating/editing repo: warn if outbound w/o home, no home under incoming, no out under home (small)
+ * allow choice to copy an incoming file all the way to the home location(?)
  * repository choices (hints for choosing P2P folders; small x) (medium)
  * make this a background service... with notification hooks? (medium)
  * make the configuration a menu (medium)

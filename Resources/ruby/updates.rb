@@ -480,9 +480,9 @@ class Updates
   # extensions_to_keep_histories is an array of strings, eg. ['txt','html']; we'll keep a history for files with that extension
   # if source_subpath is nil, source will be the source_loc
   # if target_subpath is nil, target will be same as source_subpath
-  # if no_history_copy is true, don't bother saving a full copy (useful to save space if we can't diff this type of file)
+  # if no_history_copy is true, don't bother saving a full copy (useful to save space, eg. if we can't diff this type of file anyway so there's no reason to keep the previous one)
   # (... but is that necessary now that we're not saving full copies of non-diffable files?)
-  # if ignore_future is true, never show this file to be reviewed again (requires no_history_copy to be true)
+  # if ignore_future is true, never show this file to be reviewed again (requires no_history_copy to also be true)
   def self.copy_all_contents(extensions_to_keep_histories, source_loc, target_loc, source_subpath = nil, target_subpath = nil, no_history_copy = false, ignore_future = false)
     if (source_subpath.nil?)
       source = source_loc
