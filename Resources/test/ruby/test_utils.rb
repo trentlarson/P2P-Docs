@@ -6,8 +6,8 @@ class TestUtils
   
   # settings is Settings object
   # other things are strings for file paths
-  def self.add_repo(settings, name, incoming_loc, my_loc = nil, outgoing_loc = nil, not_versioned = false)
-    repo = settings.add_repo(name, incoming_loc, my_loc, outgoing_loc, not_versioned)
+  def self.add_repo(settings, name, incoming_loc, my_loc = nil, outgoing_loc = nil, versioned = true)
+    repo = settings.add_repo(name, incoming_loc, my_loc, outgoing_loc, versioned)
     if (repo != nil)
       make_repo_dirs(repo)
       settings.save()
@@ -16,7 +16,7 @@ class TestUtils
   end
   
   def self.add_repo2(settings, repo)
-    add_repo(settings, repo['name'], repo['incoming_loc'], repo['my_loc'], repo['outgoing_loc'], repo['not_versioned'])
+    add_repo(settings, repo['name'], repo['incoming_loc'], repo['my_loc'], repo['outgoing_loc'], repo['versioned'])
   end
   
   

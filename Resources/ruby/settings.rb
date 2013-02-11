@@ -15,7 +15,7 @@ class Settings
   VERSION = "0"
   
   @@settings_dir = ""
-  # format: { 'repositories' => [ { 'id' => NUM, 'name' => 'XYZ', 'incoming_loc' => 'XYZ', 'my_loc' => 'XYZ', 'outgoing_loc' => 'XYZ', 'not_versioned' => false|true } ... ] }
+  # format: { 'repositories' => [ { 'id' => NUM, 'name' => 'XYZ', 'incoming_loc' => 'XYZ', 'my_loc' => 'XYZ', 'outgoing_loc' => 'XYZ', 'versioned' => false|true } ... ] }
   #   where incoming_loc / my_loc / outgoing_loc values may be nil
   # see test settings.rb for example structures
   BLANK_SETTINGS = {'repositories' => []}
@@ -151,7 +151,7 @@ settings: initial settings; if nil, @@settings will not be reset
 
   # return repo if the repo was added; otherwise, nil (eg. if all locations are the same as an existing one)
   # side-effects: creates the reviewed directory for the repo (but no other file system checks or saves)
-  def add_repo(name, incoming_loc, my_loc = nil, outgoing_loc = nil, not_versioned = false)
+  def add_repo(name, incoming_loc, my_loc = nil, outgoing_loc = nil, versioned = false)
     begin
       if (name.class.name == "RubyKObject") # for method results from Titanium
         name = name.toString()
@@ -181,7 +181,7 @@ settings: initial settings; if nil, @@settings will not be reset
       else
         max = maxRepo['id'] + 1
       end
-      new_repo = { 'id' => max, 'name' => name, 'incoming_loc' => incoming_loc, 'my_loc' => my_loc, 'outgoing_loc' => outgoing_loc, 'not_versioned' => not_versioned}
+      new_repo = { 'id' => max, 'name' => name, 'incoming_loc' => incoming_loc, 'my_loc' => my_loc, 'outgoing_loc' => outgoing_loc, 'versioned' => versioned}
       FileUtils.mkpath reviewed_dir(new_repo)
     rescue
       return nil

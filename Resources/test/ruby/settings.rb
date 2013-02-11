@@ -52,8 +52,8 @@ class SettingsTest
     @settings.add_diffable_extension 'html'
   end
   
-  def add_repo(name, incoming_loc, my_loc = nil, outgoing_loc = nil, not_versioned = false)
-    TestUtils.add_repo(@settings, name, incoming_loc, my_loc, outgoing_loc, not_versioned)
+  def add_repo(name, incoming_loc, my_loc = nil, outgoing_loc = nil, versioned = true)
+    TestUtils.add_repo(@settings, name, incoming_loc, my_loc, outgoing_loc, versioned)
   end
   
   def test_repo_names()
@@ -1019,7 +1019,7 @@ class SettingsTest
     FileUtils::mkdir_p(File.join(repo_test0['my_loc'], '.fseventsd'))
     all_out_diffs = Updates.all_outgoing_diffs(@settings)
     puts "fail: must copy 'dot' dir out: #{all_out_diffs.inspect}" if all_out_diffs !=
-      [{"id"=>0, "name"=>"test out 0", "diffs"=>[{"path"=>".fseventsd", "source_type"=>"directory", "target_type"=>nil, "target_path_previous_version"=>nil, "target_path_next_version"=>".fseventsd", "contents"=>nil}]}]
+      [{"id"=>0, "name"=>"test out 0", "diffs"=>[{"path"=>".fseventsd", "source_type"=>"directory", "target_type"=>nil, "target_path_previous_version"=>nil, "target_path_next_version"=>".fseventsd", "contents"=>[]}]}]
 
     Updates.copy_to_outgoing(@settings, 0)
     all_out_diffs = Updates.all_outgoing_diffs(@settings)
@@ -1275,7 +1275,7 @@ class SettingsTest
     
     # now for a non-versioned repo
     repo_test_2nd = add_repo('test out 2nd', File.join(@test_data_dir, 'sources_2nd', 'cracked'),
-      File.join(@test_data_dir, 'my_copies_2nd', 'cracked'), File.join(@test_data_dir, 'targets_2nd', 'cracked'), true)
+      File.join(@test_data_dir, 'my_copies_2nd', 'cracked'), File.join(@test_data_dir, 'targets_2nd', 'cracked'), false)
     puts "fail: couldn't create repo 'test out 2nd'" if repo_test_2nd == nil
     
     

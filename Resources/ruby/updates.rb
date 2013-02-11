@@ -51,7 +51,7 @@ class Updates
         result.collect do |repo|
         { 'id' => repo['id'],
           'name' => repo['name'],
-          'diffs' => versioned_diffs_out(repo['my_loc'], repo['outgoing_loc'], repo['not_versioned'])
+          'diffs' => versioned_diffs_out(repo['my_loc'], repo['outgoing_loc'], repo['versioned'])
         }
       end
       result.select { |hash| hash['diffs'] != [] }
@@ -140,10 +140,10 @@ class Updates
   end
   
   # see versioned_diffs
-  def self.versioned_diffs_out(source_dir, target_dir, not_versioned)
-    versioned_diffs_out2(diff_dirs(source_dir, target_dir), source_dir, target_dir, not_versioned)
+  def self.versioned_diffs_out(source_dir, target_dir, versioned)
+    versioned_diffs_out2(diff_dirs(source_dir, target_dir), source_dir, target_dir, versioned)
   end
-  def self.versioned_diffs_out2(diff_dirs_result, source_dir, target_dir, not_versioned)
+  def self.versioned_diffs_out2(diff_dirs_result, source_dir, target_dir, versioned)
     versioned_info = diff_dirs_result.map { |diff|
       {'version'=>version_of(diff, false), 'diff_match'=>{'diff'=>diff}}
     }
@@ -176,7 +176,8 @@ class Updates
           File.mtime(File.join(source_dir, diff['path'])) <= File.mtime(File.join(target_dir, latest_target)))
         nil
       else
-        if (not_versioned)
+        if (!versioned ||
+            diff['source_type'] == 'directory')
           next_target = diff['path']
         else
           latest_target_version_num = latest_target_version == nil ? -1 : 
