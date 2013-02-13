@@ -60,6 +60,7 @@
 
 <script type="text/ruby">
   window.p2pdoc_settings = Settings.new(window.settingsDir)
+  window.p2pdoc_reviewed_dir = window.p2pdoc_settings.reviewed_dir;
   window.p2pdoc_mark_reviewed = lambda { |repo_id, path, previous_path| Updates.mark_reviewed(window.p2pdoc_settings, repo_id, path, previous_path) }
   window.p2pdoc_mark_reviewed2 = lambda { |repo_id, path, previous_path| Ti.API.print("got into method\n") }
   def p2pdoc_mark_reviewed3(repo_id, path, previous_path)
@@ -134,6 +135,11 @@ function getRepoById(allRepos, repoId) {
   }
   return null;
 }
+// repoId is the ID of the repository
+// Note that this is a duplicate of a part of Ruby Settings.reviewed_dir(repoId)
+function getReviewedDir(repoId) {
+  return window.p2pdoc_reviewed_dir + Ti.Filesystem.getSeparator() + repoId;
+}
 
 function markOutAccepted() {
   var checkedBoxes = $('#inChanges input[type="checkbox"]:checked');
@@ -202,6 +208,7 @@ function initializeDisplay() {
     $("#reviewFeeds[title]").tooltip({ position:"bottom left", effect:"slide" });
     $("#configure[title]").tooltip({ position:"bottom left", effect:"slide" });
 
+    var repoData;
     var allRepos = window.p2pdoc_settings.properties().repositories;
     if (allRepos.length > 0) {
       $('#noRepos').hide();
@@ -228,7 +235,7 @@ function initializeDisplay() {
           addedRepo.show();
           addedRepo.attr("id", "repo_" + outRepoNum);
           addedRepo.find("#repoName_").attr("id", "repoName_" + outRepoNum).html(allOutDiffs[outRepoNum].name);
-          
+
           diffTemplate = addedRepo.find('#diff_');
           
           var outChangeCount = allOutDiffs[outRepoNum].diffs.length;
@@ -237,7 +244,7 @@ function initializeDisplay() {
             addedDiff = diffTemplate.clone();
             addedDiff.insertBefore(diffTemplate);
             addedDiff.show();
-            addedDiff.attr("id", "diff_" + diffNum);
+            addedDiff.attr("id", "diff_" + outChangeNum);
             
             outDiff = allOutDiffs[outRepoNum].diffs[outChangeNum];
             outPath = outDiff.path;
@@ -273,7 +280,7 @@ function initializeDisplay() {
   
         // declare the repo variables for data and DOM elements
         var repoCount, oneRepoDiffs, repoDiffList, repoDiffCount;
-        var repoData, numChanges;
+        var numChanges;
         // declare the diff variables for data and DOM elements
         var diffSet;
         var numFiles;
@@ -284,7 +291,8 @@ function initializeDisplay() {
         repoTemplate = $('#inChanges #repoList #repo_');
         
         // another hack, because I found the reference to reviewed_dir later would be undefined unless I reference it here, outside the 'for' statement
-        var junk = " " + window.p2pdoc_settings.reviewed_dir;
+        // ... but now that I'm setting this in a variable in the Ruby script section, we may be OK
+        //var junk = " " + window.p2pdoc_settings.reviewed_dir;
 
         for (var repoNum = 0; repoNum < repoCount; repoNum++) {
           oneRepoDiffs = all_diffs[repoNum];
@@ -336,7 +344,7 @@ function initializeDisplay() {
                 // there's another file or something that's been reviewed
                 if (diffSet.target_type === "file") {
                   file1 = repoData.incoming_loc + Ti.Filesystem.getSeparator() + diffSet.path;
-                  file2 = window.p2pdoc_settings.reviewed_dir(repoData) + Ti.Filesystem.getSeparator() + diffSet.target_path_previous_version;
+                  file2 = getReviewedDir(repoId) + Ti.Filesystem.getSeparator() + diffSet.target_path_previous_version;
                   addedDiff.find("#changeView a").attr("href", "file-diff.html?file1=" + file1 + "&file2=" + file2).show();
                 } else {
                   // it's something other than a file

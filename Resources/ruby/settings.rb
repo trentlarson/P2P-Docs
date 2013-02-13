@@ -128,6 +128,7 @@ settings: initial settings; if nil, @@settings will not be reset
   end
   
   # repo: if nil, return the base reviewed directory; otherwise if a full repo hash, return the reviewed directory; otherwise if a repo ID, return the reviewed directory if a matching one found; otherwise, nil 
+  # Note that this is partly duplicated by Javascript change-summary.html getReviewedDir(repoId)
   def reviewed_dir(repo = nil)
     if (repo == nil)
       reviewed_base_dir
