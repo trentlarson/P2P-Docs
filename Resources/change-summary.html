@@ -46,6 +46,16 @@
   padding:12px;
   color:#000; 
 }
+.tooltip_large {
+  display:none;
+  background:transparent url(images/box_white.png);
+  background-repeat:no-repeat;
+  font-size:12px;
+  width:210px;
+  height:110px;
+  padding:12px;
+  color:#000; 
+}
 </style>
 
 <script type="text/ruby"       src="ruby/settings.rb"></script>
@@ -235,6 +245,18 @@ function initializeDisplay() {
           addedRepo.show();
           addedRepo.attr("id", "repo_" + outRepoNum);
           addedRepo.find("#repoName_").attr("id", "repoName_" + outRepoNum).html(allOutDiffs[outRepoNum].name);
+          repoId = parseInt(oneRepoDiffs.id);
+          repoData = getRepoById(allRepos, repoId);
+          // add tooltips to show home location
+          addedRepo.find("#homeImage_").attr("id", "homeImage_" + outRepoNum);
+          addedRepo.find("#homeTooltip_").attr("id", "homeTooltip_" + outRepoNum);
+          addedRepo.find("#homeTooltip_" + outRepoNum).html(repoData.my_loc);
+          addedRepo.find("#homeImage_" + outRepoNum).tooltip({ position:"bottom center", effect:"slide" });
+          // add tooltips to show outgoing location
+          addedRepo.find("#outwardImage_").attr("id", "outwardImage_" + outRepoNum);
+          addedRepo.find("#outwardTooltip_").attr("id", "outwardTooltip_" + outRepoNum);
+          addedRepo.find("#outwardTooltip_" + outRepoNum).html(repoData.outgoing_loc);
+          addedRepo.find("#outwardImage_" + outRepoNum).tooltip({ position:"bottom center", effect:"slide" });
 
           diffTemplate = addedRepo.find('#diff_');
           
@@ -461,7 +483,11 @@ $(document).ready(function() {
   <br/>
   <div id="repoList" style="display:none;">
     <div id="repo_" style="display:none;">
-      <h3><span id="repoName_">repo</span></h3>
+      <h3>
+        <span id="repoName_">repo</span>
+        <img id="homeImage_" src="images/home_small.png" style="cursor:pointer;" /><div id="homeTooltip_" class="tooltip_large"></div>
+        <img id="outwardImage_" src="images/people-in_small.png" style="cursor:pointer;" /><div id="outwardTooltip_" class="tooltip_large"></div>
+      </h3>
       <div>
         <div id="diff_" style="display:none;">
           <span id="diffPath_"></span>
