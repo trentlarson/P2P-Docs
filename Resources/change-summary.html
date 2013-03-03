@@ -72,16 +72,17 @@
   window.p2pdoc_settings = Settings.new(window.settingsDir)
   window.p2pdoc_reviewed_dir = window.p2pdoc_settings.reviewed_dir;
   window.p2pdoc_mark_reviewed = lambda { |repo_id, path, previous_path| Updates.mark_reviewed(window.p2pdoc_settings, repo_id, path, previous_path) }
-  window.p2pdoc_mark_reviewed2 = lambda { |repo_id, path, previous_path| Ti.API.print("got into method\n") }
-  def p2pdoc_mark_reviewed3(repo_id, path, previous_path)
-    Ti.API.print("got into method #{repo_id} #{path} #{previous_path}.\n")
+  def p2pdoc_copy_to_outgoing(repoId, diffs)
+    diffs.each { |diff|
+      Updates.copy_to_outgoing(window.p2pdoc_settings, repoId, diff.path)
+    }
   end
 </script>
 
 <script type="text/javascript">
 
 //Ti.UI.getWindows()[0].showInspector()
-//Ti.API.print("to console\n");
+//Ti.API.print("to console\n"); // -- and don't forget the "\n" or you may not see the output immediately
 
 function initializeChangeSummary() {
  try {
@@ -89,12 +90,18 @@ function initializeChangeSummary() {
   if (typeof appProps['post-param'] != "undefined") {
     var actionData = appProps['post-param'];
     if (actionData != null) {
-      //eg. {'action':'markReviewedBulk', 'reviewed':[{'id':0, 'name':'Bohemia', 'path':'Tao', 'previousPath':'Hedonism'}]}];
       if (actionData.action === 'markReviewedBulk') {
+        //eg. {'action':'markReviewedBulk', 'reviewed':[{'id':0, 'name':'Bohemia', 'path':'Tao', 'previousPath':'Hedonism'}]}];
         var fileInfo;
         for (var i = actionData.reviewed.length - 1; i >= 0; i--) {
           fileInfo = actionData.reviewed[i];
           window.p2pdoc_mark_reviewed(fileInfo.repoId, fileInfo.path, fileInfo.previousPath);
+        }
+      } else if (actionData.action === 'copy_outgoing_bulk') {
+        var repoIdDiffs;
+        for (var i = actionData.repoIdDiffsList.length - 1; i >= 0; i--) {
+          repoIdDiffs = actionData.repoIdDiffsList[i];
+          window.p2pdoc_copy_to_outgoing(repoIdDiffs.repoId, repoIdDiffs.diffs);
         }
       }
       appProps['post-param'] = null;
@@ -133,6 +140,12 @@ initializeChangeSummary();
 function setupMarkAction(reviewedList) {
   //eg. {'action':'markReviewedBulk', 'reviewed':[{'id':0, 'name':'Bohemia', 'path':'Tao', 'previousPath':'Hedonism'}]}];
   var actionData = {'action':'markReviewedBulk', 'reviewed':reviewedList};
+  appProps['post-param'] = actionData;
+  Ti.App.Properties.setString('appPropsJson', JSON.stringify(appProps));
+}
+
+function setupCopyOutgoingAction(repoIdDiffsList) {
+  var actionData = {'action':'copy_outgoing_bulk', 'repoIdDiffsList':repoIdDiffsList};
   appProps['post-param'] = actionData;
   Ti.App.Properties.setString('appPropsJson', JSON.stringify(appProps));
 }
@@ -277,6 +290,7 @@ function initializeDisplay() {
           }
         }
         $('#exportOutChanges').click(function() {
+            /**
             // This unfortunate necessity is because I cannot grab a simple "id" when calling Ruby (because it's deprecated and now called "object_id"), and I cannot figure out how to dig into Kroll and grab the 'id' field.
             allOutDiffsForRuby = []
             for (var index = allOutDiffs.length - 1; index >= 0; index--) {
@@ -284,11 +298,23 @@ function initializeDisplay() {
               allOutDiffsForRuby.push({'repoId':outDiff.id, 'name':outDiff.name, 'diffs':outDiff.diffs})
             }
             copy_to_outgoing(allOutDiffsForRuby);
-            $('#outChanges').hide(500);
+            **/
+            var allOutDiffsForAction = []
+            // on page reload, since Ruby run after page load often breaks
+            for (var index = allOutDiffs.length - 1; index >= 0; index--) {
+              outDiff = allOutDiffs[index];
+              allOutDiffsForAction.push({'repoId':outDiff.id, 'diffs':outDiff.diffs})
+            }
+            setupCopyOutgoingAction(allOutDiffsForAction);
+
+            $('#outChanges').hide(500, function() {
+              window.location.href = "change-summary.html";
+            });
             return false;
         });
         $('#previewOutgoing').click(function() {
           $("#outChanges #repoList").toggle(500);
+          return false;
         });
       }
       
