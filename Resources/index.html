@@ -136,11 +136,11 @@ function startApp() {
   setupFinished = true;
   
   // redirect to the correct first page
-  var settingsFile = Ti.Filesystem.getFile(window.p2pdoc_settings.settings_file());
-  if (settingsFile.exists()) {
-    redirectWhenSetupFinished("search.html");
-  } else {
+  var numRepos = window.p2pdoc_settings.get_num_repos();
+  if (numRepos == 0) {
     redirectWhenSetupFinished("repository.html");
+  } else {
+    redirectWhenSetupFinished("search.html");
   }
 
  } catch (e) {

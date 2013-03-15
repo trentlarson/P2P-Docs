@@ -144,6 +144,10 @@ settings: initial settings; if nil, @@settings will not be reset
     end
   end
 
+  def get_num_repos()
+    @@settings['repositories'].count
+  end
+
   # In Titanium, use JavaScript getRepoById (eg. in change-summary.html) instead, as it can crash on Ruby method calls like this. 
   # (It can probably be fixed by checking the input and the result types for RubyKObject... by why complicate a simple method?)
   def get_repo_by_id(id)
