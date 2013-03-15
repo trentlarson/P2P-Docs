@@ -195,6 +195,7 @@ function initializeDisplay() {
     $('#openSettings').click(viewFileWrapperFunc(window.p2pdoc_settings.data_dir(), Ti.Filesystem.getSeparator()));
     $('#savedFileExtensions').html(window.p2pdoc_settings.diffable_extensions().inspect());
     $('#aboutPage').click(function(){Ti.Platform.openURL(Ti.App.getURL());});
+    $('#versionPage').click(function(){Ti.Platform.openURL(Ti.App.getURL() + "/versions.html?onlyShowBeyondVersion=" + Ti.App.getVersion());});
     
     var repos = window.p2pdoc_settings.properties().repositories;
     var repo;
@@ -341,12 +342,14 @@ $(document).ready(function() {
 <div id="settings">
   <strong>Settings Directory</strong>: <span id="settingsDir"></span> <a href="" id="openSettings">(open)</a>
   <br/>
-  <strong>File Types which Keep A Historical Copy</strong>: <span id="savedFileExtensions"></span>
+  <strong>File Types Which Keep A Historical Copy</strong>: <span id="savedFileExtensions"></span>
 </div>
 
 <br/>
 <div id="about">
   <strong>About Us</strong>: <span id="aboutPage" class="link">Visit our web page.</span>
+  <br/>
+  <strong>Updates</strong>: <span id="versionPage" class="link">Check for a more recent version.</span>
 </div>
 
 <br/>
