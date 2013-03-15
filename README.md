@@ -130,7 +130,9 @@ Development Setup:
 User Story Details, By Priority
 --------------------
 
+ * option to auto-copy from incoming to home
  * look for Dropbox/AeroFS/other sharing folders and recommend for new repository
+ * enable/disable family history functionality: "you" in settings, search?
  * look for genealogy (eg. .GED) files and recommend for new identity
  * search for stories (locally)
    * search for data within tree, ie. restricted sets of files rather than all
