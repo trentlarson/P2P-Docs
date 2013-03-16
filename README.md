@@ -1,11 +1,11 @@
-P2P-Docs
+P2P Docs
 ==============
 
 Use this together with the file-sharing program of your choice to
 share files in more of a publish/subscribe model (and maintain your
 own changes separately), keeping your own organization of files.
 
-See http://familyhistories.info for general updates on this project.
+See http://p2pdocs.familyhistories.info for general updates on this project.
 
 Here is a link to an early version of this application.  
 It has some of the basics if you want to play around, but... 
@@ -185,6 +185,7 @@ User Story Details, By Priority
 Externalities
 -------------
 
+ * Thanks to Appcelerator appcelerator.com for the Titanium desktop framework (and for open-sourcing it!), and the TideSDK tidesdk.org people for continuing the project.
  * JavaScript libraries: see files in Resources/js directory
  * icons for home-interact-people by Wendell Fernandes at dellustrations.com; see http://www.smashingmagazine.com/2008/10/01/dellipack-2-a-free-icon-set/
  * gear-raw.32.png by Icon Shock; see http://www.gettyicons.com/free-icon/101/programmers-pack-icon-set/free-settings-icon-png/
