@@ -145,7 +145,7 @@ settings: initial settings; if nil, @@settings will not be reset
   end
 
   def get_num_repos()
-    @@settings['repositories'].count
+    @@settings['repositories'].length
   end
 
   # In Titanium, use JavaScript getRepoById (eg. in change-summary.html) instead, as it can crash on Ruby method calls like this. 
