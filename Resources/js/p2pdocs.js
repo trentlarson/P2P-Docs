@@ -2,8 +2,12 @@
 function errorProps(err) {
   var errorDebug = "";
   if (typeof(err) != "string") {
-    for (var prop in err) {
-       errorDebug += "property '" + prop + "' value: " + err[prop] + "\n";
+    if (Object.keys(err).length < 30) { // don't show when it's a ton of Ruby method properties (or anything else that totally scrolls off the screen)
+      for (var prop in err) {
+         errorDebug += "property '" + prop + "' value: " + err[prop] + "\n";
+      }
+    } else {
+      errorDebug += "too many properties: " + Object.keys(err).length + "\n";
     }
   }
   errorDebug += "toString(): " + err.toString() + "\n";
