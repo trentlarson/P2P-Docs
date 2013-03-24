@@ -5,14 +5,12 @@ Use this together with the file-sharing program of your choice to
 share files in more of a publish/subscribe model (and maintain your
 own changes separately), keeping your own organization of files.
 
-See http://familyhistories.info/p2pdocs for general updates on this project.
+See http://p2pdocs.familyhistories.info for general updates on this project.
 
-Here is a link to an early version of this application.  
-It has some of the basics if you want to play around, but... 
-let's just say it's early, and you'll want to stay tuned for future releases.
-(Don't use for large numbers of large files yet, since it currently
-makes a copy of all of them.)
-http://api.appcelerator.net/p/pages/app_page?token=B4tcrXt3
+Currently the application lets you monitor the files that are changing
+and then search through your copies for certain text:
+
+http://p2pdocs.familyhistories.info/download
 
 Let's say, for example, you're working on some historical
 documentation, and you subscribe to other people's feeds where they
@@ -127,11 +125,11 @@ Development Setup:
 * When updating versions, make sure to change in both places: tiapp.xml and nodeApp.js
 
 
-User Story Details, By Priority
---------------------
+To-Do User Story Details, In Priority Order
+-------------------------------------
 
- * option to auto-copy from incoming to home
  * look for Dropbox/AeroFS/other sharing folders and recommend for new repository
+ * option to auto-copy from incoming to home
  * enable/disable family history functionality: "you" in settings, search?
  * look for genealogy (eg. .GED) files and recommend for new identity
  * search for stories (locally)
