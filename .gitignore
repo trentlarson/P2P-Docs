@@ -2,7 +2,4 @@
 .settings
 build
 dist
-manifest
-tiapp.xml
-timanifest
 tmp
