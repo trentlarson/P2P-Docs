@@ -143,7 +143,6 @@ var checkDatabase = function(request, response) {
                 } else {
                   doc.find("span[itemscope][itemtype=\"http://historical-data.org/HistoricalPerson.html\"]");
                   var matches = [];
-                  //if (matches.length>0) { console.log("Parsed through " + fileInfo.path + " and found: " + matches + ", eg. " + matches[0].text + " " + matches[0].textContent); }
                   doc.each(function(element) {
                     // check for the first 'meta' tag that matches anyone in my ancestry
                     var foundPersonId = null;
@@ -173,6 +172,7 @@ var checkDatabase = function(request, response) {
                       matches.push(fileInfo);
                     }
                   });
+                  //if (matches.length>0) { console.log("Parsed through " + fileInfo.path + " and found: " + matches + ", eg. " + matches[0].text + " " + matches[0].textContent); }
                   resultsCollector.fillResult(matches);
                 }
               };
