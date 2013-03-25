@@ -37,6 +37,7 @@ function configApp() {
     Ti.App.Properties.setString('appPropsJson', JSON.stringify(appProps));
   }
   
+  /** unused
   // Initialize a DB for genealogy tree-of-interest.
   var genealogyDB = Ti.Database.open("genealogy");
   // ext_ids is a JSON-encoded array of ID strings
@@ -44,6 +45,8 @@ function configApp() {
   genealogyDB.close();
   appProps.genealogy_db_path = genealogyDB.getPath();
   Ti.App.Properties.setString('appPropsJson', JSON.stringify(appProps));
+alert('hi');
+  **/
 
  } catch (e) {
   p2pdocsHandleError(e);
