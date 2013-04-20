@@ -93,7 +93,11 @@ function endsWith(str, suffix) {
 }
 
 /**
- * request should have two parameters, 'sqliteFile' is the genealogy DB file, and 'incomingFiles' is a JSON-stringified array of file names to detect
+ * request should have two parameters: "ancestryIds" is the list of ancestor IDs (for use in XYZ),
+ *   and "incomingFiles" is a JSON-stringified array of: "path" file name through which to search for those IDs, 
+ *    plus other things for displaying results (eg. "repoNum" & "diffNum")
+ * return an array of the incomingFiles info, each with the addition of: "context" with surrounding text
+ *   and "position" with the ID attribute of the preceding element
  */
 var checkDatabase = function(request, response) {
   if (request.method == 'POST') {
