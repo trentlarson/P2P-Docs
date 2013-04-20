@@ -171,6 +171,7 @@ $(document).ready(function() {
     });
   
     $("#homePic[title]").tooltip({ position:"bottom center", offset:[20,0], effect:"slide", direction:"down" });
+    $("#intoHomePic[title]").tooltip({ position:"bottom center", offset:[20,0], effect:"slide", direction:"down" });
     $("#incomingPic[title]").tooltip({ effect:"slide" });
     $("#outgoingPic[title]").tooltip({ effect:"slide" });
   
@@ -207,11 +208,12 @@ $(document).ready(function() {
     <div>
       Name <input type="text" id="name" size="15"> <a id="save" href="#">Save</a>
     </div>
-    
-    <br/>
-    <br/>
-    <br/>
-    <div style="float:center;">
+  </div>
+  <br/>
+  <br/>
+  <br/>
+  <div style="width:400px; display:inline-block; float:center;">
+    <div style="float:right;">
       <img id="homePic" src="images/home-grey.png" title="This is to keep your own copy of the data."/>
       <br/>
       <div id="homeLocHolder" style="display:none;">
@@ -219,6 +221,9 @@ $(document).ready(function() {
         <br/>
         <a href="#" id="homeFolderChooser">(change)</a>
       </div>
+    </div>
+    <div style="float:center;">
+      <img id="intoHomePic" src="images/arrow-flowing_grey.png" title="You must manually copy any data you want in your own copies."/>
     </div>
   </div>
   <div style="width:600px; display:inline-block; float:center;">
