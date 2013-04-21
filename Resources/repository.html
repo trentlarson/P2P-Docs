@@ -84,10 +84,10 @@ $(document).ready(function() {
       return (this.homeLoc() == null ? "images/home-grey.png" : "images/home.png");
     }, viewModel);
     viewModel.incomingPic = ko.dependentObservable(function() {
-      return (this.incomingLoc() == null ? "images/people-out-grey.png" : "images/people-out.png");
+      return (this.incomingLoc() == null ? "images/people-out.arrow-below.grey.png" : "images/people-out.arrow-below.png");
     }, viewModel);
     viewModel.outgoingPic = ko.dependentObservable(function() {
-      return (this.outgoingLoc() == null ? "images/people-in-grey.png" : "images/people-in.png");
+      return (this.outgoingLoc() == null ? "images/people-in.arrow-below.grey.png" : "images/people-in.arrow-below.png");
     }, viewModel);
     
     viewModel.homeLocText = ko.dependentObservable(function() {
@@ -131,12 +131,17 @@ $(document).ready(function() {
         // turn it off
         viewModel.homeLoc(null);
         $('#homeLocHolder').hide(500);
+        // ... after turning on home loc, since there's no outgoing without one
+        if (viewModel.outgoingLoc() != null) {
+          viewModel.outgoingLoc(null);
+          $('#outgoingLocHolder').hide(500);
+        }
       }
     });
   
     $("#incomingPic").hover(
-      function() { $(this).attr("src", "images/people-out.png"); },
-      function() { if (viewModel.incomingLoc() == null) { $(this).attr("src", "images/people-out-grey.png"); } }
+      function() { $(this).attr("src", "images/people-out.arrow-below.png"); },
+      function() { if (viewModel.incomingLoc() == null) { $(this).attr("src", "images/people-out.arrow-below.grey.png"); } }
     ).click(function() {
       if (viewModel.incomingLoc() == null) {
         // turn it on
@@ -151,11 +156,12 @@ $(document).ready(function() {
     });
   
     $("#outgoingPic").hover(
-      function() { $(this).attr("src", "images/people-in.png"); },
-      function() { if (viewModel.outgoingLoc() == null) { $(this).attr("src", "images/people-in-grey.png"); } }
+      function() { $(this).attr("src", "images/people-in.arrow-below.png"); },
+      function() { if (viewModel.outgoingLoc() == null) { $(this).attr("src", "images/people-in.arrow-below.grey.png"); } }
     ).click(function() {
       if (viewModel.outgoingLoc() == null) {
         // turn it on
+        // ... and first turn on home loc, since there's no outgoing without home as the source
         if (viewModel.homeLoc() == null) {
           viewModel.homeLoc("");
           $('#homeLocHolder').show('slide', { direction: "up" }, 500);
@@ -170,10 +176,10 @@ $(document).ready(function() {
       }
     });
   
-    $("#homePic[title]").tooltip({ position:"bottom center", offset:[20,0], effect:"slide", direction:"down" });
-    $("#intoHomePic[title]").tooltip({ position:"bottom center", offset:[20,0], effect:"slide", direction:"down" });
-    $("#incomingPic[title]").tooltip({ effect:"slide" });
-    $("#outgoingPic[title]").tooltip({ effect:"slide" });
+    $("#homePic[title]").tooltip({ effect:"slide" });
+    $("#intoHomePic[title]").tooltip({ effect:"slide" });
+    $("#incomingPic[title]").tooltip({ effect:"slide", position:"bottom center", offset:[20,0], direction:"down" });
+    $("#outgoingPic[title]").tooltip({ effect:"slide", position:"bottom center", offset:[20,0], direction:"down" });
   
     $('#homePic').dataBind({ attr: { src: 'homePic' } });
     $('#incomingPic').dataBind({ attr: { src: 'incomingPic' } });
@@ -210,42 +216,37 @@ $(document).ready(function() {
     </div>
   </div>
   <br/>
-  <br/>
-  <br/>
-  <div style="width:400px; display:inline-block; float:center;">
-    <div style="float:right;">
-      <img id="homePic" src="images/home-grey.png" title="This is to keep your own copy of the data."/>
-      <br/>
-      <div id="homeLocHolder" style="display:none;">
-        <span id="homeLoc"></span>
-        <br/>
-        <a href="#" id="homeFolderChooser">(change)</a>
-      </div>
-    </div>
-    <div style="float:center;">
-      <img id="intoHomePic" src="images/arrow-flowing_grey.png" title="You must manually copy any data you want in your own copies."/>
-    </div>
-  </div>
-  <div style="width:600px; display:inline-block; float:center;">
-    <div style="float:left;">
-      <img id="incomingPic" src="images/people-out-grey.png" title="This is if you're receiving copies of this data from other people."/>
-      <br/>
+  <div style="position:relative; width:600px; height:250px; display:block;">
+    <div style="width:200px; position:absolute; display:block;">
       <div id="incomingLocHolder" style="display:none;">
         <span id="incomingLoc"></span>
-        <br/>
         <a href="#" id="inFolderChooser">(change)</a>
       </div>
+      <img id="incomingPic" src="images/people-out.arrow-below.grey.png" title="This is if you're receiving copies of this data from other people." style="position:absolute; top:50px"/>
     </div>
-    <div style="float:right;">
-      <img id="outgoingPic" src="images/people-in-grey.png" title="This is to send copies of your data to other people."/>
-      <br/>
+    <div style="width:200px; position:absolute; display:block; right:-0px;">
       <div id="outgoingLocHolder" style="display:none;">
         <span id="outgoingLoc"></span>
         <br/>
         <a href="#" id="outFolderChooser">(change)</a>
       </div>
+      <br/>
+      <img id="outgoingPic" src="images/people-in.arrow-below.grey.png" title="This is to send copies of your data to other people." style="position:absolute; top:50px"/>
     </div>
     <div style="clear:both;"></div>
+  </div>
+  <div style="position:relative; width:600px; height:150px; display:block;">
+    <div style="position:absolute; right:150px;">
+      <img id="homePic" src="images/home-grey.png" title="This is to keep your own copy of the data." style="position:absolute; right:0px;"/>
+      <div id="homeLocHolder" style="display:none; position:absolute; top:100px; right:0px; width:150px;">
+        <span id="homeLoc"></span>
+        <br/>
+        <a href="#" id="homeFolderChooser">(change)</a>
+      </div>
+    </div>
+    <div style="position:absolute; right:300px;">
+      <img id="intoHomePic" src="images/arrow-flowing.grey.png" title="You must manually copy any data you want in your own copies."/>
+    </div>
   </div>
 </div>
 
