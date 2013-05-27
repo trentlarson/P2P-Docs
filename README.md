@@ -128,6 +128,8 @@ Development Setup:
 To-Do User Story Details, In Priority Order
 -------------------------------------
 
+ * make switch for running additional family history functions (so we can deploy without it)
+ * edit repository name [small] [major]
  * look for Dropbox/AeroFS/other sharing folders and recommend for new repository
  * option to auto-copy from incoming to home
  * enable/disable family history functionality: "you" in settings, search?
