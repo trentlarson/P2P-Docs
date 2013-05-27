@@ -150,6 +150,27 @@ function setupCopyOutgoingAction(repoIdDiffsList) {
   Ti.App.Properties.setString('appPropsJson', JSON.stringify(appProps));
 }
 
+// add the given array of file elements (using the 'path' field of each) to the TideSDK global properties
+function addAncestorFileToProps(interestingData) {
+  var ancestryFiles = appProps['ancestryFiles'];
+  var dataLength = interestingData.length;
+  var ancestryFilesLength = ancestryFiles.length;
+  for (var i = 0; i < dataLength; i++) {
+    var j;
+    for (j = 0; j < ancestryFilesLength; j++) {
+       if (ancestryFiles[j] === interestingData[i]["path"]) {
+         break;
+       }
+    }
+    if (j === ancestryFilesLength) {
+      // only add if it's not already in our list
+      ancestryFiles.push(interestingData.path);
+    }
+  }
+  appProps['ancestryFiles'] = ancestryFiles;
+  Ti.App.Properties.setString('ancestryFiles', JSON.stringify(appProps));
+}
+
 function getRepoById(allRepos, repoId) {
   for (var i = 0, len = allRepos.length; i < len; i++) {
     if (allRepos[i].id === repoId) {
