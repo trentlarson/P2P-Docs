@@ -24,7 +24,7 @@ function configApp() {
     appProps = JSON.parse(appPropsStr);
   } else {
     // (this has the side-effect of saving the property)
-    Ti.App.Properties.setString('appPropsJson', JSON.stringify({}));
+    Ti.App.Properties.setString('appPropsJson', JSON.stringify({"include-family-history-features":false}));
   }
   if (Ti.App.Properties.listProperties().length > 1) {
     Ti.API.print("\n\nBEWARE: There is more than one App property, which can cause data corruption. !!!!!!!!!!!!!!!!\n\n");
@@ -145,7 +145,7 @@ function startApp() {
   if (numRepos == 0) {
     redirectWhenSetupFinished("repository.html");
   } else {
-    redirectWhenSetupFinished("search.html");
+    redirectWhenSetupFinished("change-summary.html");
   }
 
  } catch (e) {

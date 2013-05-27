@@ -129,7 +129,10 @@ To-Do User Story Details, In Priority Order
 -------------------------------------
 
  * make switch for running additional family history functions (so we can deploy without it)
+ * go to change-summary by default, then to search if there are no changes
  * edit repository name [small] [major]
+
+ * allow to open the file location for any file (or repo?) [small] [middle]
  * look for Dropbox/AeroFS/other sharing folders and recommend for new repository
  * option to auto-copy from incoming to home
  * enable/disable family history functionality: "you" in settings, search?

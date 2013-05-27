@@ -194,6 +194,7 @@ function initializeDisplay() {
     $('#settingsDir').html(window.p2pdoc_settings.data_dir());
     $('#openSettings').click(viewFileWrapperFunc(window.p2pdoc_settings.data_dir(), Ti.Filesystem.getSeparator()));
     $('#savedFileExtensions').html(window.p2pdoc_settings.diffable_extensions().inspect());
+    $('#includeFamilyHistoryFeaturesDisplay').html(appProps["include-family-history-features"].toString());
     $('#aboutPage').click(function(){Ti.Platform.openURL(Ti.App.getURL());});
     $('#versionPage').click(function(){Ti.Platform.openURL(Ti.App.getURL() + "/versions.html?onlyShowBeyondVersion=" + Ti.App.getVersion());});
     
@@ -234,6 +235,10 @@ function initializeDisplay() {
     });
     
     $("#identityadd_[title]").tooltip({ position:"center right", effect:"slide" });
+
+    if(!appProps["include-family-history-features"]) {
+      $("#identityInfo").hide();
+    }
 
 
     
@@ -326,7 +331,7 @@ $(document).ready(function() {
 <br/>
 <br/>
 <br/>
-<div>
+<div id="identityInfo">
   <h2>You</h2>
   <div id="identities">
     <div id="identity_" style="display:none;"></div>
@@ -343,6 +348,8 @@ $(document).ready(function() {
   <strong>Settings Directory</strong>: <span id="settingsDir"></span> <a href="" id="openSettings">(open)</a>
   <br/>
   <strong>File Types Which Keep A Historical Copy</strong>: <span id="savedFileExtensions"></span>
+  <br/>
+  <strong>Include Family History Features</strong>: <span id="includeFamilyHistoryFeaturesDisplay"></span>
 </div>
 
 <br/>
