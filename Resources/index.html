@@ -23,8 +23,8 @@ function configApp() {
     var appPropsStr = Ti.App.Properties.getString("appPropsJson").replace(/\\/g, "\\\\");
     appProps = JSON.parse(appPropsStr);
   } else {
+    // (this has the side-effect of saving the property)
     Ti.App.Properties.setString('appPropsJson', JSON.stringify({}));
-    // that has the side-effect of saving the property
   }
   if (Ti.App.Properties.listProperties().length > 1) {
     Ti.API.print("\n\nBEWARE: There is more than one App property, which can cause data corruption. !!!!!!!!!!!!!!!!\n\n");
@@ -34,6 +34,7 @@ function configApp() {
   // Ti.App.Properties pulls from the application.properties file.  Note that lines in it beginning with # sometimes disappear; I use // for commentary.
   if (typeof appProps['settings-dir'] == "undefined") {
     appProps['settings-dir'] = Ti.Filesystem.getApplicationDataDirectory().toString();
+    // (this has the side-effect of saving the property)
     Ti.App.Properties.setString('appPropsJson', JSON.stringify(appProps));
   }
   
@@ -44,6 +45,7 @@ function configApp() {
   var exec = genealogyDB.execute('CREATE TABLE IF NOT EXISTS genealogy (id INTEGER PRIMARY KEY AUTOINCREMENT, father_id INTEGER, mother_id INTEGER, ext_ids TEXT)');
   genealogyDB.close();
   appProps.genealogy_db_path = genealogyDB.getPath();
+  // (this has the side-effect of saving the property)
   Ti.App.Properties.setString('appPropsJson', JSON.stringify(appProps));
 alert('hi');
   **/
