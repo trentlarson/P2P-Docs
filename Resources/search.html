@@ -69,41 +69,58 @@ function initializeDisplay() {
     $("#reviewFeeds[title]").tooltip({ position:"bottom left", effect:"slide" });
     $("#configure[title]").tooltip({ position:"bottom left", effect:"slide" });
 
-    // check files for the search results.
+    $('#searchProgress').hide();
+
+    // check files for the search results
     var term = urlParam("term");
     if (term != null) {
       
       if (term.length < 2) {
         alert("Sorry, I'm not going to even try for fear I'll choke on all the data.");
+      
       } else {
-        var moreInfo = window.p2pdocs_searcher.main(window.p2pdocs_settings, term);
-        var nothing = moreInfo.toString(); // this is just to avoid crashes, eg. on searches for "Robert"
-        //Ti.API.print("results: " + moreInfo + "\n"); // this also could avoid crashes
-        
-        if (moreInfo.length == 0) {
-          $("#files").append("Nothing.");
-        } else {
-          
-          var filesFound = [];
-          var fileIndex = -1;
-          
-          // create an element for each search result
-          for (var i = 0; i < moreInfo.length; i++) {
-            
-            // group the results (currently by file)
-            fileIndex = filesFound.indexOf(moreInfo[i].file); 
-            if (fileIndex == -1) {
-              filesFound.push(moreInfo[i].file);
-              fileIndex = filesFound.length - 1;
-              $("#files").append("<div fileNum='" + fileIndex + "'><strong>" + moreInfo[i].file + "</strong></div>");
+        // search for terms
+        // (We're still doing this as a page submit because Ruby calls after inital load tend to crash.)
+
+        function doSearch() {
+          var moreInfo = window.p2pdocs_searcher.main(window.p2pdocs_settings, term);
+          var nothing = moreInfo.toString(); // this is just to avoid crashes, eg. on searches for "Robert"
+          //Ti.API.print("results: " + moreInfo + "\n"); // this also could avoid crashes
+
+          if (moreInfo.length == 0) {
+            $("#files").append("Nothing.");
+          } else {
+
+            var filesFound = [];
+            var fileIndex = -1;
+
+            // create an element for each search result
+            for (var i = 0; i < moreInfo.length; i++) {
+
+              // group the results (currently by file)
+              fileIndex = filesFound.indexOf(moreInfo[i].file);
+              if (fileIndex == -1) {
+                filesFound.push(moreInfo[i].file);
+                fileIndex = filesFound.length - 1;
+                $("#files").append("<div fileNum='" + fileIndex + "'><strong>" + moreInfo[i].file + "</strong></div>");
+              }
+
+              $("#files div[fileNum=\"" + fileIndex + "\"]").append("<div class='blurb'><span class='link'>" + moreInfo[i].context + "</span></div>");
+              $("#files div[fileNum=\"" + fileIndex + "\"] span").last().click(function(file, pos) {
+                return function(e) { openFile(file, pos); };
+              }(moreInfo[i].file, moreInfo[i].position));
             }
-            
-            $("#files div[fileNum=\"" + fileIndex + "\"]").append("<div class='blurb'><span class='link'>" + moreInfo[i].context + "</span></div>");
-            $("#files div[fileNum=\"" + fileIndex + "\"] span").last().click(function(file, pos) {
-              return function(e) { openFile(file, pos); };
-            }(moreInfo[i].file, moreInfo[i].position));
           }
+          $('#searchProgress').hide();
         }
+        $('#searchProgress').show();
+        /*
+          This doesn't really run in a separate thread.  We'll have to
+          modify the Ruby method to be multithreaded or use node.js
+          (which does it naturally when we do a 'post', as in
+          change-summary.html).
+        */
+        Ti.API.runOnMainThreadAsync(doSearch);
       }
     }
 
@@ -136,6 +153,8 @@ $(document).ready(function() {
       <input type="submit" value="search"/>
     </form>
   </div>
-  <div id="files"></div>
+  <div id="files">
+    <span id="searchProgress">&nbsp;&nbsp;&nbsp;Searching for that term in all your files... <img src="images/anim-flower.gif"></span>
+  </div>
 </body>
 </html>
