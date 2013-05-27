@@ -116,8 +116,8 @@ function initializeDisplay() {
         $('#searchProgress').show();
         /*
           This doesn't really run in a separate thread.  We'll have to
-          modify the Ruby method to be multithreaded or use node.js
-          (which does it naturally when we do a 'post', as in
+          modify the Ruby method to be multithreaded or (better) use
+          node.js (which does it naturally when we do a 'post', as in
           change-summary.html).
         */
         Ti.API.runOnMainThreadAsync(doSearch);
