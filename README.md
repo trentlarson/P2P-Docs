@@ -141,14 +141,14 @@ To-Do User Story Details, In Priority Order
    * find matching people in existing GEDCOM file
      * add search ancestry to DB
        * correlate FAMS and FAMC if FAM records don't exist (Does that happen?)
-     * show birthdate (tiny)
+     * show birthdate [tiny]
    * accept other types of repositories: ancestry.com, familysearch.org, git-ged
    * allow to remove(/disable?) identities
- * allow selection of outgoing files to publish (small)
+ * allow selection of outgoing files to publish [small]
  * allow indication (checkbox?) to mark dirs/files as ignored forever
  * allow copying/merging to my own copy (via link?)
  * show repositories in a way that focuses on people/groups/circles with whom we're sharing the files (maybe first we detect sharing program and offer help)
- * for outgoing changes: show diffs, maybe links to repos and sharing circle (small)
+ * for outgoing changes: show diffs, maybe links to repos and sharing circle [small]
  * error in versioned-repo test environment when we mark files as reviewed... because it's removing the previous_path, where it should be replacing it (and why am I removing again?)
  * fix error marking reviewed the files starting with "."
  * fix error loading properties when royal.ged INDI 1 is used as an identity
@@ -158,24 +158,24 @@ To-Do User Story Details, In Priority Order
  * default to keep old outgoing versions, but allow deletion
  * on searches, notify the user for skipped files
  * allow to make outgoing same location as incoming
- * when creating/editing repo: warn if outbound w/o home, no home under incoming, no out under home (small)
+ * when creating/editing repo: warn if outbound w/o home, no home under incoming, no out under home [small]
  * allow choice to copy an incoming file all the way to the home location(?)
- * repository choices (hints for choosing P2P folders; small x) (medium)
- * make this a background service... with notification hooks? (medium)
- * make the configuration a menu (medium)
- * transitions between screens (small)
- * documentation and/or help (medium)
- * program auto-update (medium)
- * show an appropriate error if two apps are running... or something to avoid clashing node processes (small)
- * change links with JavaScript actions (eg. inFolderChooser in repositories.html) from "a" to "span" to avoid page jumps when clicking (small)
- * mark the repo as well when found an ancestor's record (small)
+ * repository choices (hints for choosing P2P folders; small x) [medium]
+ * make this a background service... with notification hooks? [medium]
+ * make the configuration a menu [medium]
+ * transitions between screens [small]
+ * documentation and/or help [medium]
+ * program auto-update [medium]
+ * show an appropriate error if two apps are running... or something to avoid clashing node processes [small]
+ * change links with JavaScript actions (eg. inFolderChooser in repositories.html) from "a" to "span" to avoid page jumps when clicking [small]
+ * mark the repo as well when found an ancestor's record [small]
  * use repo ID numbers everywhere (instead of names)
  * fix the new-repo transition to slide whole screen (not half)
  * make a consistent styling for the whole app
  * search - HTML anchors: not just "a name=" strings, and not just single- and double-quotes
  * use a true change-control system to store file histories (eg. git)
  * move ancestry and ancestryIds from application.properties to settings
- * change format of settings from YAML to JSON(?)(small)
+ * change format of settings from YAML to JSON(?)[small]
  * maybe we shouldn't save copies of files without extensions by default (by changing "!ext_match" conditional in Updates.cp_r_maybe_without_history)
  * rework graphics with repo pic
    * http://www.clker.com/clipart-vertical-file-cabinet.html
