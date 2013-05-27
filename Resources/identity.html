@@ -93,8 +93,10 @@
         window.p2pdoc_settings.add_identity(urlParam("gedcomFile"), urlParam("indId"));
         window.p2pdoc_ancestor_tree.parse(urlParam("gedcomFile"));
         //var treeString = window.p2pdoc_ancestor_tree.retrieveTreeJson(urlParam("indId"));
+        // (We really should store this with our settings rather than application.properties.)
         //appProps['ancestry'] = JSON.parse(treeString);
         var listString = window.p2pdoc_ancestor_tree.retrieveTreeAsUrlListJson(urlParam("gedcomFile"), urlParam("indId"));
+        // (We really should store this with our settings rather than application.properties.)
         appProps['ancestryIds'] = JSON.parse(listString);
         Ti.App.Properties.setString('appPropsJson', JSON.stringify(appProps));
         var message = "Your ancestry has been indexed and saved.";

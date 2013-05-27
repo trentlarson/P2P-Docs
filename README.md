@@ -174,6 +174,8 @@ To-Do User Story Details, In Priority Order
  * make a consistent styling for the whole app
  * search - HTML anchors: not just "a name=" strings, and not just single- and double-quotes
  * use a true change-control system to store file histories (eg. git)
+ * move ancestry and ancestryIds from application.properties to settings
+ * change format of settings from YAML to JSON(?)(small)
  * maybe we shouldn't save copies of files without extensions by default (by changing "!ext_match" conditional in Updates.cp_r_maybe_without_history)
  * rework graphics with repo pic
    * http://www.clker.com/clipart-vertical-file-cabinet.html
