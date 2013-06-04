@@ -128,8 +128,6 @@ Development Setup:
 To-Do User Story Details, In Priority Order
 -------------------------------------
 
- * edit repository name [small] [major]
-
  * allow to open the file location for any file (or repo?) [small] [middle]
  * look for Dropbox/AeroFS/other sharing folders and recommend for new repository
  * option to auto-copy from incoming to home
