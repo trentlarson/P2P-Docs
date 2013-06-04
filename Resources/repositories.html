@@ -144,6 +144,14 @@ var insertRepo = function(repo, showSlowly) {
     }
   });
   
+  addedItem.find("#repoNameEdit_" + dom_suffix).click(function() {
+    var newName = prompt("Repository name", repo.name);
+    if (newName != repo.name) {
+      $("#repoName_" + dom_suffix).html(newName);
+      window.location.href = "?renameRepo=&repoId=" + escape(repo.id) + "&repoName=" + escape(newName);
+    }
+  });
+  
   
   if (showSlowly) {
     addedItem.toggle(500);
@@ -164,6 +172,12 @@ function initializeDisplay() {
     if (urlParam("removeRepo") != null) {
       var repoId = urlParam("repoId");
       window.p2pdoc_settings.remove_repo(repoId);
+      window.p2pdoc_settings.save();
+    }
+    if (urlParam("renameRepo") != null) {
+      var repoId = urlParam("repoId");
+      var repoName = urlParam("repoName");
+      window.p2pdoc_settings.rename_repo(repoId, repoName);
       window.p2pdoc_settings.save();
     }
     if (urlParam("changeRepoDir") != null) {
@@ -288,9 +302,7 @@ $(document).ready(function() {
     <span id="repoNameSection_">
       <h3>
         <span id="repoName_"></span>
-        <!--
-        <img src="images/pencil-yellow-16.png" title="Edit" id="repoNameEdit_" class="clickable">
-        -->
+        <img src="images/edit.yellow.16.png" title="Edit" id="repoNameEdit_" class="clickable">
         <img src="images/button-red-x.16.png" title="Remove" id="repoRemove_" class="clickable">
       </h3>
     </span>

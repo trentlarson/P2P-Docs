@@ -222,6 +222,18 @@ settings: initial settings; if nil, @@settings will not be reset
     end
   end
 
+
+  def rename_repo(id, name)
+    if (id.class.name == "RubyKObject") # for method results from Titanium
+      id = id.toString()
+    end
+    id = id.to_i
+    repo = get_repo_by_id(id)
+    if (repo != nil)
+      repo['name'] = name;
+    end
+  end
+
   def change_repo_incoming(id, incoming_loc)
     if (id.class.name == "RubyKObject") # for method results from Titanium
       id = id.toString()
