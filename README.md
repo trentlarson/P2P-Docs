@@ -128,7 +128,6 @@ Development Setup:
 To-Do User Story Details, In Priority Order
 -------------------------------------
 
- * make switch for running additional family history functions (so we can deploy without it)
  * edit repository name [small] [major]
 
  * allow to open the file location for any file (or repo?) [small] [middle]
