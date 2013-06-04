@@ -145,7 +145,7 @@ function startApp() {
   if (numRepos == 0) {
     redirectWhenSetupFinished("repository.html");
   } else {
-    redirectWhenSetupFinished("change-summary.html");
+    redirectWhenSetupFinished("change-summary.html?redirectImmediatelyIfNoDiffs=true");
   }
 
  } catch (e) {

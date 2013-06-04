@@ -129,7 +129,6 @@ To-Do User Story Details, In Priority Order
 -------------------------------------
 
  * make switch for running additional family history functions (so we can deploy without it)
- * go to change-summary by default, then to search if there are no changes
  * edit repository name [small] [major]
 
  * allow to open the file location for any file (or repo?) [small] [middle]
@@ -199,6 +198,7 @@ Externalities
  * rss-feed-raw.jpg by Carl Newton: http://carlnewton.deviantart.com/art/RSS-Icon-37808083 via http://wonderful-tricks.blogspot.com/2009/05/collection-of-free-rss-feed-icons.html
  * rss-feed-raw2.jpg by burnsflipper: http://burnsflipper.deviantart.com/art/MyCircles-RSS-Icon-40357449 via http://wonderful-tricks.blogspot.com/2009/05/collection-of-free-rss-feed-icons.html
  * anim-flower.gif by ajaxload.info
+ * anim-bars-small.gif by ajaxload.info and then edited for size and timing with Gimp
  * button-green-solid.16.png by OCAL: http://www.clker.com/clipart-2590.html
  * pencil-yellow by dryicons http://dryicons.com/icon/shine-icon-set/edit/
 

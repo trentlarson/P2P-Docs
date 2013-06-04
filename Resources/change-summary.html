@@ -243,6 +243,10 @@ function markInAccepted() {
   }
 }
 
+function goToSearch() {
+  window.location.href = "search.html";
+}
+
 function initializeDisplay() {
 
   var errorDetails = {};
@@ -341,10 +345,8 @@ function initializeDisplay() {
       
       // show the incoming-review action
       var all_diffs = JSON.parse(window.p2pdoc_all_diffs_json);
-      if (all_diffs.length == 0) {
-        $('#noDiffs').show();
-        
-      } else {
+      if (all_diffs.length > 0) {
+
         $('#inChanges').show();
   
         // declare the repo variables for data and DOM elements
@@ -469,6 +471,16 @@ function initializeDisplay() {
         
       }
 
+      if (allOutDiffs.length == 0
+          && all_diffs.length == 0) {
+        if (urlParam("redirectImmediatelyIfNoDiffs")) {
+          goToSearch();
+        } else {
+          $('#noDiffs').show();
+          setTimeout(goToSearch, 3900); // time is just chosen to fit the time for the animation
+        }
+      }
+
       // click to toggle panel
       $('.panelHeader').click(function() {
         $(this).next().toggle(500);
@@ -515,7 +527,10 @@ $(document).ready(function() {
   </div>
 
 <h2 id="noRepos">Your first task is to find your incoming files.<br/>Click 'Configure' (green gear) to tell me where they are.</h2>
-<h2 id="noDiffs" style="display:none;">You've seen it all, so you can go play with another toy.<br/>Y'all come back now, ya hear?</h2>
+<div id="noDiffs" style="display:none;">
+  <h2>There's no new news, so kick back... take a load off... browse around a bit.<br/>Y'all come back now, ya hear?</h2>
+  <h2>Redirecting to search screen <img src="images/anim-bars-small.gif"></h2>
+</div>
 
 <br/>
 <br/>
