@@ -101,17 +101,17 @@ A "-" means it's not done yet.
 
 Tests:
 
-* Register & unregister repos: add/remove funny names; add/remove duplicate names
+* Automated test: ruby Resources/test/ruby/settings.rb (and check that there is no output)
+* Try things on the test page: click on the gear at the top right (may require a 'Cancel' on first screen),
+  scroll to the bottom, move the mouse to the right, then down under the last text on the screen until the cursor shows something clickable, then click, and select a test
 * Create different repository configurations
     * empty ones
+    * add/remove funny names; add/remove duplicate names
     * - combinations: empty repo, repo w/ files, repo w/ dirs, repo w/ files & dirs, recursively
     * - many repositories
     * - ones with thousands of dirs/files
     * - repo changes, mirroring the tests in SettingsTest
-* - test with blank incoming setting
-* Automated test: ruby Resources/test/ruby/settings.rb (and check that there is no output)
-* Try things on the test page: click on the gear at the top right (may require a 'Cancel' on first screen),
-  scroll to the bottom, move the mouse to the right, then down under the last text on the screen until the cursor shows something clickable, then click, and select a test
+    * edit, delete
 
 
 Development Setup:
