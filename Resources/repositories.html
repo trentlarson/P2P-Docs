@@ -220,6 +220,7 @@ function initializeDisplay() {
         insertRepo(repos[i], false);
       }
     }
+    $('.tipOnTop[title]').tooltip({ position:"top center", effect:"slide" });
   
     $('#repoAdd').bind('click', function() {
       $('#everything').hide('slide', { direction: "up"}, 500, function() {
@@ -303,8 +304,8 @@ $(document).ready(function() {
     <span id="repoNameSection_">
       <h3>
         <span id="repoName_"></span>
-        <img src="images/edit.yellow.16.png" title="Rename" id="repoNameEdit_" class="clickable">
-        <img src="images/button-red-x.16.png" title="Remove" id="repoRemove_" class="clickable">
+        <img src="images/edit.yellow.16.png" title="Rename" id="repoNameEdit_" class="clickable tipOnTop">
+        <img src="images/button-red-x.16.png" title="Remove" id="repoRemove_" class="clickable tipOnTop">
       </h3>
     </span>
     <table>
