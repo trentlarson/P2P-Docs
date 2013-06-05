@@ -1,5 +1,5 @@
-P2P Docs
-==============
+P2P Doc Manager
+===============
 
 Use this together with the file-sharing program of your choice to
 share files in more of a publish/subscribe model (and maintain your
@@ -197,7 +197,7 @@ Externalities
  * anim-flower.gif by ajaxload.info
  * anim-bars-small.gif by ajaxload.info and then edited for size and timing with Gimp
  * button-green-solid.16.png by OCAL: http://www.clker.com/clipart-2590.html
- * pencil-yellow by dryicons http://dryicons.com/icon/shine-icon-set/edit/
+ * button-red-x and edit-yellow images from Brant Snow
 
 Other Commentary
 ----------------
