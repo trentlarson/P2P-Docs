@@ -221,13 +221,13 @@ function initializeDisplay() {
       }
     }
   
-    $('#repoAdd_').bind('click', function() {
+    $('#repoAdd').bind('click', function() {
       $('#everything').hide('slide', { direction: "up"}, 500, function() {
         location.href = "repository.html";
       });
     });
 
-    $("#repoadd_[title]").tooltip({ position:"center right", effect:"slide" });
+    $("#repoadd[title]").tooltip({ position:"center right", effect:"slide" });
     
     
     
@@ -243,13 +243,13 @@ function initializeDisplay() {
       }
     }
     
-    $('#identityAdd_').bind('click', function() {
+    $('#identityAdd').bind('click', function() {
       $('#everything').hide('slide', { direction: "up"}, 500, function() {
         location.href = "identity.html";
       });
     });
     
-    $("#identityadd_[title]").tooltip({ position:"center right", effect:"slide" });
+    $("#identityadd[title]").tooltip({ position:"center right", effect:"slide" });
 
     if(!appProps["include-family-history-features"]) {
       $("#identityInfo").hide();
@@ -339,7 +339,7 @@ $(document).ready(function() {
   </div>
 </div>
 
-<img src="images/button-green-plus.png" title="Add Repository" id="repoAdd_" class="clickable">
+<img src="images/button-green-plus.png" title="Add Repository" id="repoAdd" class="clickable">
 
 <br/>
 <br/>
@@ -350,7 +350,7 @@ $(document).ready(function() {
     <div id="identity_" style="display:none;"></div>
   </div>
   <br/>
-  <img src="images/button-green-plus.png" title="Add Identity" id="identityAdd_" class="clickable">
+  <img src="images/button-green-plus.png" title="Add Identity" id="identityAdd" class="clickable">
 </div>
 
 <br/>
