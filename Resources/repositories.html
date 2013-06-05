@@ -146,7 +146,8 @@ var insertRepo = function(repo, showSlowly) {
   
   addedItem.find("#repoNameEdit_" + dom_suffix).click(function() {
     var newName = prompt("Repository name", repo.name);
-    if (newName != repo.name) {
+    if (newName != null
+        && newName != repo.name) {
       $("#repoName_" + dom_suffix).html(newName);
       window.location.href = "?renameRepo=&repoId=" + escape(repo.id) + "&repoName=" + escape(newName);
     }
