@@ -985,7 +985,7 @@ class SettingsTest
     
     setup_settings({'repositories'=>[]})
     repo_test0 = add_repo('test out 0', File.join(@test_data_dir, 'sources', 'cracked'),
-      File.join(@test_data_dir, 'my_copies', 'cracked'), File.join(@test_data_dir, 'targets', 'cracked'))
+      File.join(@test_data_dir, 'my_copies', 'cracked'), File.join(@test_data_dir, 'targets', 'cracked'), false)
     puts "fail: couldn't create repo 'test out 0'" if repo_test0 == nil
     
     File.open(File.join(repo_test0['incoming_loc'], 'sample.txt'), 'w') do |out|
@@ -1007,7 +1007,7 @@ class SettingsTest
     end
     all_out_diffs = Updates.all_outgoing_diffs(@settings)
     puts "fail: must copy out: #{all_out_diffs.inspect}" if all_out_diffs !=
-      [{"id"=>0, "name"=>"test out 0", "diffs"=>[{"path"=>"sample.txt", "source_type"=>"file", "target_type"=>nil, "target_path_previous_version"=>nil, "target_path_next_version"=>"sample_0.txt", "contents"=>nil}]}]
+      [{"id"=>0, "name"=>"test out 0", "diffs"=>[{"path"=>"sample.txt", "source_type"=>"file", "target_type"=>nil, "target_path_previous_version"=>nil, "target_path_next_version"=>"sample.txt", "contents"=>nil}]}]
 
     Updates.copy_to_outgoing(@settings, 0)
     all_out_diffs = Updates.all_outgoing_diffs(@settings)
@@ -1096,8 +1096,12 @@ class SettingsTest
     
     
     
+
     
     # now let's update it with a transport that uses versioned files
+    repo_test0['versioned'] = true
+    Updates.copy_to_outgoing(@settings, 0, 'sample.txt')
+
     FileUtils.cp File.join(repo_test0['incoming_loc'], 'sample.txt'), File.join(repo_test0['incoming_loc'], 'sample_2.txt')
     File.open(File.join(repo_test0['incoming_loc'], 'sample_2.txt'), 'a') do |out|
       out.write "you're a cheater face\n"
@@ -1261,7 +1265,7 @@ class SettingsTest
     
     # now test when the outgoing location is the same as an incoming location
     @settings.change_repo_outgoing('0', repo_test0['incoming_loc'])
-    # ... with a file that has some new text
+    # ... now with a file rename
     File.rename(File.join(repo_test0['my_loc'], 'my_sample.txt'), File.join(repo_test0['my_loc'], 'sample.txt'))
     result = Updates.all_outgoing_diffs(@settings)
     puts "fail: versioned outgoing same as incoming: #{result.inspect}" if result !=
