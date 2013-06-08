@@ -452,7 +452,7 @@ class Updates
   # if ignore_future is true, never show this file to be reviewed again (requires no_history_copy to be true)
   def self.mark_reviewed(settings, repo_id, subpath = nil, remove = nil, no_history_copy = false, ignore_future = false)
     repo = settings.get_repo_by_id(repo_id)
-    copy_all_contents(settings.properties['diffable_extensions'], repo['incoming_loc'], settings.reviewed_dir(repo), subpath, nil, no_history_copy, ignore_future)
+    copy_all_contents(repo['incoming_loc'], settings.reviewed_dir(repo), subpath, nil, true, settings.properties['diffable_extensions'], no_history_copy, ignore_future)
     if (remove != nil)
       FileUtils::remove_entry_secure(File.join(settings.reviewed_dir(repo), remove), true)
     end
@@ -462,21 +462,23 @@ class Updates
   # copies the subpath in repo['my_loc'] to outgoing
   def self.copy_to_outgoing(settings, repo_id, source_subpath = nil, target_subpath = nil)
     repo = settings.get_repo_by_id(repo_id)
-    copy_all_contents(settings.properties['diffable_extensions'], repo['my_loc'], repo['outgoing_loc'], source_subpath, target_subpath)
+    copy_all_contents(repo['my_loc'], repo['outgoing_loc'], source_subpath, target_subpath)
     if (repo['outgoing_loc'] == repo['incoming_loc'])
-      copy_all_contents(settings.properties['diffable_extensions'], repo['outgoing_loc'], settings.reviewed_dir(repo), target_subpath, target_subpath)
+      # record that we've got the latest copy
+      copy_all_contents(repo['outgoing_loc'], settings.reviewed_dir(repo), target_subpath, target_subpath)
     end
   end
 
 
   # copy everything from the source to the target, under a common subpath
-  # extensions_to_keep_histories is an array of strings, eg. ['txt','html']; we'll keep a history for files with that extension
   # if source_subpath is nil, source will be the source_loc
   # if target_subpath is nil, target will be same as source_subpath
+  # if history_shortcut_logic is true, we use the rest of the flags and custom logic to save space and time
+  # extensions_to_keep_histories is an array of strings, eg. ['txt','html']; we'll keep a history for files with that extension
   # if no_history_copy is true, don't bother saving a full copy (useful to save space, eg. if we can't diff this type of file anyway so there's no reason to keep the previous one)
   # (... but is that necessary now that we're not saving full copies of non-diffable files?)
   # if ignore_future is true, never show this file to be reviewed again (requires no_history_copy to also be true)
-  def self.copy_all_contents(extensions_to_keep_histories, source_loc, target_loc, source_subpath = nil, target_subpath = nil, no_history_copy = false, ignore_future = false)
+  def self.copy_all_contents(source_loc, target_loc, source_subpath = nil, target_subpath = nil, history_shortcut_logic = false, extensions_to_keep_histories = [], no_history_copy = false, ignore_future = false)
     if (source_subpath.nil?)
       source = source_loc
       target = target_loc
@@ -491,45 +493,49 @@ class Updates
     FileUtils::remove_entry_secure(target, true)
     if (FileTest.exist? source)
       FileUtils::mkpath(File.dirname(target)) # why?
-      if (no_history_copy)
-        if (ignore_future)
-          # use a zero-size file with a time far in the future to mark items that will be ignored forever
-          FileUtils::touch(target)
-          time = Time.local(Time.new.year + 999)
-          File.utime(time, time, target)
-        else
-          cp_r_maybe_without_history(extensions_to_keep_histories, source, target, no_history_copy)
-        end
+      if (history_shortcut_logic && no_history_copy & ignore_future)
+        # use a zero-size file with a time far in the future to mark items that will be ignored forever
+        FileUtils::touch(target)
+        time = Time.local(Time.new.year + 999)
+        File.utime(time, time, target)
       else
-        cp_r_maybe_without_history(extensions_to_keep_histories, source, target, no_history_copy)
+        cp_r_maybe_without_history(source, target, history_shortcut_logic, extensions_to_keep_histories, no_history_copy)
       end
     end
   end
   
-  # copy everything on-by-one from source to target, but not keeping a full copy of the ones where we won't keep a history
-  # (This implementations assumes that target does not exist.)
-  def self.cp_r_maybe_without_history(extensions_to_keep_histories, source, target, no_history_copy = false)
+  # copy everything one-by-one from source to target, but not keeping a full copy of the ones where we won't keep a history
+  # (This implementation assumes that target does not exist.)
+  def self.cp_r_maybe_without_history(source, target, history_shortcut_logic = false, extensions_to_keep_histories = [], no_history_copy = false)
     if (File.file? source)
-      ext_match = /.*\.(.+)/.match(source)
-      # keep a history if: not explicitly rejected and either it has no extension or the extension is diffable
-      if (! no_history_copy &&
-          (!ext_match ||
-           extensions_to_keep_histories.include?(ext_match[1])))
-        FileUtils::cp(source, target, :preserve => true)
+      if (history_shortcut_logic)
+        ext_match = /.*\.(.+)/.match(source)
+        # keep a history if: not explicitly rejected and either it has no extension or the extension is diffable
+        if (no_history_copy ||
+            (ext_match &&
+             !extensions_to_keep_histories.include?(ext_match[1])))
+          # use a zero-size file with the source time to mark items that needn't preserve our own copy
+          FileUtils::touch(target)
+          File.utime(File.atime(source), File.mtime(source), target)
+        else
+          FileUtils::cp(source, target, :preserve => true)
+        end
       else
-       # use a zero-size file with the source time to mark items that needn't preserve our own copy
-        FileUtils::touch(target)
-        File.utime(File.atime(source), File.mtime(source), target)
+        FileUtils::cp(source, target, :preserve => true)
       end
     elsif (File.directory? source)
       FileUtils.mkpath(target)
-      Dir.foreach(source) {|entry| 
-        cp_r_maybe_without_history(extensions_to_keep_histories, File.join(source, entry), File.join(target, entry), no_history_copy) if ![".",".."].index(entry)
+      Dir.foreach(source) {|entry|
+        cp_r_maybe_without_history(File.join(source, entry), File.join(target, entry), history_shortcut_logic, extensions_to_keep_histories, no_history_copy) if ![".",".."].index(entry)
       }
     else
-      #puts "(WARNING: Got unknown file type #{File.ftype source}.  We'll just put a placeholder and not track revisions.)"
-      FileUtils::touch(target)
-      File.utime(File.atime(source), File.mtime(source), target)
+      if (history_shortcut_logic)
+        #puts "(WARNING: Got unknown file type #{File.ftype source}.  We'll just put a placeholder and not track revisions.)"
+        FileUtils::touch(target)
+        File.utime(File.atime(source), File.mtime(source), target)
+      else
+        FileUtils::cp(source, target, :preserve => true)
+      end
     end
   end
   
