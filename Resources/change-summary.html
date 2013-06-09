@@ -188,7 +188,7 @@ function getReviewedDir(repoId) {
 function markOutAccepted() {
   var checkedBoxes = $('#inChanges input[type="checkbox"]:checked');
   if (checkedBoxes.length == 0) {
-    alert("If you really want to publish something, you'll have to select it first.");
+    alert("You must select the items you want to publish.");
   } else {
     alert("Not implemented.");
   }
@@ -197,7 +197,7 @@ function markOutAccepted() {
 function markInAccepted() {
   var checkedBoxes = $('#inChanges input[type="checkbox"]:checked').not("#checkAll");
   if (checkedBoxes.length == 0) {
-    alert("If you really want to accept something, you'll have to select it first.");
+    alert("You must select the items you want to mark as seen.");
   } else {
     
     // gather the data for their reviewed choices (which I'd love to do inline, but the app often breaks when calling Ruby when it's not the initial page load)
@@ -310,6 +310,9 @@ function initializeDisplay() {
             outPath = outDiff.path;
             if (outDiff.target_path_next_version != outDiff.path) {
               outPath += " ( -> " + outDiff.target_path_next_version + ")";
+            }
+            if (outDiff.source_earlier_warning) {
+              outPath += "<br/><strong><ul><li>Warning: this one has more recent changes that you will overwrite!  Make sure you know what you're doing!</li></ul></strong>";
             }
             addedDiff.find("#diffPath_").attr("id", "diffPath_" + outChangeNum).html(outPath);
           }
@@ -596,7 +599,7 @@ $(document).ready(function() {
   
   <div id="sideActionWrapper">
     <div id="sideAction">
-      <a href="#" onclick="javascript: markInAccepted(); return false;">Accept Checked</a>
+      <a href="#" onclick="javascript: markInAccepted(); return false;">Acknowledge</a>
     </div>
   </div>
 

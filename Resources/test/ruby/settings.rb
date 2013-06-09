@@ -1111,7 +1111,7 @@ class SettingsTest
     Updates.mark_reviewed(@settings, 0)
 
     all_outgoing_diffs = Updates.all_outgoing_diffs(@settings)
-    puts "fail: for incoming == outgoing, we should have a difference from our own info #{all_outgoing_diffs}" if all_outgoing_diffs != [{"id"=>0, "name"=>"test out 0", "diffs"=>[{"path"=>"sample.txt", "source_type"=>"file", "target_type"=>"file", "target_path_previous_version"=>"sample.txt", "target_path_next_version"=>"sample.txt", "contents"=>nil, "source_earlier_warning"=>true}]}]
+    puts "fail: for incoming == outgoing, we should have a difference from our own info: #{all_outgoing_diffs}" if all_outgoing_diffs != [{"id"=>0, "name"=>"test out 0", "diffs"=>[{"path"=>"sample.txt", "source_type"=>"file", "target_type"=>"file", "target_path_previous_version"=>"sample.txt", "target_path_next_version"=>"sample.txt", "contents"=>nil, "source_earlier_warning"=>true}]}]
 
     # now let's copy all the incoming information to our own copy
     Updates.copy_all_contents(File.join(repo_test0['incoming_loc'], 'sample.txt'), File.join(repo_test0['my_loc'], 'sample.txt'))
@@ -1131,7 +1131,6 @@ class SettingsTest
 
     # now restore the old incoming
     @settings.change_repo_outgoing('0', previous_outgoing)
-    
 
 
 

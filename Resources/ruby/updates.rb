@@ -409,6 +409,8 @@ class Updates
         [{'path' => subpath, 'source_type' => 'file', 'target_type' => 'file', "contents" => nil }]
       elsif (File.mtime(source_file) > File.mtime(target_file))
         [{'path' => subpath, 'source_type' => 'file', 'target_type' => 'file', "contents" => nil }]
+      elsif (File.mtime(source_file) < File.mtime(target_file)) # can happen when outgoing == incoming, and we should warn user
+        [{'path' => subpath, 'source_type' => 'file', 'target_type' => 'file', "contents" => nil }]
       else
         []
       end
