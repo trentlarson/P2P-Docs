@@ -1098,6 +1098,45 @@ class SettingsTest
     
 
     
+    # now test where outgoing is the same as incoming
+    previous_outgoing = repo_test0['outgoing_loc']
+    @settings.change_repo_outgoing('0', repo_test0['incoming_loc'])
+    # first test: there's an incoming change
+    sleep 1 # since we're going to be looking for an outgoing change later
+    File.open(File.join(repo_test0['incoming_loc'], 'sample.txt'), 'a') do |out|
+      out.write "you're a cheater\n"
+    end
+    all_repo_diffs = Updates.all_repo_diffs(@settings)
+    puts "fail: for incoming == outgoing, incoming should have something different #{all_repo_diffs}" if all_repo_diffs != [{"id"=>0, "name"=>"test out 0", "diffs"=>[{"path"=>"sample.txt", "source_type"=>"file", "target_type"=>"file", "target_path_previous_version"=>"sample.txt", "target_path_next_version"=>"sample.txt", "contents"=>nil}]}]
+    Updates.mark_reviewed(@settings, 0)
+
+    all_outgoing_diffs = Updates.all_outgoing_diffs(@settings)
+    puts "fail: for incoming == outgoing, we should have a difference from our own info #{all_outgoing_diffs}" if all_outgoing_diffs != [{"id"=>0, "name"=>"test out 0", "diffs"=>[{"path"=>"sample.txt", "source_type"=>"file", "target_type"=>"file", "target_path_previous_version"=>"sample.txt", "target_path_next_version"=>"sample.txt", "contents"=>nil, "source_earlier_warning"=>true}]}]
+
+    # now let's copy all the incoming information to our own copy
+    Updates.copy_all_contents(File.join(repo_test0['incoming_loc'], 'sample.txt'), File.join(repo_test0['my_loc'], 'sample.txt'))
+    all_outgoing_diffs = Updates.all_outgoing_diffs(@settings)
+    puts "fail: for incoming == outgoing, we should have no difference from our own info: #{all_outgoing_diffs}" if all_outgoing_diffs != []
+
+    # second test: there's an outgoing change
+    File.open(File.join(repo_test0['my_loc'], 'sample.txt'), 'a') do |out|
+      out.write "so are you\n"
+    end
+    all_outgoing_diffs = Updates.all_outgoing_diffs(@settings)
+    puts "fail: for incoming == outgoing, should have something different #{all_outgoing_diffs}" if all_outgoing_diffs != [{"id"=>0, "name"=>"test out 0", "diffs"=>[{"path"=>"sample.txt", "source_type"=>"file", "target_type"=>"file", "target_path_previous_version"=>"sample.txt", "target_path_next_version"=>"sample.txt", "contents"=>nil}]}]
+
+    Updates.copy_to_outgoing(@settings, 0);
+    all_outgoing_diffs = Updates.all_outgoing_diffs(@settings)
+    puts "fail: for incoming == outgoing, should be done #{all_outgoing_diffs}" if all_outgoing_diffs != []
+
+    # now restore the old incoming
+    @settings.change_repo_outgoing('0', previous_outgoing)
+    
+
+
+
+    
+    
     # now let's update it with a transport that uses versioned files
     repo_test0['versioned'] = true
     Updates.copy_to_outgoing(@settings, 0, 'sample.txt')

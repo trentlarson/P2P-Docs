@@ -173,7 +173,7 @@ class Updates
           diff['source_type'] == 'file' &&
           # if the size and modified time are the same, we'll assume it's already copied
           File.size(File.join(source_dir, diff['path'])) == File.size(File.join(target_dir, latest_target)) &&
-          File.mtime(File.join(source_dir, diff['path'])) <= File.mtime(File.join(target_dir, latest_target)))
+          File.mtime(File.join(source_dir, diff['path'])) == File.mtime(File.join(target_dir, latest_target)))
         nil
       else
         if (!versioned ||
@@ -199,14 +199,21 @@ class Updates
           end
           next_target = base + "_" + max_version + ext
         end
-        {
-          'path' => diff['path'],
-          'source_type' => diff['source_type'],
-          'target_type' => diff['target_type'],
-          'target_path_previous_version' => latest_target,
-          'target_path_next_version' => next_target,
-          'contents' => diff['contents']
-        }
+        result =
+          {
+            'path' => diff['path'],
+            'source_type' => diff['source_type'],
+            'target_type' => diff['target_type'],
+            'target_path_previous_version' => latest_target,
+            'target_path_next_version' => next_target,
+            'contents' => diff['contents']
+          }
+        if (latest_target != nil &&
+            File.exists?(File.join(target_dir, latest_target)) &&
+            File.mtime(File.join(source_dir, diff['path'])) < File.mtime(File.join(target_dir, latest_target)))
+          result['source_earlier_warning'] = true
+        end
+        result
       end
     }.compact
   end
@@ -493,7 +500,7 @@ class Updates
     FileUtils::remove_entry_secure(target, true)
     if (FileTest.exist? source)
       FileUtils::mkpath(File.dirname(target)) # why?
-      if (history_shortcut_logic && no_history_copy & ignore_future)
+      if (history_shortcut_logic && no_history_copy && ignore_future)
         # use a zero-size file with a time far in the future to mark items that will be ignored forever
         FileUtils::touch(target)
         time = Time.local(Time.new.year + 999)
