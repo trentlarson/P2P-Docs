@@ -94,6 +94,8 @@ class Updates
   # {
   #   'target_path_previous_version' => the name of the previously reviewed version of this file (for setups with versions that come in via different file names)
   #   'target_path_next_version' => the name of the next version of the target file (for setups where outgoing files are incremented)
+  #   ... and, only included if my home version is older than the outgoing version (which happens when incoming dir == outgoing dir):
+  #   'source_earlier_warning' => true
   # }
   # ... but without the entries where source version is gone (ie. source_type==nil) if a newer version exists
   def self.versioned_diffs(source_dir, target_dir)
