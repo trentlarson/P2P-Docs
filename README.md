@@ -128,6 +128,8 @@ Development Setup:
 To-Do User Story Details, In Priority Order
 -------------------------------------
 
+ * show warning if home copy is older than outgoing copy (see source_earlier_warning)
+
  * allow to open the file location for any file (or repo?) [small] [middle]
  * look for Dropbox/AeroFS/other sharing folders and recommend for new repository
  * option to auto-copy from incoming to home
