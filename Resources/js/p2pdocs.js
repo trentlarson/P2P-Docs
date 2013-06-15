@@ -42,13 +42,18 @@ function p2pdocsHandleError(err, extras) {
 function viewFileWrapperFunc(sourceDir, path) {
   // This indirect path to the function is so that the values are saved
   // (and we don't have to refer to other variables which can cause Titanium crashes/errors).
+  // Return false (so event handler on click won't signal page refresh).
   var viewFileFunc = function() {
     // We use another method so that its name shows in the stack trace (instead of just anonymous).
     viewFile(sourceDir, path);
+    return false;
   }
   return viewFileFunc;
 }
 
+/**
+ * No return value specified.
+ */
 function viewFile(sourceDir, path) {
   if (path == null) {
     path = "";
@@ -63,7 +68,6 @@ function viewFile(sourceDir, path) {
   } catch (e) {
     p2pdocsHandleError(e, {"file":file});
   }
-  return false;
 }
 
 // from http://www.netlobo.com/url_query_string_javascript.html
