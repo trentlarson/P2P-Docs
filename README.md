@@ -128,6 +128,7 @@ Development Setup:
 To-Do User Story Details, In Priority Order
 -------------------------------------
 
+ * allow indication (checkbox?) to mark dirs/files as ignored forever (logic already written) [medium] [middle]
  * allow to open the file location for any file (or repo?) [small] [middle]
  * look for Dropbox/AeroFS/other sharing folders and recommend for new repository
  * option to auto-copy from incoming to home
@@ -145,7 +146,6 @@ To-Do User Story Details, In Priority Order
    * accept other types of repositories: ancestry.com, familysearch.org, git-ged
    * allow to remove(/disable?) identities
  * allow selection of outgoing files to publish [small]
- * allow indication (checkbox?) to mark dirs/files as ignored forever
  * allow copying/merging to my own copy (via link?)
  * show repositories in a way that focuses on people/groups/circles with whom we're sharing the files (maybe first we detect sharing program and offer help)
  * for outgoing changes: show diffs, maybe links to repos and sharing circle [small]
