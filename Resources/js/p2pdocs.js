@@ -22,7 +22,7 @@ function errorProps(err) {
  * requires stacktrace.js
  */
 function p2pdocsHandleError(err, extras) {
-  message = "Sorry!  I don't understand what just happened.  If you don't mind, contact the nice people at familyhistories.info and send them this information.  Thanks!\n\n";
+  message = "Sorry!  I don't understand what just happened.  If you don't mind, contact the nice people at " + Ti.App.getURL() + " and send them this information.  Thanks!\n\n";
   message += "version: " + Ti.App.getVersion() + "\n";
   message += errorProps(err);
   if (extras) {
