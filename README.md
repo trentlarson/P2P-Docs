@@ -1,16 +1,16 @@
-P2P Doc Manager
-===============
+P2P Document Bus
+================
 
 Use this together with the file-sharing program of your choice to
 share files in more of a publish/subscribe model (and maintain your
 own changes separately), keeping your own organization of files.
 
-See http://p2pdocs.familyhistories.info for general updates on this project.
+Get the application on various platforms here: http://p2pdocs.familyhistories.info/download
 
-Currently the application lets you monitor the files that are changing
-and then search through your copies for certain text:
+See general updates on this project here: http://p2pdocs.familyhistories.info
 
-http://p2pdocs.familyhistories.info/download
+Currently the application lets you monitor the files that are changing,
+and search through your copies for certain text.
 
 Let's say, for example, you're working on some historical
 documentation, and you subscribe to other people's feeds where they
@@ -30,10 +30,10 @@ publish and subscribe to the (torrent) file and don't do updates.  The
 ideal implementation would be a plugin in each content app, one that
 publishes or consumes the info to/from the right locations;
 second-best would be to build this publishing/consuming into the P2P
-clients.  So P2P-Docs aims to move files to the right locations; it
-detects changes and prompts the user to review the changes and pull or
-push them to the right places (incrementing versions in the file names
-if necessary).
+clients.  So this project aims to move files to the right locations;
+it detects changes and prompts the user to review the changes and pull
+or push them to the right places (incrementing versions in the file
+names if necessary).
 
 First, you'll need to know where your shared files are stored.  Here
 are some common locations:
@@ -49,7 +49,7 @@ are some common locations:
   * In AllianceP2P, go to "View" then "My share" then "Shared files".
 
 
-Start P2P-Docs and configure it with those folders:
+To start, configure it with those folders:
 
  * If you're subscribing to someone's files, then make that folder the
    "incoming" folder (eg. a Dropbox or "Vuze Downloads" folder).
@@ -73,9 +73,10 @@ See the User Stories below to see what features are finished and what are planne
 
 BTW, there are projects where this approach will not work well.  Don't
 try it if you need real-time sharing; most updates won't happen for
-hours (or days?) after you make your changes.  (This may change as our
-P2P technologies improve... I hope the need for this program goes away
-because these features get incorporated into mainstream P2P clients.)
+minutes (or even hours with torrents) after you make your changes.
+(This may change as our P2P technologies improve... I hope the need
+for this program goes away because these features get incorporated
+into mainstream P2P clients.)
 
 User Stories
 ------------
@@ -88,10 +89,9 @@ A "-" means it's not done yet.
     * allow outgoing to the same place as incoming
   * Search: search for items of interest
     * - make this a plugin, ancillary to the file tracking
-  * - Doc Alerts: notify when there's new content
   * Doc Changes (external?): display the new content
     * - set up trust for certain incoming files, to shortcut to my copy
-    * - Notifications: notify of changes, via desktop and via preferred media
+    * - Notifications: notify of changes, via desktop and/or preferred media
   * - Doc Resolution: accept or reject the changes in my own versions
     * - then copy my version into any shared areas
   * - Work as a plugin/client for some of the main file-sharing
@@ -104,7 +104,7 @@ Tests:
 * Automated test: ruby Resources/test/ruby/settings.rb (and check that there is no output)
 * Try things on the test page: click on the gear at the top right (may require a 'Cancel' on first screen),
   scroll to the bottom, move the mouse to the right, then down under the last text on the screen until the cursor shows something clickable, then click, and select a test
-* Create different repository configurations
+* Create different repository configurations (some covered by the previous item):
     * empty ones
     * add/remove funny names; add/remove duplicate names
     * - combinations: empty repo, repo w/ files, repo w/ dirs, repo w/ files & dirs, recursively
@@ -131,7 +131,6 @@ To-Do User Story Details, In Priority Order
  * allow to open the file location for any file (or repo?) [small] [middle]
  * look for Dropbox/AeroFS/other sharing folders and recommend for new repository
  * option to auto-copy from incoming to home
- * enable/disable family history functionality: "you" in settings, search?
  * look for genealogy (eg. .GED) files and recommend for new identity
  * search for stories (locally)
    * search for data within tree, ie. restricted sets of files rather than all
