@@ -24,7 +24,7 @@ function configApp() {
     appProps = JSON.parse(appPropsStr);
   } else {
     // (this has the side-effect of saving the property)
-    Ti.App.Properties.setString('appPropsJson', JSON.stringify({"include-family-history-features":false}));
+    Ti.App.Properties.setString('appPropsJson', JSON.stringify({"include-family-history-features":true}));
   }
   if (Ti.App.Properties.listProperties().length > 1) {
     Ti.API.print("\n\nBEWARE: There is more than one App property, which can cause data corruption. !!!!!!!!!!!!!!!!\n\n");
