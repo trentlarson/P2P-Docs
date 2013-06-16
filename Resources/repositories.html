@@ -211,7 +211,7 @@ function initializeDisplay() {
     $('#savedFileExtensions').html(window.p2pdoc_settings.diffable_extensions().inspect());
     $('#includeFamilyHistoryFeaturesDisplay').html(appProps["include-family-history-features"].toString());
     $('#aboutPage').click(function(){Ti.Platform.openURL(Ti.App.getURL());});
-    $('#versionPage').click(function(){Ti.Platform.openURL(Ti.App.getURL() + "/app/versions.html?onlyShowBeyondVersion=" + Ti.App.getVersion());});
+    $('#versionPage').click(function(){Ti.Platform.openURL(Ti.App.getURL() + "/versions.html?onlyShowBeyondVersion=" + Ti.App.getVersion());});
     
     var repos = window.p2pdoc_settings.properties().repositories;
     var repo;
