@@ -125,7 +125,7 @@ Development Setup:
 * To enable/disable family history features (eg. identifying yourself
   inside genealogy files), play with this flag in index.html:
   include-family-history-features
-* When updating versions, make sure to change in both places: tiapp.xml and nodeApp.js
+* When updating versions, make sure to change in both places (tiapp.xml and nodeApp.js) and update versions.html on website
 
 
 

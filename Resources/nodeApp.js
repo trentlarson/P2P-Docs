@@ -212,7 +212,7 @@ server = http.createServer(function (req, resp) {
 
   } else if (req.url.indexOf('/version') === 0) {
     // coordinate this version with the one in tiapp.xml
-    resp.write(JSON.stringify("0.09")); // this is a String mainly to keep consistent with other version numbers
+    resp.write(JSON.stringify("0.10")); // this is a String mainly to keep consistent with other version numbers
     resp.end();
 
   } else if (req.url.indexOf('/check_database') === 0) {
