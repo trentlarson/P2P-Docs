@@ -1,5 +1,18 @@
+
+# TideSDK artifacts
+
 .project
 .settings
 build
 dist
+packages
+
+
+
+# miscellany
+
+*.app
+*.dmg
+*~
+.DS_Store
 tmp
