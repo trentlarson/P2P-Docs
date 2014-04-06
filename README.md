@@ -137,6 +137,7 @@ To-Do User Story Details, In Priority Order
 -------------------------------------
 
  * browser add-on: pop-up to explore person elsewhere, eg. in FamilySearch, in Gramps, relationship to self
+    * show error if it fails to load
  * allow indication (checkbox?) to mark dirs/files as ignored forever (logic already written) [medium] [middle]
  * allow to open the file location for any file (or repo?) [small] [middle]
  * look for Dropbox/AeroFS/other sharing folders and recommend for new repository
