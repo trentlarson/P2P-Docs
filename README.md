@@ -127,11 +127,16 @@ Development Setup:
   include-family-history-features
 * When updating versions, make sure to change in both places (UI that modifies tiapp.xml, and nodeApp.js) and update versions.html on website
 
+Bookmarklet to add script to a page (when this app is running):
+
+    javascript:  var scriptElem=document.createElement("script");  scriptElem.setAttribute("type","text/javascript");  scriptElem.setAttribute("src","http://localhost:1338/load-script/jquery");  document.body.appendChild(scriptElem); setTimeout(function(){$.getScript("http://localhost:1338/load-script/for-histories")}, 500);  void(0);
+
 
 
 To-Do User Story Details, In Priority Order
 -------------------------------------
 
+ * browser add-on: pop-up to explore person elsewhere, eg. in FamilySearch, in Gramps, relationship to self
  * allow indication (checkbox?) to mark dirs/files as ignored forever (logic already written) [medium] [middle]
  * allow to open the file location for any file (or repo?) [small] [middle]
  * look for Dropbox/AeroFS/other sharing folders and recommend for new repository

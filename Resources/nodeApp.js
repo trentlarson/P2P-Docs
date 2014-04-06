@@ -4,6 +4,7 @@ var server,
   apricotLib= require('apricot');
   qsLib     = require('querystring');
   urlLib    = require("url"),
+  filesystem= require("fs"),
   GitHubApi = require("github").GitHubApi,
   github    = new GitHubApi(true),
   githubUserOfConcern = 'appcelerator';
@@ -91,6 +92,22 @@ var getProfile = function(req, resp) {
 function endsWith(str, suffix) {
   return str.indexOf(suffix, str.length - suffix.length) !== -1;
 }
+
+
+function serveScript(fileUnderResources, resp) {
+  filesystem.readFile(__dirname + '/' + fileUnderResources, function(err, data) {
+    if (err) {
+      resp.writeHead(500, {"Content-Type": "text/plain"});
+      resp.write("500 Server Error: " + err + "\n");
+      resp.end();
+    } else {
+      resp.writeHead(200, {"Content-Type": "application/javascript"});
+      resp.write(data);
+      resp.end();
+    }
+  });
+}
+
 
 /**
  * request should have two parameters: "ancestryIds" is the list of ancestor IDs (for use in XYZ),
@@ -214,6 +231,12 @@ server = http.createServer(function (req, resp) {
     // coordinate this version with the one in tiapp.xml
     resp.write(JSON.stringify("0.10")); // this is a String mainly to keep consistent with other version numbers
     resp.end();
+
+  } else if (req.url === '/load-script/jquery') {
+    serveScript('js/jquery-1.5.1.min.js', resp);
+
+  } else if (req.url.indexOf('/load-script/for-histories') === 0) { // checking the prefix because jQuery adds an _ parameter
+    serveScript('js-for-histories.js', resp);
 
   } else if (req.url.indexOf('/check_database') === 0) {
     // curl http://127.0.0.1:1338/check_database -d "ancestryIds=2&incomingFiles=[{'path':'/Users/tlarson/Dropbox/Multimedia from Janell/Baker Austin-Fanny','repoNum':0,'diffNum':2}/]"
