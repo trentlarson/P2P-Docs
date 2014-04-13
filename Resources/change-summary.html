@@ -383,6 +383,7 @@ function initializeDisplay() {
           addedRepo.find("#repoName_").attr("id", "repoName_" + repoNum).html(repoName);
           numChanges = repoDiffCount + " " + (repoDiffCount == 1 ? "change" : "changes");
           addedRepo.find("#repoDiffCount_").attr("id", "repoDiffCount_" + repoNum).html("(" + numChanges + ")");
+          addedRepo.find("#seeRepoAnchor").attr("href", "repositories.html#repoAnchor_" + repoId);
           addedRepo.find('#checkAll').click(function() {
             var newValue = $(this).attr("checked");
             $(this).parent().find('div input[type="checkbox"]').not("#reviewed_").each(function() {
@@ -581,6 +582,11 @@ $(document).ready(function() {
         </a>
       </h3>
       <div id="diffList">
+        <a id="seeRepoAnchor" href="repositories.html#repoAnchor_">(see repository)</a>
+        <br/>
+        <br/>
+        Select the items and then 'Acknowledge' to accept.
+        <br/>
         <input type="checkbox" id="checkAll">check/uncheck all
         <br/>
         <br/>
