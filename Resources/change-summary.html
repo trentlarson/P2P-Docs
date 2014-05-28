@@ -312,7 +312,7 @@ function initializeDisplay() {
               outPath += " ( -> " + outDiff.target_path_next_version + ")";
             }
             if (outDiff.source_earlier_warning) {
-              outPath += "<br/><strong><ul><li>Warning: this one has more recent changes that you will overwrite!  Make sure you know what you're doing!</li></ul></strong>";
+              outPath += "<br/><strong><ul><li>Warning: that one has more recent changes that you will overwrite!  Make sure you know what you're doing!</li></ul></strong>";
             }
             addedDiff.find("#diffPath_").attr("id", "diffPath_" + outChangeNum).html(outPath);
           }

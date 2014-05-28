@@ -156,6 +156,7 @@ To-Do User Story Details, In Priority Order
    * accept other types of repositories: ancestry.com, familysearch.org, git-ged
    * allow to remove(/disable?) identities
  * allow selection of outgoing files to publish [small]
+ * bug: when I removed one version of Dad's journal, it didn't show as a change to push (intentional? until later?)
  * allow copying/merging to my own copy (via link?)
  * show repositories in a way that focuses on people/groups/circles with whom we're sharing the files (maybe first we detect sharing program and offer help)
  * for outgoing changes: show diffs, maybe links to repos and sharing circle [small]
