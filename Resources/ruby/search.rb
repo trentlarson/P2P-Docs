@@ -5,6 +5,9 @@
 # 2) ... or do this:
 # ruby -e 'load "search.rb"; Search.new.main("/Users/tlarson/backed/doc/family-histories/JeanGould.html","dog")'
 
+# When running in Titanium, you can print to the console ('puts' doesn't always show immediately):
+#Ti.API.print("I'm here!\n")
+
 class Search
 
   # filename can be directory or single file

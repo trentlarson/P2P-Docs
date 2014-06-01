@@ -81,6 +81,7 @@ function urlParam( name )
   if( results == null )
     return null;
   else
-    return unescape(results[1]); // I added the unescape: looks like Titanium doesn't unencode this internal stuff.
+    // I added this decode & replace: looks like Titanium doesn't unencode this internal stuff
+    return decodeURIComponent(results[1]).replace(/\+/g, " ");
 }
 
