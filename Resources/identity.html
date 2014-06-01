@@ -36,6 +36,13 @@
     <span id="cancel" class="link">Cancel</span>
     <br/>
     
+    <h2>URL</h2>
+    <form action="identity.html" id="identityUrlDataForm">
+      Enter the public URL of your closest ancestor (or yourself): <input type="text" name="idUrl" id="idUrl">
+      <br/>
+      <input type="submit" value="add identity URL">
+    </form>
+    
     <h2>Search</h2>
     <form action="identity.html" id="identitySearchForm">
       Enter the name of yourself or your closest ancestor: <input type="text" name="nameInFile" id="nameInFile">
@@ -51,13 +58,13 @@
       </ul>
     </div>
     
-    <h2>Raw Data</h2>
-    <form action="identity.html" id="identityDataForm">
+    <h2>Raw File Data</h2>
+    <form action="identity.html" id="identityFileDataForm">
       Enter the ID of yourself or your closest ancestor: <input type="text" name="idInFile" id="idInFile">
       <br/>
        ... from the genealogy file: <input type="text" name="genLocation" id="genLocation"> <span id="chooseFile" class="link">(select file)</span>
       <br/>
-      <input type="submit" value="add identity">
+      <input type="submit" value="add identity from file">
     </form>
     
   </div>
@@ -66,9 +73,13 @@
     
     $(document).ready(function() {
       
+      if (urlParam("idUrl")) {
+        alert("not implemented: must save it and work up the tree if recognized");
+      }
+      
       if (urlParam("nameInFile")
           && urlParam("genLocation")) {
-        var genLocation = urlParam("genLocation")
+        var genLocation = urlParam("genLocation");
         window.p2pdoc_ancestor_search.setNamesToMatch(urlParam("nameInFile"));
         window.p2pdoc_ancestor_search.parse(genLocation);
         var resultString = window.p2pdoc_ancestor_search.similarPeopleFoundJson();
@@ -109,9 +120,20 @@
           && urlParam("genLocation")) {
         window.p2pdoc_settings.add_identity(urlParam("genLocation"), urlParam("idInFile"));
         $('#everything').hide('slide', { direction: "down"}, 500, function() {
-          location.href = "repositories.html";
+          location.href = "repositories.html?message=" + escape("Identity saved.  However, we haven't stored your full ancestry.");
         });
       }
+      
+      $("#identityUrlDataForm").submit(function() {
+        // only submit if URL is filled in
+        if ($("#idUrl").val().length > 0) {
+          // allow submit
+          return true;
+        } else {
+          alert("Please enter a URL.");
+          return false;
+        }
+      });
       
       $("#identitySearchForm").submit(function() {
         // only submit if both are filled in
@@ -125,7 +147,7 @@
         }
       });
       
-      $("#identityDataForm").submit(function() {
+      $("#identityFileDataForm").submit(function() {
         // only submit if both are filled in
         if ($("#idInFile").val().length > 0
             && $("#genLocation").val().length > 0) {
