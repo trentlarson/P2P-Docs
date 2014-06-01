@@ -183,7 +183,9 @@ To-Do User Story Details, In Priority Order
  * use repo ID numbers everywhere (instead of names)
  * fix the new-repo transition to slide whole screen (not half)
  * make a consistent styling for the whole app
+ * search - only searchable files (exclude images)
  * search - HTML anchors: not just "a name=" strings, and not just single- and double-quotes
+ * search - case-insensitive
  * use a true change-control system to store file histories (eg. git)
  * move ancestry and ancestryIds from application.properties to settings
  * change format of settings from YAML to JSON(?)[small]
