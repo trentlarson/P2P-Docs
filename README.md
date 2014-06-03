@@ -154,6 +154,7 @@ To-Do User Story Details, In Priority Order
      * add search ancestry to DB
        * correlate FAMS and FAMC if FAM records don't exist (Does that happen?)
      * show birthdate [tiny]
+     * preemptively parse through file when selected, to determine if it's a valid GEDCOM file (ie. if our parser works on it)
    * accept other types of repositories: ancestry.com, familysearch.org, git-ged
    * allow to remove(/disable?) identities
  * allow selection of outgoing files to publish [small]

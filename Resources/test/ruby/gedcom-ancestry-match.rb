@@ -1,4 +1,23 @@
 
+=begin
+# If you have some TideSDK things in place, eg. Ti.API.print for debugging
+
+class TideAPI
+  def print arg
+    puts arg
+  end
+end
+class TideSDK
+  attr_accessor :API
+  def initialize
+    @API = TideAPI.new
+  end
+end
+Ti = TideSDK.new
+
+=end
+
+
 # doing them separately because I have to do that with Titanium; see identity.html.
 require File.join(File.expand_path(File.dirname(__FILE__)), "..", "..", "ruby", "lib", "gedcom_date_parser.rb")
 require File.join(File.expand_path(File.dirname(__FILE__)), "..", "..", "ruby", "lib", "gedcom_date.rb")

@@ -6,6 +6,7 @@
   
   <script type="text/javascript" src="js/jquery-1.5.1.min.js"></script>
   <script type="text/javascript" src="js/jquery-ui-1.8.13.custom.min.js"></script>
+  <script type="text/javascript" src="js/stacktrace.js"></script>
   <script type="text/javascript" src="js/p2pdocs.js"></script>
   
   <script type="text/ruby"       src="ruby/settings.rb"></script>
@@ -28,51 +29,10 @@
     window.p2pdoc_ancestor_tree = newTreeExtractor()
   </script>
   
-</head>
-<body>
-  
-  <div id="everything" style="text-align:center; height:100%;">
-    
-    <span id="cancel" class="link">Cancel</span>
-    <br/>
-    
-    <h2>URL</h2>
-    <form action="identity.html" id="identityUrlDataForm">
-      Enter the public URL of your closest ancestor (or yourself): <input type="text" name="idUrl" id="idUrl">
-      <br/>
-      <input type="submit" value="add identity URL">
-    </form>
-    
-    <h2>Search</h2>
-    <form action="identity.html" id="identitySearchForm">
-      Enter the name of yourself or your closest ancestor: <input type="text" name="nameInFile" id="nameInFile">
-      <br/>
-       ... from the genealogy file: <input type="text" name="genLocation" id="genLocation"> <span id="chooseFile" class="link">(select file)</span>
-      <br/>
-      <input type="submit" value="find matches">
-    </form>
-    
-    <div style="text-align:left;">
-      <ul>
-        <li id="match" style="display:none;"><span id="matchName"></span>  <span id="acceptMatch" class="link">Yes!  This is me or a close ancestor.</span></li>
-      </ul>
-    </div>
-    
-    <h2>Raw File Data</h2>
-    <form action="identity.html" id="identityFileDataForm">
-      Enter the ID of yourself or your closest ancestor: <input type="text" name="idInFile" id="idInFile">
-      <br/>
-       ... from the genealogy file: <input type="text" name="genLocation" id="genLocation"> <span id="chooseFile" class="link">(select file)</span>
-      <br/>
-      <input type="submit" value="add identity from file">
-    </form>
-    
-  </div>
-  
-  <script>
-    
-    $(document).ready(function() {
-      
+  <script type="text/javascript">
+  $(document).ready(function() {
+
+    try {
       if (urlParam("idUrl")) {
         alert("not implemented: must save it and work up the tree if recognized");
       }
@@ -123,6 +83,58 @@
           location.href = "repositories.html?message=" + escape("Identity saved.  However, we haven't stored your full ancestry.");
         });
       }
+      
+    } catch (e) {
+     p2pdocsHandleError(e);
+    }
+  });
+
+  </script>
+
+</head>
+<body>
+  
+  <div id="everything" style="text-align:center; height:100%;">
+    
+    <span id="cancel" class="link">Cancel</span>
+    <br/>
+    
+    <h2>URL</h2>
+    <form action="identity.html" id="identityUrlDataForm">
+      Enter the public URL of your closest ancestor (or yourself): <input type="text" name="idUrl" id="idUrl">
+      <br/>
+      <input type="submit" value="add identity URL">
+    </form>
+    
+    <h2>Search</h2>
+    <form action="identity.html" id="identitySearchForm">
+      Enter the name of yourself or your closest ancestor: <input type="text" name="nameInFile" id="nameInFile">
+      <br/>
+       ... from the genealogy file: <input type="text" name="genLocation" id="genLocation"> <span id="chooseFile" class="link">(select file)</span>
+      <br/>
+      <input type="submit" value="find matches">
+    </form>
+    
+    <div style="text-align:left;">
+      <ul>
+        <li id="match" style="display:none;"><span id="matchName"></span>  <span id="acceptMatch" class="link">Yes!  This is me or a close ancestor.</span></li>
+      </ul>
+    </div>
+    
+    <h2>Raw File Data</h2>
+    <form action="identity.html" id="identityFileDataForm">
+      Enter the ID of yourself or your closest ancestor: <input type="text" name="idInFile" id="idInFile">
+      <br/>
+       ... from the genealogy file: <input type="text" name="genLocation" id="genLocation"> <span id="chooseFile" class="link">(select file)</span>
+      <br/>
+      <input type="submit" value="add identity from file">
+    </form>
+    
+  </div>
+  
+  <script>
+    
+    $(document).ready(function() {
       
       $("#identityUrlDataForm").submit(function() {
         // only submit if URL is filled in
