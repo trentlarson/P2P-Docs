@@ -151,13 +151,14 @@ To-Do User Story Details, In Priority Order
    * terms
    * semantic data
  * import "tree-of-interest"
+   * add spinner, for waiting while a new identity is searched and while it's added with full tree
    * find matching people in existing GEDCOM file
      * add search ancestry to DB
        * correlate FAMS and FAMC if FAM records don't exist (Does that happen?)
      * show birthdate [tiny]
      * preemptively parse through file when selected, to determine if it's a valid GEDCOM file (ie. if our parser works on it)
    * accept other types of repositories: ancestry.com, familysearch.org, git-ged
-   * allow to remove(/disable?) identities
+   * allow to remove(/disable?) identities; will require removing related application.properties ancestryIds, and probably reindexing all ancestryIds and doc references
  * allow selection of outgoing files to publish [small]
  * bug: when I removed one version of Dad's journal, it didn't show as a change to push (intentional? until later?)
  * allow copying/merging to my own copy (via link?)
