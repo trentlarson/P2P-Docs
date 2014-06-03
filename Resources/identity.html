@@ -63,6 +63,7 @@
           newMatch = matchTemplate.clone();
           newMatch.insertBefore(matchTemplate);
           newMatch.find('#matchName').html(resultJson[i].name);
+          newMatch.find('#matchBirthDate').html(resultJson[i].birth_date);
           newMatch.show();
           newMatch.find('#acceptMatch').click(function(file, indId) {
             return function() {
@@ -119,7 +120,7 @@
     
     <div style="text-align:left;">
       <ul>
-        <li id="match" style="display:none;"><span id="matchName"></span>  <span id="acceptMatch" class="link">Yes!  This is me or a close ancestor.</span></li>
+        <li id="match" style="display:none;"><span id="matchName"></span> born <span id="matchBirthDate"></span>  <span id="acceptMatch" class="link">Yes!  This is me or a close ancestor.</span></li>
       </ul>
     </div>
     
