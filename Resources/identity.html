@@ -31,12 +31,13 @@
   
   <script type="text/javascript">
 
-  function storeAncestry(file, id) {
-    window.p2pdoc_ancestor_tree.parse(file);
-    //var treeString = window.p2pdoc_ancestor_tree.retrieveTreeJson(file);
+  function storeAncestry(genLocation, idInFile) {
+    // first look up all the ancestry info
+    window.p2pdoc_ancestor_tree.parse(genLocation);
+    //var treeString = window.p2pdoc_ancestor_tree.retrieveTreeJson(genLocation);
     // (We really should store this with our settings rather than application.properties.)
     //appProps['ancestry'] = JSON.parse(treeString);
-    var listString = window.p2pdoc_ancestor_tree.retrieveTreeAsUrlListJson(file, id);
+    var listString = window.p2pdoc_ancestor_tree.retrieveTreeAsUrlListJson(genLocation, idInFile);
     // (We really should store this with our settings rather than application.properties.)
     appProps['ancestryIds'] = appProps['ancestryIds'].concat(JSON.parse(listString));
     Ti.App.Properties.setString('appPropsJson', JSON.stringify(appProps));
@@ -46,44 +47,58 @@
   $(document).ready(function() {
 
     try {
+      var idName = urlParam("identityName");
+
       if (urlParam("idUrl")) {
         alert("not implemented: must save it and work up the tree if recognized");
-      }
-      
-      if (urlParam("nameInFile")
-          && urlParam("genLocation")) {
+
+      } else if (urlParam("genLocation")) {
         var genLocation = urlParam("genLocation");
-        window.p2pdoc_ancestor_search.setNamesToMatch(urlParam("nameInFile"));
-        window.p2pdoc_ancestor_search.parse(genLocation);
-        var resultString = window.p2pdoc_ancestor_search.similarPeopleFoundJson();
-        var resultJson = JSON.parse(resultString);
-        var matchTemplate = $('#match');
-        var newMatch;
-        for (var i = 0; i < resultJson.length; i++) {
-          newMatch = matchTemplate.clone();
-          newMatch.insertBefore(matchTemplate);
-          newMatch.find('#matchName').html(resultJson[i].name);
-          newMatch.find('#matchBirthDate').html(resultJson[i].birth_date);
-          newMatch.show();
-          newMatch.find('#acceptMatch').click(function(file, indId) {
-            return function() {
-              location.href = "identity.html?genLocation=" + escape(file) + "&idInFile=" + escape(indId);
-            };
-          }(genLocation, resultJson[i].indId));
+        if (urlParam("idInFile")) {
+          var idInFile = urlParam("idInFile");
+
+          // Note: this hack is to avoid errors later, where add_identity is somehow undefined
+          var crashAvoider = window.p2pdoc_settings.add_identity.toString();
+
+          // save the full tree of ancestry IDs
+          // Note: if you do this after calling add_identity, it crashes in Ruby: [BUG] Bus Error
+          var message = storeAncestry(genLocation, idInFile);
+
+          // save this identity
+          // Note: if you do this before calling storeAncestry, storeAncestry crashes in Ruby: [BUG] Bus Error
+          window.p2pdoc_settings.add_identity(genLocation, idInFile, idName);
+
+          $('#everything').hide('slide', { direction: "down"}, 500, function() {
+            location.href = "repositories.html?message=" + escape(message);
+          });
+
+        } else {
+          // gotta search through the file for potential matches
+          window.p2pdoc_ancestor_search.setNamesToMatch(urlParam("identityName"));
+          window.p2pdoc_ancestor_search.parse(genLocation);
+          var resultString = window.p2pdoc_ancestor_search.similarPeopleFoundJson();
+          var resultJson = JSON.parse(resultString);
+          var matchTemplate = $('#match');
+          var newMatch;
+          for (var i = 0; i < resultJson.length; i++) {
+            newMatch = matchTemplate.clone();
+            newMatch.insertBefore(matchTemplate);
+            newMatch.find('#matchName').html(resultJson[i].name);
+            newMatch.find('#matchBirthDate').html(resultJson[i].birth_date);
+            newMatch.show();
+            newMatch.find('#acceptMatch').click(function(file, indId, name) {
+              return function() {
+                location.href = "identity.html?genLocation=" + escape(file)
+                  + "&idInFile=" + escape(indId) + "&identityName=" + escape(name);
+              };
+            }(genLocation, resultJson[i].indId, resultJson[i].name));
+          }
         }
       }
-      
-      if (urlParam("idInFile")
-          && urlParam("genLocation")) {
-        window.p2pdoc_settings.add_identity(urlParam("genLocation"), urlParam("idInFile"));
-        var message = storeAncestry(urlParam("genLocation"), urlParam("idInFile"));
-        $('#everything').hide('slide', { direction: "down"}, 500, function() {
-          location.href = "repositories.html?message=" + escape(message);
-        });
-      }
-      
+
     } catch (e) {
      p2pdocsHandleError(e);
+     throw e;
     }
   });
 
@@ -97,25 +112,30 @@
     <span id="cancel" class="link">Cancel</span>
     <br/>
     
-    <h2>Public URL</h2>
-    <form action="identity.html" id="identityUrlDataForm">
-      Enter the public URL of your closest ancestor (or yourself): <input type="text" name="idUrl" id="idUrl">
+    <form action="identity.html" id="identityForm">
+
+      <h2>Identity</h2>
+      Record the location for yourself in one of the ancestry trees, either online or in your own files.
+      If there is no record for yourself, point to one of your closest ancestors.
+
+      <br/>
+      <br/>
+      Enter your (or your ancestor's) name: <input type="text" name="identityName" id="identityName">
+
+      <h3>Public URL</h3>
+      Enter the public URL for this record: <input type="text" name="idUrl" id="idUrl">
       <br/>
       <input type="submit" value="add identity URL">
-    </form>
     
-    <h2>Local File</h2>
-    <form action="identity.html" id="identitySearchForm">
-      Enter the genealogy file: 
-        <input type="text" name="genLocation" id="genLocation"> <span id="chooseFile" class="link">(select file)</span>
+      <h3>Local File</h3>
+      Or point to your genealogy file:
+      <input type="text" name="genLocation" id="genLocation"> <span id="chooseFile" class="link">(select file)</span>
       <br/>
-      Then enter an ID for yourself or your closest ancestor: <input type="text" name="idInFile" id="idInFile">
+      ... and, if you know it, an ID in that file: <input type="text" name="idInFile" id="idInFile">
       <br/>
-      <input type="submit" value="save">
+      If you don't know it, we'll search for it for you.
       <br/>
-      ... or enter a person's name(s) to search for matches: <input type="text" name="nameInFile" id="nameInFile">
-      <br/>
-      <input type="submit" value="find matches">
+      <input type="submit" value="search">
     </form>
     
     <div style="text-align:left;">
@@ -130,27 +150,18 @@
     
     $(document).ready(function() {
       
-      $("#identityUrlDataForm").submit(function() {
-        // only submit if URL is filled in
-        if ($("#idUrl").val().length > 0) {
+      $("#identityForm").submit(function() {
+        // only submit if enough data is filled in
+        if ($("#identityName").val().length == 0) {
+          alert("Please enter a name for this person.");
+          return false;
+        } else if ($("#idUrl").val().length == 0
+                   && $("#genLocation").val().length == 0) {
+          alert("Please enter either a public URL or a local file.");
+          return false;
+        } else {
           // allow submit
           return true;
-        } else {
-          alert("Please enter a URL.");
-          return false;
-        }
-      });
-      
-      $("#identitySearchForm").submit(function() {
-        // only submit if both are filled in
-        if ($("#genLocation").val().length > 0
-            && ($("#nameInFile").val().length > 0
-                || $("#idInFile").val().length > 0)) {
-          // allow submit
-          return true;
-        } else {
-          alert("Please enter a file and a name or ID from it.");
-          return false;
         }
       });
       

@@ -240,7 +240,7 @@ function initializeDisplay() {
         addedIdentity = identityTemplate.clone();
         addedIdentity.insertBefore(identityTemplate);
         addedIdentity.attr("id", "identity_" + idi).show();
-        addedIdentity.html(identities[idi].file + " " + identities[idi].id);
+        addedIdentity.html(identities[idi].name + " in " + identities[idi].file + " " + identities[idi].id);
       }
     }
     

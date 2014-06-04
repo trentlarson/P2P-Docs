@@ -79,17 +79,20 @@ settings: initial settings; if nil, @@settings will not be reset
     @@settings
   end
   
-  def add_identity(file, id)
+  def add_identity(file, id, name)
     if (file.class.name == "RubyKObject") # for method results from Titanium
       file = file.toString()
     end
     if (id.class.name == "RubyKObject") # for method results from Titanium
       id = id.toString()
     end
+    if (name.class.name == "RubyKObject") # for method results from Titanium
+      name = name.toString()
+    end
     if (@@settings['identity'] == nil)
       @@settings['identity'] = []
     end
-    @@settings['identity'] << {'file'=>file, 'id'=>id}
+    @@settings['identity'] << {'file'=>file, 'id'=>id, 'name'=>name}
     save()
   end
   
