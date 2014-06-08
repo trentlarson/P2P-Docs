@@ -79,7 +79,21 @@ settings: initial settings; if nil, @@settings will not be reset
     @@settings
   end
   
-  def add_identity(file, id, name)
+  def add_identity_url(url, name)
+    if (url.class.name == "RubyKObject") # for method results from Titanium
+      url = url.toString()
+    end
+    if (name.class.name == "RubyKObject") # for method results from Titanium
+      name = name.toString()
+    end
+    if (@@settings['identity'] == nil)
+      @@settings['identity'] = []
+    end
+    @@settings['identity'] << {'url'=>url, 'name'=>name}
+    save()
+  end
+  
+  def add_identity_file(file, id, name)
     if (file.class.name == "RubyKObject") # for method results from Titanium
       file = file.toString()
     end
@@ -93,6 +107,20 @@ settings: initial settings; if nil, @@settings will not be reset
       @@settings['identity'] = []
     end
     @@settings['identity'] << {'file'=>file, 'id'=>id, 'name'=>name}
+    save()
+  end
+  
+  def add_api_token(apiDomain, token)
+    if (apiDomain.class.name == "RubyKObject") # for method results from Titanium
+      apiDomain = apiDomain.toString()
+    end
+    if (token.class.name == "RubyKObject") # for method results from Titanium
+      token = token.toString()
+    end
+    if (@@settings['apiTokens'] == nil)
+      @@settings['apiTokens'] = []
+    end
+    @@settings['apiTokens'] << {'domain'=>apiDomain, 'token'=>token}
     save()
   end
   

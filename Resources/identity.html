@@ -31,6 +31,8 @@
   
   <script type="text/javascript">
 
+  var INDEXED_MESSAGE = "Your ancestry has been indexed and saved.";
+
   function storeAncestry(genLocation, idInFile) {
     // first look up all the ancestry info
     window.p2pdoc_ancestor_tree.parse(genLocation);
@@ -41,7 +43,11 @@
     // (We really should store this with our settings rather than application.properties.)
     appProps['ancestryIds'] = appProps['ancestryIds'].concat(JSON.parse(listString));
     Ti.App.Properties.setString('appPropsJson', JSON.stringify(appProps));
-    return "Your ancestry has been indexed and saved.";
+    return INDEXED_MESSAGE;
+  }
+
+  function storeAncestryFromFamilySearch(familySearchId) {
+    
   }
 
   $(document).ready(function() {
@@ -50,23 +56,31 @@
       var idName = urlParam("identityName");
 
       if (urlParam("idUrl")) {
-        alert("not implemented: must save it and work up the tree if recognized");
+        var idUrl = urlParam("idUrl");
+        window.p2pdoc_settings.add_identity_url(idUrl, idName);
+
+        var fsToken = urlParam("fsToken");
+        window.p2pdoc_settings.add_api_token("familysearch.org", fsToken);
+
+        $('#everything').hide('slide', { direction: "down"}, 500, function() {
+          location.href = "repositories.html?message=" + escape("Your identity has been saved.");
+        });
 
       } else if (urlParam("genLocation")) {
         var genLocation = urlParam("genLocation");
         if (urlParam("idInFile")) {
           var idInFile = urlParam("idInFile");
 
-          // Note: this hack is to avoid errors later, where add_identity is somehow undefined
-          var crashAvoider = window.p2pdoc_settings.add_identity.toString();
+          // Note: this hack is to avoid errors later, where add_identity_file is somehow undefined
+          var crashAvoider = window.p2pdoc_settings.add_identity_file.toString();
 
           // save the full tree of ancestry IDs
-          // Note: if you do this after calling add_identity, it crashes in Ruby: [BUG] Bus Error
+          // Note: if you do this after calling add_identity_file, it crashes in Ruby: [BUG] Bus Error
           var message = storeAncestry(genLocation, idInFile);
 
           // save this identity
           // Note: if you do this before calling storeAncestry, storeAncestry crashes in Ruby: [BUG] Bus Error
-          window.p2pdoc_settings.add_identity(genLocation, idInFile, idName);
+          window.p2pdoc_settings.add_identity_file(genLocation, idInFile, idName);
 
           $('#everything').hide('slide', { direction: "down"}, 500, function() {
             location.href = "repositories.html?message=" + escape(message);
@@ -123,7 +137,9 @@
       Enter your (or your ancestor's) name: <input type="text" name="identityName" id="identityName">
 
       <h3>Public URL</h3>
-      Enter the public URL for this record: <input type="text" name="idUrl" id="idUrl">
+      Enter a public URL for this person: <input type="text" name="idUrl" id="idUrl">
+      <br/>
+      If it is a Family Search ID, then <span id="familySearchTokenLink" class="link">click here and get an access token</span> and enter it: <input type="text" name="fsToken" id="fsToken">
       <br/>
       <input type="submit" value="add identity URL">
     
@@ -133,9 +149,9 @@
       <br/>
       ... and, if you know it, an ID in that file: <input type="text" name="idInFile" id="idInFile">
       <br/>
-      If you don't know it, we'll search for it for you.
+      It's OK if you don't know it; we'll search for it for you.
       <br/>
-      <input type="submit" value="search">
+      <input type="submit" value="search / add">
     </form>
     
     <div style="text-align:left;">
@@ -179,6 +195,8 @@
         });
       });
       
+      $('#familySearchTokenLink').click(function(){Ti.Platform.openURL("https://familysearch.org/platform/");});
+
     });
     
   </script>

@@ -136,7 +136,6 @@ Bookmarklet to add script to a page (when this app is running):
 To-Do User Story Details, In Priority Order
 -------------------------------------
 
- * report blank-CONT bugfix to gedcom date people
  * browser add-on: pop-up to explore person elsewhere, eg. in FamilySearch, in Gramps, relationship to self
     * show error if it fails to load
  * allow indication (checkbox?) to mark dirs/files as ignored forever (logic already written) [medium] [middle]
@@ -158,6 +157,7 @@ To-Do User Story Details, In Priority Order
      * preemptively parse through file when selected, to determine if it's a valid GEDCOM file (ie. if our parser works on it)
    * accept other types of repositories: ancestry.com, familysearch.org, git-ged
    * allow to remove(/disable?) identities; will require removing related application.properties ancestryIds, and probably reindexing all ancestryIds and doc references
+   * optimize the size of ancestryIds, eg. by recording the file/URL only once for each set of ancestors
  * allow selection of outgoing files to publish [small]
  * bug: when I removed one version of Dad's journal, it didn't show as a change to push (intentional? until later?)
  * allow copying/merging to my own copy (via link?)

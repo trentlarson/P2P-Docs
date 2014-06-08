@@ -240,7 +240,7 @@ function initializeDisplay() {
         addedIdentity = identityTemplate.clone();
         addedIdentity.insertBefore(identityTemplate);
         addedIdentity.attr("id", "identity_" + idi).show();
-        addedIdentity.html(identities[idi].name + " in " + identities[idi].file + " " + identities[idi].id);
+        addedIdentity.html("<li>" + identities[idi].name + " in " + identities[idi].file + " " + identities[idi].id + "</li>");
       }
     }
     
@@ -348,7 +348,9 @@ $(document).ready(function() {
 <div id="identityInfo">
   <h2>You</h2>
   <div id="identities">
-    <div id="identity_" style="display:none;"></div>
+    <ul>
+      <div id="identity_" style="display:none;"></div>
+    </ul>
   </div>
   <br/>
   <img src="images/button-green-plus.png" title="Add Identity" id="identityAdd" class="clickable">
