@@ -233,6 +233,7 @@ function initializeDisplay() {
     
     
     var identities = JSON.parse(window.p2pdoc_identity_str);
+    var identityDesc;
     if (identities
         && identities.length > 0) {
       identityTemplate = $("#identity_");
@@ -240,7 +241,13 @@ function initializeDisplay() {
         addedIdentity = identityTemplate.clone();
         addedIdentity.insertBefore(identityTemplate);
         addedIdentity.attr("id", "identity_" + idi).show();
-        addedIdentity.html("<li>" + identities[idi].name + " in " + identities[idi].file + " " + identities[idi].id + "</li>");
+        identityDesc = identities[idi].name
+        if (identities[idi].file) {
+          identityDesc += " in " + identities[idi].file + " #" + identities[idi].id;
+        } else if (identities[idi].url) {
+          identityDesc += " " + identities[idi].url;
+        }
+        addedIdentity.html("<li>" + identityDesc + "</li>");
       }
     }
     

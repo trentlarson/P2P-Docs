@@ -79,6 +79,9 @@ settings: initial settings; if nil, @@settings will not be reset
     @@settings
   end
   
+  # The 'identity' setting has a 'name', plus one of these:
+  # - 'file' and 'id'
+  # - or 'url'
   def add_identity_url(url, name)
     if (url.class.name == "RubyKObject") # for method results from Titanium
       url = url.toString()
@@ -117,10 +120,7 @@ settings: initial settings; if nil, @@settings will not be reset
     if (token.class.name == "RubyKObject") # for method results from Titanium
       token = token.toString()
     end
-    if (@@settings['apiTokens'] == nil)
-      @@settings['apiTokens'] = []
-    end
-    @@settings['apiTokens'] << {'domain'=>apiDomain, 'token'=>token}
+    @@settings['apiToken' + apiDomain] = token
     save()
   end
   

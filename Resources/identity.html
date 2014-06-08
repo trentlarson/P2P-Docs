@@ -60,7 +60,7 @@
         window.p2pdoc_settings.add_identity_url(idUrl, idName);
 
         var fsToken = urlParam("fsToken");
-        window.p2pdoc_settings.add_api_token("familysearch.org", fsToken);
+        window.p2pdoc_settings.add_api_token('FamilySearch', fsToken);
 
         $('#everything').hide('slide', { direction: "down"}, 500, function() {
           location.href = "repositories.html?message=" + escape("Your identity has been saved.");
@@ -196,6 +196,8 @@
       });
       
       $('#familySearchTokenLink').click(function(){Ti.Platform.openURL("https://familysearch.org/platform/");});
+
+      $('#fsToken').val(window.p2pdoc_settings.properties().apiTokenFamilySearch);
 
     });
     
