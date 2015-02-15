@@ -33,7 +33,15 @@ class Search
           #if (line.bytes.to_a.index(0)) # this detects a 0 character, which may be enough
             break
           end
-          lines << { "file" => filename, "context" => line, "position" => pos } if line.include? term
+          if (line.include? term)
+            context = line
+            if (context.length > 100)
+              start = [0, line.index(term) - 50].max
+              stop = [line.index(term) + 50, line.length].min
+              context = context[start..stop]
+            end
+            lines << { "file" => filename, "context" => context, "position" => pos }
+          end
           # now save any anchor in there for future hits
           # (not doing this before the match in case the anchor is after the term)
           anames = line.scan(/<a name="(.+?)"/)
