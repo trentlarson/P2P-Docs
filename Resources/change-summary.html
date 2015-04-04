@@ -418,8 +418,8 @@ function initializeDisplay() {
               } else {
                 // there's another file or something that's been reviewed
                 if (diffSet.target_type === "file") {
-                  file1 = repoData.incoming_loc + Ti.Filesystem.getSeparator() + diffSet.path;
-                  file2 = getReviewedDir(repoId) + Ti.Filesystem.getSeparator() + diffSet.target_path_previous_version;
+                  file1 = getReviewedDir(repoId) + Ti.Filesystem.getSeparator() + diffSet.target_path_previous_version;
+                  file2 = repoData.incoming_loc + Ti.Filesystem.getSeparator() + diffSet.path;
                   addedDiff.find("#changeView a").attr("href", "file-diff.html?file1=" + file1 + "&file2=" + file2).show();
                 } else {
                   // it's something other than a file
