@@ -413,10 +413,13 @@ function initializeDisplay() {
               
             } else if (diffSet.source_type === "file") {
 
+              addedDiff.find("#sourceView a").click(viewFileWrapperFunc(repoData.incoming_loc, diffSet.path)).show();
+
               if (diffSet.target_type == null) {
-                addedDiff.find("#sourceView a").click(viewFileWrapperFunc(repoData.incoming_loc, diffSet.path)).show();
+                addedDiff.find("#newItem").show();
               } else {
-                // there's another file or something that's been reviewed
+                // it's another file or something that's been reviewed before
+
                 if (diffSet.target_type === "file") {
                   file1 = getReviewedDir(repoId) + Ti.Filesystem.getSeparator() + diffSet.target_path_previous_version;
                   file2 = repoData.incoming_loc + Ti.Filesystem.getSeparator() + diffSet.path;
@@ -593,8 +596,9 @@ $(document).ready(function() {
         <div id="diff_" style="display:none;">
           <input type="checkbox" id="reviewed_" repoId="_" repoName="_" path="_" previousPath="_">
           <span id="diffPath_">path</span>
+          <span id="newItem" style="display:none;">(new)</span>
           <span id="removed" style="display:none;">(removed)</span>
-          <span id="sourceView"><a href="#" style="display:none;">(open)</a></span>
+          <span id="sourceView"><a href="#" style="display:none;">(open new)</a></span>
           <span id="changeView"><a href="#" style="display:none;">(see changes)</a></span>
           <span id="strangeView"><a href="#" style="display:none;" onClick="javascript: alert('The source is an object of a different type, so something very strange happened to this thing.');">(strange)</a></span>
           <span id="showContents"><a href="#" style="display:none;">(list <span id="diffCount_">count</span>)</a></span>
