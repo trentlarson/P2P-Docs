@@ -49,11 +49,16 @@ function openFile(filename, filepos) {
     if (endsWith(filename, ".htm")
         || endsWith(filename, ".html")) {
       if (filepos) {
+        // when jumping to a position, it doesn't work unless it's opened as a URL
         filename = filename + "#" + filepos;
+        // ... and then spaces must be removed or it won't open (on a Mac, at least)
+        filename = filename.replace(/ /g, "%20");
+        Ti.Desktop.openURL("file://" + filename);
       } else {
+        // the OS seems to recognize these as files just fine, regardless of spaces
         alert("There is no anchor point near that text.  The file will open at the top, and you'll have to search for that text.");
+        Ti.Desktop.openApplication(filename);
       }
-      Ti.Desktop.openURL("file://" + filename);
     } else {
       Ti.Desktop.openApplication(filename);
     }
