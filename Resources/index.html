@@ -21,7 +21,25 @@ function configApp() {
     // So we're going to use a single property (because more than one can mess up the values of other ones).
     // Looks like the very first property load (ie. only in this initial file) is where we have to replace backslashes; doing it in other property loads will add too many more of them.
     var appPropsStr = Ti.App.Properties.getString("appPropsJson").replace(/\\/g, "\\\\");
-    appProps = JSON.parse(appPropsStr);
+    try {
+      appProps = JSON.parse(appPropsStr);
+    } catch (e) {
+      // This happened when we got an "Icon\r" file, which broke when it was stored in "post-param"
+      settingsFile = Ti.Filesystem.getApplicationDataDirectory().toString()
+        + Ti.Filesystem.getSeparator() + "application.properties";
+      alert("There is an error loading the settings file, so attach it to your error report: " + settingsFile);
+      throw e;
+      /** This attempt at a fix doesn't work; maybe my RegExp is wrong.
+      if (confirm("There is an error loading the settings file '" + settingsFile + "'\n\nClick 'OK' to attempt a fix.")) {
+        // erase the most likely problem: a weird file name in "post-param" JSON
+        var ppRegex = new RegExp(",\"post-param\":.*}\]}");
+        appPropsStr = appPropsStr.replace(ppRegex, "");
+        appProps = JSON.parse(appPropsStr);
+      } else {
+        throw e;
+      }
+      **/
+    }
   } else {
     // (this has the side-effect of saving the property)
     Ti.App.Properties.setString('appPropsJson', JSON.stringify({"include-family-history-features":true}));
