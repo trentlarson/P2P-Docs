@@ -32,7 +32,7 @@ function configApp() {
       /** This attempt at a fix doesn't work; maybe my RegExp is wrong.
       if (confirm("There is an error loading the settings file '" + settingsFile + "'\n\nClick 'OK' to attempt a fix.")) {
         // erase the most likely problem: a weird file name in "post-param" JSON
-        var ppRegex = new RegExp(",\"post-param\":.*}\]}");
+        var ppRegex = new RegExp(",\"post-param\":.*\}\]\}");
         appPropsStr = appPropsStr.replace(ppRegex, "");
         appProps = JSON.parse(appPropsStr);
       } else {
