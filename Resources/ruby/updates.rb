@@ -469,6 +469,10 @@ class Updates
     end
   end
 
+  def self.copy_to_mine(settings, repo_id, subpath)
+    repo = settings.get_repo_by_id(repo_id)
+    copy_all_contents(repo['incoming_loc'], repo['my_loc'], subpath, nil, true, settings.properties['diffable_extensions'], false, false)
+  end
 
   # copies the subpath in repo['my_loc'] to outgoing
   def self.copy_to_outgoing(settings, repo_id, source_subpath = nil, target_subpath = nil)

@@ -71,7 +71,12 @@
 <script type="text/ruby">
   window.p2pdoc_settings = Settings.new(window.settingsDir)
   window.p2pdoc_reviewed_dir = window.p2pdoc_settings.reviewed_dir;
-  window.p2pdoc_mark_reviewed = lambda { |repo_id, path, previous_path| Updates.mark_reviewed(window.p2pdoc_settings, repo_id, path, previous_path) }
+  window.p2pdoc_mark_reviewed = lambda { |repo_id, path, previous_path, copy_to_mine|
+    Updates.mark_reviewed(window.p2pdoc_settings, repo_id, path, previous_path)
+    if (copy_to_mine)
+      Updates.copy_to_mine(window.p2pdoc_settings, repo_id, path)
+    end
+  }
   def p2pdoc_copy_to_outgoing(repoId, diffs)
     diffs.each { |diff|
       Updates.copy_to_outgoing(window.p2pdoc_settings, repoId, diff.path)
@@ -95,7 +100,7 @@ function initializeChangeSummary() {
         var fileInfo;
         for (var i = actionData.reviewed.length - 1; i >= 0; i--) {
           fileInfo = actionData.reviewed[i];
-          window.p2pdoc_mark_reviewed(fileInfo.repoId, fileInfo.path, fileInfo.previousPath);
+          window.p2pdoc_mark_reviewed(fileInfo.repoId, fileInfo.path, fileInfo.previousPath, fileInfo.copyToMine);
         }
       } else if (actionData.action === 'copy_outgoing_bulk') {
         var repoIdDiffs;
@@ -186,7 +191,7 @@ function getReviewedDir(repoId) {
 }
 
 function markOutAccepted() {
-  var checkedBoxes = $('#inChanges input[type="checkbox"]:checked');
+  var checkedBoxes = $('#outChanges input[type="checkbox"]:checked');
   if (checkedBoxes.length == 0) {
     alert("You must select the items you want to publish.");
   } else {
@@ -195,7 +200,7 @@ function markOutAccepted() {
 }
 
 function markInAccepted() {
-  var checkedBoxes = $('#inChanges input[type="checkbox"]:checked').not("#checkAll");
+  var checkedBoxes = $('#inChanges input[type="checkbox"]:checked.reviewedCheckbox');
   if (checkedBoxes.length == 0) {
     alert("You must select the items you want to mark as seen.");
   } else {
@@ -207,7 +212,9 @@ function markInAccepted() {
       var repoName = $(this).attr("repoName");
       var path = $(this).attr("path");
       var previousPath = $(this).attr("previousPath");
-      reviewedList.push({'repoId':repoId, 'name':repoName, 'path':path, 'previousPath':previousPath});
+      var copyToMine = $(this).parent().find('.copyToMineCheckbox').attr("checked");
+      // maybe add a check for files which will crash us later, eg. "Icon\r"
+      reviewedList.push({'repoId':repoId, 'name':repoName, 'path':path, 'previousPath':previousPath, 'copyToMine':copyToMine});
     });
     setupMarkAction(reviewedList);
     
@@ -221,11 +228,11 @@ function markInAccepted() {
       $(this).parent().hide(500, function() {
         $(this).remove();
         // now hide the repo if that was the last child
-        if (repoDiv.find('#diffList').children().length == 1) {
+        if (repoDiv.find('#diffList #sourceView').children().length == 0) {
           repoDiv.hide(500, function() {
             repoDiv.remove();
             // now revert to default display if that was the last repo
-            if ($('#inChanges #repoList').children().length == 1) {
+            if ($('#inChanges #repoList').children().length == 0) {
               $('#inChanges').hide(500);
               $('#noDiffs').show(500, function() {
                 if (--count === 0) { window.location.href = "change-summary.html"; } // and refresh if this was the last step
@@ -316,6 +323,7 @@ function initializeDisplay() {
             }
             addedDiff.find("#diffPath_").attr("id", "diffPath_" + outChangeNum).html(outPath);
           }
+          diffTemplate.remove();
         }
         $('#exportOutChanges').click(function() {
             /**
@@ -345,8 +353,10 @@ function initializeDisplay() {
           return false;
         });
       }
+      // end of copy-to-outgoing action
       
-      // show the incoming-review action
+      
+      // show the incoming-review actions
       var all_diffs = JSON.parse(window.p2pdoc_all_diffs_json);
       if (all_diffs.length > 0) {
 
@@ -376,6 +386,7 @@ function initializeDisplay() {
           repoDiffCount = repoDiffList.length;
           repoData = getRepoById(allRepos, repoId);
           
+          
           addedRepo = repoTemplate.clone();
           addedRepo.insertBefore(repoTemplate);
           addedRepo.show();
@@ -384,12 +395,46 @@ function initializeDisplay() {
           numChanges = repoDiffCount + " " + (repoDiffCount == 1 ? "change" : "changes");
           addedRepo.find("#repoDiffCount_").attr("id", "repoDiffCount_" + repoNum).html("(" + numChanges + ")");
           addedRepo.find("#seeRepoAnchor").attr("href", "repositories.html#repoAnchor_" + repoId);
-          addedRepo.find('#checkAll').click(function() {
-            var newValue = $(this).attr("checked");
-            $(this).parent().find('div input[type="checkbox"]').not("#reviewed_").each(function() {
-              $(this).attr("checked", newValue);
-            });
-          });
+          addedRepo.find('#checkAllAck').click(function(repoNum) {
+            return function() {
+              var newValue = $(this).attr("checked");
+              /**
+              // These check whether it's OK to check/uncheck all.
+              var mineCheckedBoxes = $('#repo_' + repoNum + ' input[type="checkbox"]:checked.copyToMineCheckbox');
+              if (!newValue && mineCheckedBoxes.length > 0) {
+                // This means that some copy-to-mine are set and we cannot uncheck all acknowledgements.
+                alert("Sorry, we cannot uncheck all to acknowledgement because some are set to copy to yours.");
+                $(this).attr("checked", true);
+              } else {
+              **/
+                $(this).parent().find('div input[type="checkbox"].reviewedCheckbox').each(function() {
+                  $(this).attr("checked", newValue);
+                });
+            };
+          }(repoNum));
+          if (repoData.my_loc) {
+            addedRepo.find('#checkAllCopyToMine').show();
+            addedRepo.find('#checkAllCopyToMine').next().show(); // the <span>
+            addedRepo.find('#checkAllCopyToMine').next().next().show(); // the <br>
+            addedRepo.find('#checkAllCopyToMine').click(function(repoNum) {
+              return function() {
+                var newValue = $(this).attr("checked");
+                /**
+                // These check whether it's OK to check/uncheck all.
+                var allAckBoxes = $('#repo_' + repoNum + ' input[type="checkbox"].reviewedCheckbox');
+                var ackCheckedBoxes = $('#repo_' + repoNum + ' input[type="checkbox"]:checked.reviewedCheckbox');
+                if (newValue && ackCheckedBoxes.length < allAckBoxes.length) {
+                  // This means that some acknowledgements are not set and we cannot check all copies.
+                  alert("Sorry, we cannot check all to copy because some are not set to acknowledge.");
+                  $(this).attr("checked", false);
+                } else {
+                **/
+                  $(this).parent().find('div input[type="checkbox"].copyToMineCheckbox').each(function() {
+                    $(this).attr("checked", newValue);
+                  });
+              };
+            }(repoNum));
+          }
           
           diffTemplate = addedRepo.find('#diff_');
           
@@ -406,6 +451,9 @@ function initializeDisplay() {
               .attr("repoName", repoName)
               .attr("path", diffSet.path)
               .attr("previousPath", diffSet.target_path_previous_version);
+            if (repoData.my_loc) {
+              addedDiff.find("#copyToMine_").attr("id", "copyToMine_" + diffNum).show();
+            }
             
             addedDiff.find("#diffPath_").attr("id", "diffPath_" + diffNum).html(diffSet.path);
             if (diffSet.source_type == null) {
@@ -451,9 +499,10 @@ function initializeDisplay() {
               }).show();
             }
           }
+          diffTemplate.remove();
+          
         }
-        
-        // consider removing the template HTML (so that select-all functions don't give problems, eg. checkAll checkboxes)
+        // end of incoming-review actions
         
         
         // fire off a check for any info from the tree-of-interest
@@ -588,13 +637,17 @@ $(document).ready(function() {
         <a id="seeRepoAnchor" href="repositories.html#repoAnchor_">(see library)</a>
         <br/>
         <br/>
-        Select the items and then 'Acknowledge' to accept.
+        Select the items and then 'Accept'.
         <br/>
-        <input type="checkbox" id="checkAll">check/uncheck all
+        <input type="checkbox" id="checkAllAck"> Acknowledge
         <br/>
+        <input type="checkbox" style="visibility:hidden;"><!-- just to get spacing right -->
+        <input type="checkbox" id="checkAllCopyToMine" style="display:none;"><span style="display:none;">Import to My Copy</span>
+        <br style="display:none;"/>
         <br/>
         <div id="diff_" style="display:none;">
-          <input type="checkbox" id="reviewed_" repoId="_" repoName="_" path="_" previousPath="_">
+          <input type="checkbox" id="reviewed_" class="reviewedCheckbox" repoId="_" repoName="_" path="_" previousPath="_">
+          <input type="checkbox" id="copyToMine_" class="copyToMineCheckbox" style="display:none;">
           <span id="diffPath_">path</span>
           <span id="newItem" style="display:none;">(new)</span>
           <span id="removed" style="display:none;">(removed)</span>
@@ -609,7 +662,7 @@ $(document).ready(function() {
   
   <div id="sideActionWrapper">
     <div id="sideAction">
-      <a href="#" onclick="javascript: markInAccepted(); return false;">Acknowledge</a>
+      <a href="#" onclick="javascript: markInAccepted(); return false;">Accept</a>
     </div>
   </div>
 
