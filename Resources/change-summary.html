@@ -395,21 +395,23 @@ function initializeDisplay() {
           numChanges = repoDiffCount + " " + (repoDiffCount == 1 ? "change" : "changes");
           addedRepo.find("#repoDiffCount_").attr("id", "repoDiffCount_" + repoNum).html("(" + numChanges + ")");
           addedRepo.find("#seeRepoAnchor").attr("href", "repositories.html#repoAnchor_" + repoId);
+
+          // attach functions to the checkboxes
           addedRepo.find('#checkAllAck').click(function(repoNum) {
             return function() {
               var newValue = $(this).attr("checked");
-              /**
+
               // These check whether it's OK to check/uncheck all.
               var mineCheckedBoxes = $('#repo_' + repoNum + ' input[type="checkbox"]:checked.copyToMineCheckbox');
               if (!newValue && mineCheckedBoxes.length > 0) {
                 // This means that some copy-to-mine are set and we cannot uncheck all acknowledgements.
-                alert("Sorry, we cannot uncheck all to acknowledgement because some are set to copy to yours.");
+                alert("Sorry, you cannot uncheck all to acknowledgement because some are checked to copy to yours.");
                 $(this).attr("checked", true);
               } else {
-              **/
                 $(this).parent().find('div input[type="checkbox"].reviewedCheckbox').each(function() {
                   $(this).attr("checked", newValue);
                 });
+              }
             };
           }(repoNum));
           if (repoData.my_loc) {
@@ -419,19 +421,18 @@ function initializeDisplay() {
             addedRepo.find('#checkAllCopyToMine').click(function(repoNum) {
               return function() {
                 var newValue = $(this).attr("checked");
-                /**
                 // These check whether it's OK to check/uncheck all.
                 var allAckBoxes = $('#repo_' + repoNum + ' input[type="checkbox"].reviewedCheckbox');
                 var ackCheckedBoxes = $('#repo_' + repoNum + ' input[type="checkbox"]:checked.reviewedCheckbox');
                 if (newValue && ackCheckedBoxes.length < allAckBoxes.length) {
                   // This means that some acknowledgements are not set and we cannot check all copies.
-                  alert("Sorry, we cannot check all to copy because some are not set to acknowledge.");
+                  alert("Sorry, you cannot check all to copy because some are not checked to acknowledge.");
                   $(this).attr("checked", false);
                 } else {
-                **/
                   $(this).parent().find('div input[type="checkbox"].copyToMineCheckbox').each(function() {
                     $(this).attr("checked", newValue);
                   });
+                }
               };
             }(repoNum));
           }
@@ -499,8 +500,27 @@ function initializeDisplay() {
               }).show();
             }
           }
+
           diffTemplate.remove();
           
+          // attach functions to the diff checkboxes
+          if (repoData.my_loc) {
+            addedRepo.find('.reviewedCheckbox').click(function() {
+              newValue = $(this).attr("checked");
+              if (!newValue && $(this).next().attr("checked")) {
+                alert("Sorry, you cannot uncheck this because it is checked to copy to yours.");
+                $(this).attr("checked", true);
+              }
+            });
+            addedRepo.find('.copyToMineCheckbox').click(function() {
+              newValue = $(this).attr("checked");
+              if (newValue && ! $(this).prev().attr("checked")) {
+                alert("Sorry, you cannot check this because it is not checked to acknowledge.");
+                $(this).attr("checked", false);
+              }
+            });
+          }
+
         }
         // end of incoming-review actions
         
