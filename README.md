@@ -5,8 +5,6 @@ Use this together with the file-sharing program of your choice to
 share files in more of a publish/subscribe model (and maintain your
 own changes separately), keeping your own organization of files.
 
-Get the application on various platforms here: http://p2pdocs.familyhistories.info/download
-
 See general updates on this project here: http://p2pdocs.familyhistories.info
 
 Currently the application lets you monitor the files that are changing,
